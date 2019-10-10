@@ -9,3 +9,6 @@ class Resolved(models.Model):
     diskmajoraxis = models.CharField(max_length=10)
     diskdiameter = models.CharField(max_length=10)
     inclination = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.object + ' - ' + self.category
