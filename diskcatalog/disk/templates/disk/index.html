@@ -1,5 +1,9 @@
-<ul>
-  {% for disks in all_resolved %}
-  <li><a href="/disk/{{ disks.id }}/">{{ disks.object }}</a></li>
-  {% endfor %}
-</ul>
+{% if all_resolved %}
+    <ul>
+      {% for disks in all_resolved %}
+      <li><a href="/disk/{{ disks.id }}/">{{ disks.object }}</a></li>
+      {% endfor %}
+    </ul>
+{% else %}
+    <h3>No disks!</h3>
+{% endif %}
