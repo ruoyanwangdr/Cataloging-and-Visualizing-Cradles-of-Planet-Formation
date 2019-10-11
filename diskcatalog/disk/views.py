@@ -7,9 +7,9 @@ def index(request):
     all_resolved = Resolved.objects.all()
     template = loader.get_template('disk/index.html')
     context = {
-        'all_resolved' = all_resolved,
+        'all_resolved' : all_resolved,
     }
-    return HttpResponse(template, render(context, request))
+    return HttpResponse(template.render(context, request))
     #html = ''
     #for disks in all_resolved:
     #    url = '/disk/' + str(disks.id) + '/'

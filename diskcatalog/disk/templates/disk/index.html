@@ -1,5 +1,5 @@
 <ul>
   {% for disks in all_resolved %}
-  <li><a href="disk/{{ disks.id }}/">Object Here</a></li>
+  <li><a href="/disk/{{ disks.id }}/">{{ disks.object }}</a></li>
   {% endfor %}
 </ul>
