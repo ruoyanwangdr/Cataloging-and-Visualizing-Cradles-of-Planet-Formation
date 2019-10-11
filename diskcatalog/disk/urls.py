@@ -6,5 +6,5 @@ urlpatterns = [
     path('', views.index, name='index'),
 
     # /disk/<int:id>/
-    path('<int:resolved_id>', views.detail, name='detail'),
+    path('<int:resolved_id>/', views.detail, name='detail'),
 ]
