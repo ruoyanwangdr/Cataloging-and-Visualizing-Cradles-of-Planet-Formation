@@ -36,6 +36,15 @@
           {% for disk in disk_list %}
             <tr>
               <th>{{disk.object}}</th>
+              <th>{{disk.category}}</th>
+              <th>{{disk.spec_type}}</th>
+              <th>{{disk.r_band}}</th>
+              <th>{{disk.distance}}</th>
+              <th>{{disk.disk_major_axis}}</th>
+              <th>{{disk.disk_diameter}}</th>
+              <th>{{disk.inclination}}</th>
+              <th>{{disk.resolution_elements_across}}</th>
+              <th>{{disk.at_ref_wavelength}}</th>
             </tr>
           {% endfor %}
         </tbody>
