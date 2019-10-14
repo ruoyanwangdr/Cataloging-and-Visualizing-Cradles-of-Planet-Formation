@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+  <div class="container">
+    <h2>Catalog of Circumstellar Disks </h2>
+    <p>Table created using <a href="https://datatables.net/" target="_blank">DataTables</a> and <a href="https://www.djangoproject.com/" target="_blank">Django</a>. Table referenced <a href="https://webdisks.jpl.nasa.gov/index.php" target="_blank">NASA disk catalogs</a>.</p>
+    <!-- <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p> -->
+  </div>
+</div>
+
+<div class="container">
+  <!-- Example row of columns -->
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Resolved disks</h2>
+      <table id="myTable2" class="table">
+        <thead>
+          <tr>
+            <th>Object</th>
+            <th>Category</th>
+            <th>Spec Type</th>
+            <th>R band(mag)</th>
+            <th>Distance(pc)</th>
+            <th>Disk Major Axis "</th>
+            <th>Disk Diameter(AU)</th>
+            <th>Inclination(degrees)</th>
+            <th>Resolution elements across</th>
+            <th>At ref. wavelength(microns)</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+
+{% endblock content %}
