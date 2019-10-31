@@ -8,6 +8,8 @@
 </head>
 <body>
 
+<script src="js/three.js"></script>
+<script src="js/three.min.js"></script>
 <script src="js/Three58.js"></script>
 <script src="js/Detector.js"></script>
 <script src="js/Stats.js"></script>
@@ -15,13 +17,13 @@
 <script src="js/THREEx.KeyboardState.js"></script>
 <script src="js/THREEx.FullScreen.js"></script>
 <script src="js/THREEx.WindowResize.js"></script>
+<script src="https://threejs.org/build/three.module.js"></script>
 
 <!-- Constructive Solid Geometry library by ChandlerPrall -->
 <script src="js/ThreeCSG.js"></script>
 
 
 <!-- jQuery code to display an information button and box when clicked. -->
-<!--
 <script src="js/jquery-1.9.1.js"></script>
 <script src="js/jquery-ui.js"></script>
 <link rel=stylesheet href="css/jquery-ui.css" />
@@ -29,10 +31,10 @@
 <script src="js/info.js"></script>
 <div id="infoButton"></div>
 <div id="infoBox" title="Demo Information">
-This three.js demo is part of a collection at
-<a href="http://stemkoski.github.io/Three.js/">http://stemkoski.github.io/Three.js/</a>
+This three.js model is part of my research project at
+<a href="https://github.com/rywjhzd/Cataloging-and-Visualising-Cradles-of-Planet-Formation/tree/master/diskmodel">https://github.com/rywjhzd/Cataloging-and-Visualising-Cradles-of-Planet-Formation/tree/master/diskmodel</a>
 </div>
--->
+
 
 <!-- ------------------------------------------------------------ -->
 
@@ -100,7 +102,7 @@ function init()
 	var floor = new THREE.Mesh(floorGeometry, floorMaterial);
 	floor.position.y = -0.5;
 	floor.rotation.x = Math.PI / 2;
-	scene.add(floor);
+	//scene.add(floor);
 	// SKYBOX/FOG
 	var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
 	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
@@ -113,21 +115,30 @@ function init()
 
 	var materialNormal = new THREE.MeshNormalMaterial();
 
-	var cubeGeometry = new THREE.CubeGeometry( 100, 100, 100, 1, 1, 1 );
+	var cubeGeometry = new THREE.CubeGeometry( 150, 10, 100, 10, 10, 10 );
 	var cubeMesh = new THREE.Mesh( cubeGeometry );
 	var cubeBSP = new ThreeBSP( cubeMesh );
+	cubeMesh.position.set(-180, 60, 0);
+	scene.add( cubeMesh )
 
-	var sphereGeometry = new THREE.SphereGeometry( 60, 32, 2 );
+	var sphereGeometry = new THREE.SphereGeometry( 60, 32, 32 );
 	var sphereMesh = new THREE.Mesh( sphereGeometry );
 	var sphereBSP = new ThreeBSP( sphereMesh );
-	//sphereBSP.position.set(180, 60, 0);
-	//scene.add( sphereBSP );
+	sphereMesh.position.set(180, 60, 0);
+	scene.add( sphereMesh );
 
 	// Example #1 - Cube subtract Sphere
-	var newBSP = cubeBSP.subtract( sphereBSP );
-	var newMesh = newBSP.toMesh( materialNormal );
-	newMesh.position.set(0, 60, 0);
-	scene.add( newMesh );
+	//var newBSP = cubeBSP.subtract( sphereBSP );
+	//var newMesh = newBSP.toMesh( materialNormal );
+	//newMesh.position.set(0, 60, 0);
+	//scene.add( newMesh );
+
+	var cylinderGeometry = new THREE.CylinderGeometry( 60, 60, 10, 32 );
+	var cylinderMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+	var cylinderMesh = new THREE.Mesh( cylinderGeometry );
+	var cylinderBSP = new ThreeBSP( cylinderMesh );
+	cylinderMesh.position.set(0, 60, 0);
+	scene.add( cylinderMesh );
 
 	/*
 	// Example #2 - Sphere subtract Cube
