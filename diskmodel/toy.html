@@ -18,12 +18,15 @@
 <script src="js/THREEx.FullScreen.js"></script>
 <script src="js/THREEx.WindowResize.js"></script>
 <script src="https://threejs.org/build/three.module.js"></script>
+<script src="https://threejs.org/build/three.min.js"></script>
+<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
 <!-- Constructive Solid Geometry library by ChandlerPrall -->
 <script src="js/ThreeCSG.js"></script>
 
 
 <!-- jQuery code to display an information button and box when clicked. -->
+<!--
 <script src="js/jquery-1.9.1.js"></script>
 <script src="js/jquery-ui.js"></script>
 <link rel=stylesheet href="css/jquery-ui.css" />
@@ -34,7 +37,7 @@
 This three.js model is part of my research project at
 <a href="https://github.com/rywjhzd/Cataloging-and-Visualising-Cradles-of-Planet-Formation/tree/master/diskmodel">https://github.com/rywjhzd/Cataloging-and-Visualising-Cradles-of-Planet-Formation/tree/master/diskmodel</a>
 </div>
-
+-->
 
 <!-- ------------------------------------------------------------ -->
 
@@ -94,7 +97,7 @@ function init()
 	light.position.set(0,250,0);
 	scene.add(light);
 	// FLOOR
-	var floorTexture = new THREE.ImageUtils.loadTexture( 'images/checkerboard.jpg' );
+	var floorTexture = new THREE.TextureLoader().load( 'images/checkerboard.jpg' );
 	floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping;
 	floorTexture.repeat.set( 10, 10 );
 	var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
@@ -115,32 +118,67 @@ function init()
 
 	var materialNormal = new THREE.MeshNormalMaterial();
 
-	var cubeGeometry = new THREE.CubeGeometry( 150, 10, 100, 10, 10, 10 );
+	var cubeGeometry = new THREE.CubeGeometry( 60, 60, 60, 10, 10, 10 );
 	var cubeMesh = new THREE.Mesh( cubeGeometry );
 	var cubeBSP = new ThreeBSP( cubeMesh );
 	cubeMesh.position.set(-180, 60, 0);
 	scene.add( cubeMesh )
 
-	var sphereGeometry = new THREE.SphereGeometry( 60, 32, 32 );
+	var sphereGeometry = new THREE.SphereGeometry( 30, 32, 32 );
 	var sphereMesh = new THREE.Mesh( sphereGeometry );
 	var sphereBSP = new ThreeBSP( sphereMesh );
-	sphereMesh.position.set(180, 60, 0);
+	sphereMesh.position.set(0, 60, 0);
 	scene.add( sphereMesh );
 
-	// Example #1 - Cube subtract Sphere
-	//var newBSP = cubeBSP.subtract( sphereBSP );
-	//var newMesh = newBSP.toMesh( materialNormal );
-	//newMesh.position.set(0, 60, 0);
-	//scene.add( newMesh );
 
-	var cylinderGeometry = new THREE.CylinderGeometry( 60, 60, 10, 32 );
-	var cylinderMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-	var cylinderMesh = new THREE.Mesh( cylinderGeometry );
-	var cylinderBSP = new ThreeBSP( cylinderMesh );
-	cylinderMesh.position.set(0, 60, 0);
-	scene.add( cylinderMesh );
+
+	//var cylinderGeometry = new THREE.CylinderGeometry( 60, 60, 10, 32 );
+	//var cylinderMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+	//var cylinderMesh = new THREE.Mesh( cylinderGeometry );
+	//var cylinderBSP = new ThreeBSP( cylinderMesh );
+	//cylinderMesh.position.set(0, 60, 0);
+	//scene.add( cylinderMesh );
+
+	var outerRadius = 120;
+	var innerRadius = 80;
+	var height = 20;
+
+	var arcShape = new THREE.Shape();
+	arcShape.moveTo(outerRadius * 2, outerRadius);
+	arcShape.absarc(outerRadius, outerRadius, outerRadius, 0, Math.PI * 2, false);
+	var holePath = new THREE.Path();
+	holePath.moveTo(outerRadius + innerRadius, outerRadius);
+	holePath.absarc(outerRadius, outerRadius, innerRadius, 0, Math.PI * 2, true);
+	arcShape.holes.push(holePath);
+
+	var geometry = new THREE.ExtrudeGeometry(arcShape, {
+		amount: height,
+		bevelEnabled: false,
+		steps: 1,
+		curveSegments: 60
+	});
+	geometry.center();
+	geometry.rotateX(Math.PI * -.5);
+	var diskMesh = new THREE.Mesh(geometry, [new THREE.MeshBasicMaterial({
+		color: 0x156289, emissive: 0x072534, flatShading: true
+	}), new THREE.MeshBasicMaterial({
+		color: 0xffffff, transparent: true, opacity: 0.5
+	})]);
+	diskMesh.position.set(0, 60, 0);
+	scene.add( diskMesh );
+
+	var newBSP = cubeBSP.subtract( sphereBSP );
+	var newMesh = newBSP.toMesh( materialNormal );
+	newMesh.position.set(180, 60, 0);
+	scene.add( newMesh );
 
 	/*
+	// Example #1 - Cube subtract Sphere
+	var newBSP = cubeBSP.subtract( sphereBSP );
+	var newMesh = newBSP.toMesh( materialNormal );
+	newMesh.position.set(0, 60, 0);
+	scene.add( newMesh );
+
 	// Example #2 - Sphere subtract Cube
 	var newBSP = sphereBSP.subtract( cubeBSP );
 	var newMesh = newBSP.toMesh( materialNormal );
