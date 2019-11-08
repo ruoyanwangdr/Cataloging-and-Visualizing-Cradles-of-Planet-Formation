@@ -232,8 +232,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 			if ( event.button === 2 )
 				state = STATE.PAN;
 		}
-		
-		
+
+
 		if ( state === STATE.ROTATE ) {
 
 			//state = STATE.ROTATE;
@@ -263,8 +263,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		event.preventDefault();
 
-		
-		
+
+
 		if ( state === STATE.ROTATE ) {
 
 			rotateEnd.set( event.clientX, event.clientY );
@@ -373,11 +373,11 @@ THREE.OrbitControls = function ( object, domElement ) {
 			case scope.keys.PAN:
 				state = STATE.PAN;
 				break;
-				
+
 		}
 
 	}
-	
+
 	function onKeyUp( event ) {
 
 		switch ( event.keyCode ) {
