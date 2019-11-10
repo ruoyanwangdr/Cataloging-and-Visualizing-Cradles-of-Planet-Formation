@@ -121,8 +121,8 @@ function init()
 
 	var cubeGeometry = new THREE.CubeGeometry( 60, 60, 60, 10, 10, 10 );
 	var cubeMesh = new THREE.Mesh( cubeGeometry );
+	cubeMesh.position.set(30, 0, 0);
 	var cubeBSP = new ThreeBSP( cubeMesh );
-	cubeMesh.position.set(-180, 60, 0);
 	scene.add( cubeMesh )
 
 	// Add a star in the middle
