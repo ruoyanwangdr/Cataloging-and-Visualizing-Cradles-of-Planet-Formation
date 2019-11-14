@@ -35,6 +35,7 @@ After the server is hosted.
 * Put in the username and password. 
 * Click *Disks* and then there should be an *Import* and an *Export* button.
 * Click either and follow the instruction. 
+Note: when importing files, make sure *id* is not duplicated. This column can be edited manually.
 
 ## Display the disk
 toy.html is the model. toy2.html for tests.
