@@ -13,8 +13,8 @@ class Disk(models.Model):
     inclination = models.CharField('inclination', max_length=100, null=True, blank=True)
     #resolution_elements_across = models.CharField('resolution_elements_across', max_length=100, null=True, blank=True)
     #at_ref_wavelength = models.CharField('at_ref_wavelength', max_length=100, null=True, blank=True)
-    references = models.CharField('references', max_length=10, null=True, blank=True)
-    catalog = models.CharField('catalog', max_length=20, null=True, blank=True)
+    references = models.CharField('references', max_length=1000, null=True, blank=True)
+    catalog = models.CharField('catalog', max_length=100, null=True, blank=True)
 
     class Meta:
         ordering = ('object',)
