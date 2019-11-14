@@ -17,7 +17,7 @@ The database is created with Django and DataTables. Disk models make uses of thr
 * Create a virtual environment with Python 3.
 * Activate the virtual environment. 
 * Install the dependencies.
-* Rotate the migrations.
+* Migrate the database.
 
 ```
 git clone https://github.com/rywjhzd/Cataloging-and-Visualising-Cradles-of-Planet-Formation.git
