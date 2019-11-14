@@ -1,5 +1,7 @@
 # Cataloging-and-Visualising-Cradles-of-Planet-Formation
 
+## Project description
+
 Circumstellar disks composed of dust and gas are the natural outcome of stellar formation. They are the places where planetary systems are formed through a variety of physical processes.
 In the past 5 years we have opened the possibility to observe these disks at high spatial resolution in scattered light. For this purpose we use the largest ground based telescopes in conjucture with new extreme adaptive optics instruments in the optical and near infrared. These new observations have revealed a plethora of features in these circumstellar disks from large cavities, to small rings and gaps and even huge spiral arms. All of these features are thought to be signposts of ongoing planet formation.
 
@@ -9,7 +11,7 @@ The goal is on the one hand to design an efficient tool for researchers, which c
 A research blog to track my work done can be found [here](https://rywjhzd.github.io/year-archive/). 
 The database is created with Django and DataTables. Disk models make uses of threejs.org and Lee Stemkoski's three.js examples. 
 
-## Run the database.
+## Run the database
 
 * Clone this repository. 
 * Create a virtual environment with Python 3.
@@ -27,7 +29,7 @@ python contrib/env_gen.py
 python manage.py migrate
 
 ```
-## Disk models display.
+## Display disk models
 
 ```
 cd Cataloging-and-Visualising-Cradles-of-Planet-Formation/diskmodel
