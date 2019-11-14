@@ -16,7 +16,7 @@
 <div class="container">
   <div class="row">
     <div class="col-md-6">
-      <table id="diskTable" class="ui celled table" style="width:100%">
+      <table id="diskTable" class="mdl-data-table" style="width:100%">
         <thead>
           <tr>
             <th>Object</th>
@@ -62,7 +62,14 @@
 {% block js%}
   <script>
     $(document).ready(function() {
-        $('#diskTable').DataTable();
+        $('#diskTable').DataTable( {
+            columnDefs: [
+                {
+                    targets: [ 0, 1, 2 ],
+                    className: 'mdl-data-table__cell--non-numeric'
+                }
+            ]
+        } );
     } );
   </script>
 {% endblock js%}
