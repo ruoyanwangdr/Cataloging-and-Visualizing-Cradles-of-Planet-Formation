@@ -7,3 +7,30 @@ Recently the first VLT/SPHERE survey of such disks came to a conclusion. At the 
 The goal is on the one hand to design an efficient tool for researchers, which can be easily queried, maintained and updated, and on the other hand a visualisation experience for a general audience. One possibility that can be explored would be the (simplified) 3d reconstruction of circumstellar disks from 2d data.
 
 A research blog to track my work done can be found [here](https://rywjhzd.github.io/year-archive/). 
+The database is created with Django and DataTables. Disk models make uses of threejs.org and Lee Stemkoski's three.js examples. 
+
+## Run the database.
+
+* Clone this repository. 
+* Create a virtual environment with Python 3.
+* Activate the virtual environment. 
+* Install the dependencies.
+* Rotate the migrations.
+
+```
+git clone https://github.com/rywjhzd/Cataloging-and-Visualising-Cradles-of-Planet-Formation.git
+cd Cataloging-and-Visualising-Cradles-of-Planet-Formation
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python contrib/env_gen.py
+python manage.py migrate
+
+```
+## Disk models display.
+
+```
+cd Cataloging-and-Visualising-Cradles-of-Planet-Formation/diskmodel
+open toy.html
+
+```
