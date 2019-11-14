@@ -33,7 +33,7 @@ python manage.py runserver
 After the server is hosted. 
 * Go to http://localhost:8000/admin/. 
 * Put in the username and password. 
-* Click ####Disks#### and then there should be an ####Import#### and an ####Export#### button.
+* Click *Disks* and then there should be an *Import* and an *Export* button.
 * Click either and follow the instruction. 
 
 ## Display the disk
