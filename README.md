@@ -27,12 +27,10 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python contrib/env_gen.py
 python manage.py migrate
-
 ```
 ## Display disk models
-
+toy2.html for tests.
 ```
 cd Cataloging-and-Visualising-Cradles-of-Planet-Formation/diskmodel
 open toy.html
-
 ```
