@@ -27,7 +27,15 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python contrib/env_gen.py
 python manage.py migrate
+python manage.py runserver
 ```
+## Add data
+After the server is hosted. 
+* Go to http://localhost:8000/admin/. 
+* Put in the username and password. 
+* Click ####Disks#### and then there should be an ####Import#### and an ####Export#### button.
+* Click either and follow the instruction. 
+
 ## Display the disk
 toy.html is the model. toy2.html for tests.
 ```
