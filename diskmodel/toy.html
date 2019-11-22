@@ -121,25 +121,36 @@ function init()
 
 	var cubeGeometry = new THREE.CubeGeometry( 60, 60, 60, 10, 10, 10 );
 	var cubeMesh = new THREE.Mesh( cubeGeometry );
-	cubeMesh.position.set(30, 0, 0);
-	var cubeBSP = new ThreeBSP( cubeMesh );
+	cubeMesh.position.set(240, 30, 0);
 	scene.add( cubeMesh )
-
-	// Add a star in the middle
-	var star = new THREE.SphereGeometry( 30, 32, 32 );
-	var starMesh = new THREE.Mesh( star );
-	var starBSP = new ThreeBSP( starMesh );
-	starMesh.position.set(0, 60, 0);
-	scene.add( starMesh );
+	var cubeBSP = new ThreeBSP( cubeMesh );
 
 	//
+	var sphere_top = new THREE.SphereGeometry( 50, 64, 64 );
+	var sphere_top_Mesh = new THREE.Mesh( sphere_top );
+	sphere_top_Mesh.position.set(240, 80, 0);
+	scene.add( sphere_top_Mesh );
+	var sphere_top_BSP = new ThreeBSP( sphere_top_Mesh );
 
-	var sphereGeometry = new THREE.SphereGeometry( 35, 32, 32 );
-	var sphereMesh = new THREE.Mesh( sphereGeometry );
-	var sphereBSP = new ThreeBSP( sphereMesh );
-	sphereMesh.position.set(180, 60, 0);
-	scene.add( sphereMesh );
+	//
+	var cut_top = cubeBSP.subtract( sphere_top_BSP );
+	var cut_top_Mesh = cut_top.toMesh( materialNormal );
+	//cut_top_Mesh.position.set(-240, 60, 0);
+	//scene.add( cut_top_Mesh );
+	var cut_top_BSP = new ThreeBSP ( cut_top_Mesh );
 
+	//
+	var sphere_bottom = new THREE.SphereGeometry(50, 64, 64);
+	var sphere_bottom_Mesh = new THREE.Mesh(sphere_bottom);
+	sphere_bottom_Mesh.position.set(240, -20, 0);
+	scene.add( sphere_bottom_Mesh );
+	var sphere_bottom_BSP = new ThreeBSP(sphere_bottom_Mesh);
+
+	//
+	var cut_bottom = cut_top_BSP.subtract(sphere_bottom_BSP);
+	var cut_bottom_Mesh = cut_bottom.toMesh(materialNormal);
+	cut_bottom_Mesh.position.set(-240, 60, 0);
+	scene.add( cut_bottom_Mesh );
 
 	//var cylinderGeometry = new THREE.CylinderGeometry( 60, 60, 10, 32 );
 	//var cylinderMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00} );
@@ -160,8 +171,8 @@ function init()
 	texture2.repeat.set(0.1, 0.1);
 	*/
 
-	var outerRadius = 120;
-	var innerRadius = 80;
+	var outerRadius = 180;
+	var innerRadius = 120;
 	var height = 20;
 
 	var arcShape = new THREE.Shape();
@@ -185,15 +196,16 @@ function init()
 	}), new THREE.MeshBasicMaterial({
 		color: 0xffffff, transparent: true, opacity: 0.5 //map: texture2
 	})]);
-	diskMesh.position.set(0, 60, 0);
+	diskMesh.position.set(0, 0, 0);
 	scene.add( diskMesh );
 
-	//
 
-	var newBSP = cubeBSP.intersect( sphereBSP );
-	var newMesh = newBSP.toMesh( materialNormal );
-	newMesh.position.set(0, 180, 0);
-	scene.add( newMesh );
+	// Add a star in the middle
+	var star = new THREE.SphereGeometry( 30, 32, 32 );
+	var starMesh = new THREE.Mesh( star );
+	starMesh.position.set(0, 0, 0);
+	var starBSP = new ThreeBSP( starMesh );
+	scene.add( starMesh );
 
 	/*
 	// Example #1 - Cube subtract Sphere
