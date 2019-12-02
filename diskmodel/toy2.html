@@ -12,6 +12,7 @@
 
 		</script>
 		<script>
+			// Camera and background stuff
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
@@ -21,7 +22,7 @@
 
 			var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-			//create an array of points
+			// Create an array of points
 			var points = [];
 			//for ( var i = 0; i < 10; i ++ ) {
 			//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
@@ -37,19 +38,18 @@
 			points.push( new THREE.Vector3( 6, -0.75, 0 ) );
 			points.push( new THREE.Vector3( 4, -0.5, 0 ) );
 
-			//then make a spline curve to interpolate the curve between the points
+			// then make a spline curve to interpolate the curve between the points
 			curve = new THREE.CatmullRomCurve3(points);
-			//then specify the number of points on that curve and make it into an array of points
+			// then specify the number of points on that curve and make it into an array of points
 			var numPoints = 50;
 			var splinePoints = curve.getPoints(numPoints);
 
-			//make a new lathe geometry out of of the array of points you just created
+			// Make a new lathe geometry out of of the array of points you just created
 			//var geometry = new THREE.LatheGeometry( splinePoints,10,0,Math.PI);
 			var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
-
 			var material = new THREE.MeshNormalMaterial({opacity : 1.0,
-				transparent: true, side: THREE.DoubleSide});
-
+				transparent: true,
+				side: THREE.DoubleSide});
 			var disk = new THREE.Mesh( geometry, material );
 
 			disk.rotation.x = - Math.PI / 2.0 ;
@@ -62,7 +62,7 @@
 			//var starBSP = new ThreeBSP( starMesh );
 			scene.add( starMesh );
 
-			//Create a closed wavey loop
+			// Create a closed wavey loop to see the shape
 			var points = curve.getPoints( 50 );
 			var geometry = new THREE.BufferGeometry().setFromPoints( points );
 
@@ -73,8 +73,7 @@
 			curveObject.position.set(20, 0, 0)
 			scene.add(curveObject)
 
-
-			//controls.update() must be called after any manual changes to the camera's transform
+			// controls.update() must be called after any manual changes to the camera's transform
 			camera.position.set( 0, 0, 70 );
 			//camera.position.z = 70;
 			controls.update();
