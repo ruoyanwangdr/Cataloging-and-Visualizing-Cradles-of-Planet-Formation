@@ -18,6 +18,7 @@ The database is created with Django and DataTables. Disk models make uses of thr
 * Activate the virtual environment. 
 * Install the dependencies.
 * Migrate the database.
+* Load http://localhost:8000/ to access the database. 
 
 ```
 git clone https://github.com/rywjhzd/Cataloging-and-Visualising-Cradles-of-Planet-Formation.git
@@ -29,9 +30,9 @@ python contrib/env_gen.py
 python manage.py migrate
 python manage.py runserver
 ```
-## Add data
+## Data
 After the server is hosted. 
-* Go to http://localhost:8000/admin/. 
+* Load http://localhost:8000/admin/ to the administration page. 
 * Put in the username and password. 
 * Click *Disks* and then there should be an *Import* and an *Export* button.
 * Click either and follow the instruction. 
