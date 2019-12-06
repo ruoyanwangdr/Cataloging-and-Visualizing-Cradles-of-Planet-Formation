@@ -39,8 +39,8 @@ After the server is hosted.
 Note: when importing files, make sure *id* is not duplicated. This column can be edited manually.
 
 ## Display the disk
-toy.html is the model. toy2.html for tests.
+disk_model.html contains the model and disk_model_test.html is to test scripts.
 ```
 cd Cataloging-and-Visualising-Cradles-of-Planet-Formation/diskmodel
-open toy.html
+open disk_model.html
 ```
