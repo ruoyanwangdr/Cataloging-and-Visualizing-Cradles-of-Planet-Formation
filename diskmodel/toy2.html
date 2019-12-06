@@ -8,35 +8,111 @@
 	</head>
 	<body>
 		<script src="js/three.js"></script>
-		<script src="js/controls/OrbitControls.js">
-
-		</script>
+		<script src="js/controls/OrbitControls.js"></script>
 		<script>
-			// Camera and background stuff
+			///////////////////////////
+			// Camera and Background //
+			///////////////////////////
+
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.shadowMap.enabled = true;
+
+			renderer.shadowMap.type = THREE.BasicShadowMap;
 			document.body.appendChild( renderer.domElement );
 
 			var scene = new THREE.Scene();
+			scene.add( new THREE.AmbientLight( 0x111122 ) );
 			var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 10000 );
-
+			var pointLight, pointLight2;
 			var controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+			// controls.update() must be called after any manual changes to the camera's transform
+			camera.position.set( 0, 0, 70 );
+			//camera.position.z = 70;
+			controls.update();
+
+			//////////////////
+			// Polarization //
+			//////////////////
+
+			// Texture
+			function generateTexture() {
+				var canvas = document.createElement( 'canvas' );
+				canvas.width = 2;
+				canvas.height = 2;
+				var context = canvas.getContext( '2d' );
+				context.fillStyle = 'white';
+				context.fillRect( 0, 1, 2, 1 );
+				return canvas;
+			}
+
+			// Shadow light from the light source at center
+			function createLight( color ) {
+								var intensity = 5;
+
+								var pointLight = new THREE.PointLight( color, intensity, 20 );
+								pointLight.castShadow = true;
+								pointLight.shadow.camera.near = .0001;
+								pointLight.shadow.camera.far = 6000;
+								pointLight.shadow.bias = - 0.005; // reduces self-shadowing on double-sided objects
+
+								var geometry = new THREE.SphereBufferGeometry( 0.3, 12, 6 );
+								var material = new THREE.MeshBasicMaterial( { color: color } );
+								material.color.multiplyScalar( intensity );
+								var sphere = new THREE.Mesh( geometry, material );
+								pointLight.add( sphere );
+
+								var texture = new THREE.CanvasTexture( generateTexture() );
+								texture.magFilter = THREE.NearestFilter;
+								texture.wrapT = THREE.RepeatWrapping;
+								texture.wrapS = THREE.RepeatWrapping;
+								texture.repeat.set( 1, 4.5 );
+
+								var geometry = new THREE.SphereBufferGeometry( 2, 32, 8 );
+								var material = new THREE.MeshPhongMaterial( {
+									side: THREE.DoubleSide,
+									alphaTest: 0.5
+								} );
+								var sphere = new THREE.Mesh( geometry, material );
+								sphere.castShadow = true;
+								sphere.receiveShadow = true;
+								pointLight.add( sphere );
+
+								// custom distance material
+								var distanceMaterial = new THREE.MeshDistanceMaterial( {
+									alphaMap: material.alphaMap,
+									alphaTest: material.alphaTest
+								} );
+								sphere.customDistanceMaterial = distanceMaterial;
+								return pointLight;
+			}
+
+			pointLight = createLight( 0x0088ff );
+			scene.add( pointLight );
+			//pointLight2 = createLight( 0xff8888 );
+			//scene.add( pointLight2 );
+
+			//////////
+			// Disk //
+			//////////
 
 			// Create an array of points
 			var points = [];
 			//for ( var i = 0; i < 10; i ++ ) {
 			//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
-			points.push( new THREE.Vector3( 4, 0.5, 0 ) );
-			points.push( new THREE.Vector3( 6, 0.75, 0 ) );
-			points.push( new THREE.Vector3( 8, 1, 0 ) );
-			points.push( new THREE.Vector3( 10, 1.5, 0 ) );
-			points.push( new THREE.Vector3( 13, 3, 0 ) );
-			points.push( new THREE.Vector3( 13, 0, 0 ) );
-			points.push( new THREE.Vector3( 13, -3, 0 ) );
-			points.push( new THREE.Vector3( 10, -1.5, 0 ) );
+			points.push( new THREE.Vector3( 5, -0.1, 0 ) );
+			points.push( new THREE.Vector3( 6, -0.15, 0 ) );
 			points.push( new THREE.Vector3( 8, -1, 0 ) );
-			points.push( new THREE.Vector3( 6, -0.75, 0 ) );
-			points.push( new THREE.Vector3( 4, -0.5, 0 ) );
+			points.push( new THREE.Vector3( 10, -1.5, 0 ) );
+			points.push( new THREE.Vector3( 13, -3, 0 ) );
+			points.push( new THREE.Vector3( 13.4, 0, 0 ) );
+			points.push( new THREE.Vector3( 13, 3, 0 ) );
+			points.push( new THREE.Vector3( 10, 1.5, 0 ) );
+			points.push( new THREE.Vector3( 8, 1, 0 ) );
+			points.push( new THREE.Vector3( 6, 0.15, 0 ) );
+			points.push( new THREE.Vector3( 5, 0.1, 0 ) );
+			points.push( new THREE.Vector3( 5, -0.1, 0 ) );
 
 			// then make a spline curve to interpolate the curve between the points
 			curve = new THREE.CatmullRomCurve3(points);
@@ -44,23 +120,32 @@
 			var numPoints = 50;
 			var splinePoints = curve.getPoints(numPoints);
 
-			// Make a new lathe geometry out of of the array of points you just created
+			// Make a new lathe geometry out of of the array of points just created
 			//var geometry = new THREE.LatheGeometry( splinePoints,10,0,Math.PI);
 			var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
-			var material = new THREE.MeshNormalMaterial({opacity : 1.0,
-				transparent: true,
-				side: THREE.DoubleSide});
+			//geometry.scale(-1,1,1);
+			var material = new THREE.MeshPhongMaterial( {
+					color: 0xa0adaf,
+					shininess: 10,
+					specular: 0x111111,
+					//side: THREE.BackSide
+				} );
+			//var material = new THREE.MeshNormalMaterial({opacity : 0.5,
+			//	transparent: false,
+			//	wireframe: false,
+			//	side: THREE.DoubleSide});
 			var disk = new THREE.Mesh( geometry, material );
 
-			disk.rotation.x = - Math.PI / 2.0 ;
-			scene.add( disk );
+			helper = new THREE.FaceNormalsHelper( disk, 2, 0x00ff00, 1 );
 
-			// Add a star in the middle
-			var star = new THREE.SphereGeometry( 1, 32, 32 );
-			var starMesh = new THREE.Mesh( star, material );
-			starMesh.position.set(0, 0, 0);
-			//var starBSP = new ThreeBSP( starMesh );
-			scene.add( starMesh );
+			//disk.rotation.x = - Math.PI / 2.0 ;
+			//helper.rotation.x = - Math.PI / 2.0 ;
+			scene.add( disk );
+			//scene.add( helper );
+
+			///////////////////
+			// Shape display //
+			///////////////////
 
 			// Create a closed wavey loop to see the shape
 			var points = curve.getPoints( 50 );
@@ -73,10 +158,9 @@
 			curveObject.position.set(20, 0, 0)
 			scene.add(curveObject)
 
-			// controls.update() must be called after any manual changes to the camera's transform
-			camera.position.set( 0, 0, 70 );
-			//camera.position.z = 70;
-			controls.update();
+			/////////////
+			// Animate //
+			/////////////
 
 			var animate = function () {
 				requestAnimationFrame( animate );
