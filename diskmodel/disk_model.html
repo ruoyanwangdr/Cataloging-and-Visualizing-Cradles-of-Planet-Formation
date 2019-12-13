@@ -32,9 +32,9 @@
 			//camera.position.z = 70;
 			controls.update();
 
-			//////////////////
-			// Polarization //
-			//////////////////
+			///////////
+			// Light //
+			///////////
 
 			// Texture
 			function generateTexture() {
@@ -75,8 +75,8 @@
 									alphaTest: 0.5
 								} );
 								var sphere = new THREE.Mesh( geometry, material );
-								sphere.castShadow = true;
-								sphere.receiveShadow = true;
+								sphere.castShadow = false;
+								sphere.receiveShadow = false;
 								pointLight.add( sphere );
 
 								// custom distance material
@@ -88,10 +88,9 @@
 								return pointLight;
 			}
 
-			pointLight = createLight( 0x0088ff );
+			var pointLight = createLight( 0x0088ff );
 			scene.add( pointLight );
-			//pointLight2 = createLight( 0xff8888 );
-			//scene.add( pointLight2 );
+
 
 			//////////
 			// Disk //
@@ -115,7 +114,7 @@
 			points.push( new THREE.Vector3( 5, -0.1, 0 ) );
 
 			// then make a spline curve to interpolate the curve between the points
-			curve = new THREE.CatmullRomCurve3(points);
+			var curve = new THREE.CatmullRomCurve3(points);
 			// then specify the number of points on that curve and make it into an array of points
 			var numPoints = 50;
 			var splinePoints = curve.getPoints(numPoints);
@@ -125,23 +124,60 @@
 			var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
 			//geometry.scale(-1,1,1);
 			var material = new THREE.MeshPhongMaterial( {
-					color: 0xa0adaf,
+					color: #FF8900,
 					shininess: 10,
 					specular: 0x111111,
-					//side: THREE.BackSide
+					side: THREE.DoubleSide,
 				} );
 			//var material = new THREE.MeshNormalMaterial({opacity : 0.5,
 			//	transparent: false,
 			//	wireframe: false,
 			//	side: THREE.DoubleSide});
 			var disk = new THREE.Mesh( geometry, material );
+			disk.receiveShadow = true;
 
-			helper = new THREE.FaceNormalsHelper( disk, 2, 0x00ff00, 1 );
-
-			//disk.rotation.x = - Math.PI / 2.0 ;
+			disk.rotation.x = - Math.PI / 2.0 ;
 			//helper.rotation.x = - Math.PI / 2.0 ;
 			scene.add( disk );
 			//scene.add( helper );
+
+			//////////////////
+			// Polarization //
+			//////////////////
+
+			var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
+
+			var faceCoordinates = geometry.computeFaceNormals();
+			var faceNumber = helper.length;
+
+			var a = new THREE.Vector3( pointLight );
+			var b = new THREE.Vector3( faceCoordinates );
+			var intensityPolar = Math.pow( a.dot( b ), 2 );
+			//pointLight2 = createLight( 0xff8888 );
+			//scene.add( pointLight2 );
+
+			//geometry.computeVertexNormals();
+			//geometry.computeFlatVertexNormals();
+
+			/*
+			var loader = new THREE.FontLoader();
+
+			loader.load( 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+
+				var geometry = new THREE.TextGeometry( 'Hello three.js!', {
+					font: font,
+					size: 80,
+					height: 5,
+					curveSegments: 12,
+					bevelEnabled: true,
+					bevelThickness: 10,
+					bevelSize: 8,
+					bevelOffset: 0,
+					bevelSegments: 5
+				} );
+			} );
+			*/
+
 
 			///////////////////
 			// Shape display //
