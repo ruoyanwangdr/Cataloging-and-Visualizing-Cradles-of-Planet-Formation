@@ -24,6 +24,7 @@
 			var scene = new THREE.Scene();
 			scene.add( new THREE.AmbientLight( 0x111122 ) );
 			var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 10000 );
+			console.log(camera);
 			var pointLight, pointLight2;
 			var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
@@ -48,8 +49,8 @@
 			}
 
 			// Shadow light from the light source at center
-			function createLight( color ) {
-								var intensity = 5;
+			function createLight( color, intensity ) {
+								//var intensity = 5;
 
 								var pointLight = new THREE.PointLight( color, intensity, 20 );
 								pointLight.castShadow = true;
@@ -70,13 +71,14 @@
 								texture.repeat.set( 1, 4.5 );
 
 								var geometry = new THREE.SphereBufferGeometry( 2, 32, 8 );
-								var material = new THREE.MeshPhongMaterial( {
+								var material = new THREE.MeshBasicMaterial( {
+									color: 0xff0000,
 									side: THREE.DoubleSide,
 									alphaTest: 0.5
 								} );
 								var sphere = new THREE.Mesh( geometry, material );
-								sphere.castShadow = false;
-								sphere.receiveShadow = false;
+								sphere.castShadow = true;
+								sphere.receiveShadow = true;
 								pointLight.add( sphere );
 
 								// custom distance material
@@ -88,7 +90,7 @@
 								return pointLight;
 			}
 
-			var pointLight = createLight( 0x0088ff );
+			var pointLight = createLight( 0xffffff, 5 );
 			scene.add( pointLight );
 
 
@@ -123,10 +125,11 @@
 			//var geometry = new THREE.LatheGeometry( splinePoints,10,0,Math.PI);
 			var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
 			//geometry.scale(-1,1,1);
-			var material = new THREE.MeshPhongMaterial( {
-					color: 0xa0adaf,
-					shininess: 10,
-					specular: 0x111111,
+			var material = new THREE.MeshBasicMaterial( {
+					color: 0xffffff,
+					vertexColors: THREE.FaceColors,
+					//shininess: 0,
+					//specular: 0x111111,
 					side: THREE.DoubleSide,
 				} );
 			//var material = new THREE.MeshNormalMaterial({opacity : 0.5,
@@ -138,23 +141,49 @@
 
 			disk.rotation.x = - Math.PI / 2.0 ;
 			//helper.rotation.x = - Math.PI / 2.0 ;
+			//var numberFaceNornal = disk.geometry.faces.length;
+			//console.log(faceNornal);
+			//for (i = 0; i < numberFaceNornal; i++) {
+			//	zVal = disk.geometry.faces[i].normal;
+				//console.log(zVal);
+			//	setcolor = disk.geometry.faces[i].color.setRGB(Math.abs(zVal.x),Math.abs(zVal.y), Math.abs(zVal.z));
+				//console.log(setcolor);
+				//console.log(zVal);
+				//text += cars[i] + "<br>";
+			//}
 			scene.add( disk );
+			//console.log(disk);
 			//scene.add( helper );
 
 			//////////////////
 			// Polarization //
 			//////////////////
 
-			var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
+			//var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
 
-			var faceCoordinates = geometry.computeFaceNormals();
-			var faceNumber = helper.length;
+			//var faceCoordinates = geometry.computeFaceNormals();
+			//var faceNumber = disk.geometry.faces[0].normal;
 
-			var a = new THREE.Vector3( pointLight );
-			var b = new THREE.Vector3( faceCoordinates );
-			var intensityPolar = Math.pow( a.dot( b ), 2 );
+			//var numberFaceNornal = disk.geometry.faces.length;
+			//console.log(faceNornal);
+			//for (i = 0; i < numberFaceNornal; i++) {
+			//	zVal = Math.abs(disk.geometry.faces[i].normal);
+			//	disk.geometry.faces[i].color.setRGB(zVal);
+				//console.log(zVal);
+				//text += cars[i] + "<br>";
+			//}
+
+			//var a = new THREE.Vector3( pointLight );
+			//var b = new THREE.Vector3( faceCoordinates );
+			//var intensityPolar = Math.pow( a.dot( b ), 2 );
 			//pointLight2 = createLight( 0xff8888 );
 			//scene.add( pointLight2 );
+
+			//for (i = 0; i < helper.length; i++) {
+			//	text += cars[i] + "<br>";
+			//}
+			//var pointLight = createLight( 0x0088ff, 5 );
+			//scene.add( pointLight );
 
 			//geometry.computeVertexNormals();
 			//geometry.computeFlatVertexNormals();
@@ -203,6 +232,23 @@
 
 				//lathe.rotation.x += 0.01;
 				//lathe.rotation.y += 0.01;
+
+				var numberFaceNornal = disk.geometry.faces.length;
+				xxx = new THREE.Vector3( 5, -0.1, 0 );
+				//console.log(faceNornal);
+				for (i = 0; i < numberFaceNornal; i++) {
+					zVal = disk.geometry.faces[i].normal;
+					//console.log(zVal);
+					//setcolor = disk.geometry.faces[i].color.setRGB(Math.random(),Math.abs(zVal.y), Math.abs(zVal.z));
+					c = camera.getWorldDirection(xxx);
+					setcolor = disk.geometry.faces[i].color.setRGB(Math.abs(xxx.x), Math.abs(xxx.y), Math.abs(xxx.z));
+
+					//console.log(setcolor);
+					//console.log(zVal);
+					//text += cars[i] + "<br>";
+				}
+				disk.geometry.elementsNeedUpdate = true;
+				console.log(camera.getWorldDirection());
 
 				renderer.render( scene, camera );
 			};
