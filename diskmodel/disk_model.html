@@ -30,7 +30,6 @@
 
 			// controls.update() must be called after any manual changes to the camera's transform
 			camera.position.set( 0, 0, 70 );
-			//camera.position.z = 70;
 			controls.update();
 
 			///////////
@@ -50,8 +49,6 @@
 
 			// Shadow light from the light source at center
 			function createLight( color, intensity, distance ) {
-								//var intensity = 5;
-
 								var pointLight = new THREE.PointLight( color, intensity, distance );
 								pointLight.castShadow = true;
 								pointLight.shadow.camera.near = 0.001;
@@ -119,9 +116,7 @@
 			var splinePoints = curve.getPoints(numPoints);
 
 			// Make a new lathe geometry out of of the array of points just created
-			//var geometry = new THREE.LatheGeometry( splinePoints,10,0,Math.PI);
 			var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
-			//geometry.scale(-1,1,1);
 			var material = new THREE.MeshPhysicalMaterial( {
 					color: 0xffffff,
 					vertexColors: THREE.FaceColors,
@@ -129,15 +124,8 @@
 					//specular: 0x111111,
 					side: THREE.DoubleSide,
 				} );
-			//var material = new THREE.MeshNormalMaterial({opacity : 0.5,
-			//	transparent: false,
-			//	wireframe: false,
-			//	side: THREE.DoubleSide});
 			var disk = new THREE.Mesh( geometry, material );
 			disk.receiveShadow = true;
-			//disk.shadowDarkness = 0.5;
-			//disk.shadowCameraVisible = true;
-
 			disk.rotation.x = - Math.PI / 2.0 ;
 			//helper.rotation.x = - Math.PI / 2.0 ;
 			//var numberFaceNornal = disk.geometry.faces.length;
@@ -172,20 +160,6 @@
 				//text += cars[i] + "<br>";
 			//}
 
-			//var a = new THREE.Vector3( pointLight );
-			//var b = new THREE.Vector3( faceCoordinates );
-			//var intensityPolar = Math.pow( a.dot( b ), 2 );
-			//pointLight2 = createLight( 0xff8888 );
-			//scene.add( pointLight2 );
-
-			//for (i = 0; i < helper.length; i++) {
-			//	text += cars[i] + "<br>";
-			//}
-			//var pointLight = createLight( 0x0088ff, 5 );
-			//scene.add( pointLight );
-
-			//geometry.computeVertexNormals();
-			//geometry.computeFlatVertexNormals();
 
 			/*
 			var loader = new THREE.FontLoader();
@@ -232,7 +206,6 @@
 				var numberFaceNornal = disk.geometry.faces.length;
 				initialVector = new THREE.Vector3( 5, -0.1, 0 );
 				colorVector = camera.getWorldDirection(initialVector);
-				//console.log(faceNornal);
 				for (i = 0; i < numberFaceNornal; i++) {
 					//zVal = disk.geometry.faces[i].normal;
 					//console.log(zVal);
@@ -242,10 +215,6 @@
 						Math.abs(colorVector.y),
 						Math.abs(colorVector.z),
 					);
-
-					//console.log(setcolor);
-					//console.log(zVal);
-					//text += cars[i] + "<br>";
 				}
 				disk.geometry.elementsNeedUpdate = true;
 				//console.log(camera.getWorldDirection());
