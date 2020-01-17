@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>Disk model test</title>
+		<title>CircumstellarDiskModel</title>
 		<style>
 			body { margin: 0; }
 			canvas { width: 100%; height: 100% }
@@ -49,19 +49,27 @@
 			}
 
 			// Shadow light from the light source at center
-			function createLight( color, intensity ) {
+			function createLight( color, intensity, distance ) {
 								//var intensity = 5;
 
-								var pointLight = new THREE.PointLight( color, intensity, 20 );
+								var pointLight = new THREE.PointLight( color, intensity, distance );
 								pointLight.castShadow = true;
-								pointLight.shadow.camera.near = .0001;
+								pointLight.shadow.camera.near = 0.001;
 								pointLight.shadow.camera.far = 6000;
 								pointLight.shadow.bias = - 0.005; // reduces self-shadowing on double-sided objects
 
-								var geometry = new THREE.SphereBufferGeometry( 0.3, 12, 6 );
-								var material = new THREE.MeshBasicMaterial( { color: color } );
+								var geometry = new THREE.SphereBufferGeometry( 2, 32, 8 );
+								var material = new THREE.MeshBasicMaterial( {
+									color: color,
+									side: THREE.DoubleSide,
+									alphaTest: 0.5
+								} );
 								material.color.multiplyScalar( intensity );
 								var sphere = new THREE.Mesh( geometry, material );
+								sphere.castShadow = true;
+								//sphere.receiveShadow = true;
+								//sphere.shadowDarkness = 0.5;
+								//sphere.shadowCameraVisible = true;
 								pointLight.add( sphere );
 
 								var texture = new THREE.CanvasTexture( generateTexture() );
@@ -69,17 +77,6 @@
 								texture.wrapT = THREE.RepeatWrapping;
 								texture.wrapS = THREE.RepeatWrapping;
 								texture.repeat.set( 1, 4.5 );
-
-								var geometry = new THREE.SphereBufferGeometry( 2, 32, 8 );
-								var material = new THREE.MeshBasicMaterial( {
-									color: 0xff0000,
-									side: THREE.DoubleSide,
-									alphaTest: 0.5
-								} );
-								var sphere = new THREE.Mesh( geometry, material );
-								sphere.castShadow = true;
-								sphere.receiveShadow = true;
-								pointLight.add( sphere );
 
 								// custom distance material
 								var distanceMaterial = new THREE.MeshDistanceMaterial( {
@@ -90,7 +87,7 @@
 								return pointLight;
 			}
 
-			var pointLight = createLight( 0xffffff, 5 );
+			var pointLight = createLight( 0xFFffff, 2.	5, 20 );
 			scene.add( pointLight );
 
 
@@ -115,7 +112,7 @@
 			points.push( new THREE.Vector3( 5, 0.1, 0 ) );
 			points.push( new THREE.Vector3( 5, -0.1, 0 ) );
 
-			// then make a spline curve to interpolate the curve between the points
+			// Make a spline curve to interpolate the curve between the points
 			var curve = new THREE.CatmullRomCurve3(points);
 			// then specify the number of points on that curve and make it into an array of points
 			var numPoints = 50;
@@ -125,10 +122,10 @@
 			//var geometry = new THREE.LatheGeometry( splinePoints,10,0,Math.PI);
 			var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
 			//geometry.scale(-1,1,1);
-			var material = new THREE.MeshBasicMaterial( {
+			var material = new THREE.MeshPhysicalMaterial( {
 					color: 0xffffff,
 					vertexColors: THREE.FaceColors,
-					//shininess: 0,
+					//shininess: 10,
 					//specular: 0x111111,
 					side: THREE.DoubleSide,
 				} );
@@ -138,6 +135,8 @@
 			//	side: THREE.DoubleSide});
 			var disk = new THREE.Mesh( geometry, material );
 			disk.receiveShadow = true;
+			//disk.shadowDarkness = 0.5;
+			//disk.shadowCameraVisible = true;
 
 			disk.rotation.x = - Math.PI / 2.0 ;
 			//helper.rotation.x = - Math.PI / 2.0 ;
@@ -230,25 +229,27 @@
 			var animate = function () {
 				requestAnimationFrame( animate );
 
-				//lathe.rotation.x += 0.01;
-				//lathe.rotation.y += 0.01;
-
 				var numberFaceNornal = disk.geometry.faces.length;
-				xxx = new THREE.Vector3( 5, -0.1, 0 );
+				initialVector = new THREE.Vector3( 5, -0.1, 0 );
+				colorVector = camera.getWorldDirection(initialVector);
 				//console.log(faceNornal);
 				for (i = 0; i < numberFaceNornal; i++) {
-					zVal = disk.geometry.faces[i].normal;
+					//zVal = disk.geometry.faces[i].normal;
 					//console.log(zVal);
 					//setcolor = disk.geometry.faces[i].color.setRGB(Math.random(),Math.abs(zVal.y), Math.abs(zVal.z));
-					c = camera.getWorldDirection(xxx);
-					setcolor = disk.geometry.faces[i].color.setRGB(Math.abs(xxx.x), Math.abs(xxx.y), Math.abs(xxx.z));
+					setColor = disk.geometry.faces[i].color.setRGB(
+						Math.abs(colorVector.x),
+						Math.abs(colorVector.y),
+						Math.abs(colorVector.z),
+					);
 
 					//console.log(setcolor);
 					//console.log(zVal);
 					//text += cars[i] + "<br>";
 				}
 				disk.geometry.elementsNeedUpdate = true;
-				console.log(camera.getWorldDirection());
+				//console.log(camera.getWorldDirection());
+				//console.log(color_vector);
 
 				renderer.render( scene, camera );
 			};
