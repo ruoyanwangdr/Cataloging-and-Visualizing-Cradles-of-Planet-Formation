@@ -37,7 +37,8 @@ After the server is hosted:
 * Put in the username and password. 
 * Click *Disks* and then there should be an *Import* and an *Export* button.
 * Click either and follow the instruction. 
-Data table supports various documentation format (csv, txt, and some others).
+
+Data table supports various documentation format (csv, txt, and others).
 
 Note: when importing files, make sure item *id* is not duplicated. This column can be edited manually.
 
