@@ -24,7 +24,7 @@
 			var scene = new THREE.Scene();
 			scene.add( new THREE.AmbientLight( 0x111122 ) );
 			var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 10000 );
-			console.log(camera);
+			//console.log(camera);
 			var pointLight, pointLight2;
 			var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
@@ -55,7 +55,7 @@
 								pointLight.shadow.camera.far = 6000;
 								pointLight.shadow.bias = - 0.005; // reduces self-shadowing on double-sided objects
 
-								var geometry = new THREE.SphereBufferGeometry( 2, 32, 8 );
+								var geometry = new THREE.SphereGeometry( 1.5, 48, 48 );
 								var material = new THREE.MeshBasicMaterial( {
 									color: color,
 									side: THREE.DoubleSide,
@@ -84,7 +84,7 @@
 								return pointLight;
 			}
 
-			var pointLight = createLight( 0xFFffff, 2.	5, 20 );
+			var pointLight = createLight( 0xffffff, 5, 20 );
 			scene.add( pointLight );
 
 
@@ -123,6 +123,7 @@
 					//shininess: 10,
 					//specular: 0x111111,
 					side: THREE.DoubleSide,
+					roughness: 1,
 				} );
 			var disk = new THREE.Mesh( geometry, material );
 			disk.receiveShadow = true;
@@ -138,8 +139,9 @@
 				//console.log(zVal);
 				//text += cars[i] + "<br>";
 			//}
+			var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
+			//console.log(helper);
 			scene.add( disk );
-			//console.log(disk);
 			//scene.add( helper );
 
 			//////////////////
@@ -194,7 +196,7 @@
 			// Create the final object to add to the scene
 			var curveObject = new THREE.Line( geometry, material );
 			curveObject.position.set(20, 0, 0)
-			scene.add(curveObject)
+			//scene.add(curveObject)
 
 			/////////////
 			// Animate //
@@ -204,21 +206,34 @@
 				requestAnimationFrame( animate );
 
 				var numberFaceNornal = disk.geometry.faces.length;
+				//var numberVertice = disk.geometry.faceVertexUvs[0].length;
+				var numberVertice = disk.geometry.vertices.length;
 				initialVector = new THREE.Vector3( 5, -0.1, 0 );
 				colorVector = camera.getWorldDirection(initialVector);
-				for (i = 0; i < numberFaceNornal; i++) {
+				for (i = 0; i < numberVertice; i++) {
 					//zVal = disk.geometry.faces[i].normal;
 					//console.log(zVal);
+					pos_x = disk.geometry.vertices[i].x;
+					pos_y = disk.geometry.vertices[i].y;
+					pos_z = disk.geometry.vertices[i].z;
+					big = Math.pow	(pos_x*pos_x + pos_y*pos_y + pos_z*pos_z, 0.5);
+					pos_xn = pos_x/big;
+					pos_yn = pos_y/big;
+					pos_zn = pos_z/big;
+					// dot product
+					blag = colorVector.x*pos_xn + colorVector.y*pos_yn + colorVector.z*pos_zn
+					// xpostion face times x position
+					// x positon camera
 					//setcolor = disk.geometry.faces[i].color.setRGB(Math.random(),Math.abs(zVal.y), Math.abs(zVal.z));
 					setColor = disk.geometry.faces[i].color.setRGB(
-						Math.abs(colorVector.x),
-						Math.abs(colorVector.y),
-						Math.abs(colorVector.z),
+						Math.abs(blag),
+						Math.abs(blag),
+						Math.abs(blag),
 					);
 				}
 				disk.geometry.elementsNeedUpdate = true;
-				//console.log(camera.getWorldDirection());
-				//console.log(color_vector);
+				console.log(disk.geometry);
+				//console.log(disk.geometry.faces[0]);
 
 				renderer.render( scene, camera );
 			};
