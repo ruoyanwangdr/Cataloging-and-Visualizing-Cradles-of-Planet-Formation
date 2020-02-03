@@ -48,7 +48,6 @@
 
 				displaygui();
 				createLight();
-				disk();
 
 		}
 		function createLight() {
@@ -87,65 +86,66 @@
 							//texture.repeat.set( 1, 4.5 );
 
 							// custom distance material
-				var distanceMaterial = new THREE.MeshDistanceMaterial({
-						alphaMap: material.alphaMap,
-						alphaTest: material.alphaTest
-				});
-				sphere.customDistanceMaterial = distanceMaterial;
+				//var distanceMaterial = new THREE.MeshDistanceMaterial({
+				//		alphaMap: material.alphaMap,
+				//		alphaTest: material.alphaTest
+				//});
+				//sphere.customDistanceMaterial = distanceMaterial;
+				//scene.add(pointLight);
+
+				// Create an array of points
+				var points = [];
+				//for ( var i = 0; i < 10; i ++ ) {
+				//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
+				points.push( new THREE.Vector3( 5, -0.1, 0 ) );
+				points.push( new THREE.Vector3( 6, -0.15, 0 ) );
+				points.push( new THREE.Vector3( 8, -1, 0 ) );
+				points.push( new THREE.Vector3( 10, -1.5, 0 ) );
+				points.push( new THREE.Vector3( 13, -3, 0 ) );
+				points.push( new THREE.Vector3( 13.4, 0, 0 ) );
+				points.push( new THREE.Vector3( 13, 3, 0 ) );
+				points.push( new THREE.Vector3( 10, 1.5, 0 ) );
+				points.push( new THREE.Vector3( 8, 1, 0 ) );
+				points.push( new THREE.Vector3( 6, 0.15, 0 ) );
+				points.push( new THREE.Vector3( 5, 0.1, 0 ) );
+				points.push( new THREE.Vector3( 5, -0.1, 0 ) );
+
+				// Make a spline curve to interpolate the curve between the points
+				var curve = new THREE.CatmullRomCurve3(points);
+				// then specify the number of points on that curve and make it into an array of points
+				var numPoints = 50;
+				var splinePoints = curve.getPoints(numPoints);
+
+				// Make a new lathe geometry out of of the array of points just created
+				var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
+				var material = new THREE.MeshPhysicalMaterial( {
+						color: 0xffffff,
+						vertexColors: THREE.FaceColors,
+						//shininess: 10,
+						//specular: 0x111111,
+						side: THREE.DoubleSide,
+						roughness: 1,
+					} );
+				disk = new THREE.Mesh( geometry, material );
+				disk.receiveShadow = true;
+				disk.rotation.x = - Math.PI / 2.0 ;
+				//helper.rotation.x = - Math.PI / 2.0 ;
+				//var numberFaceNornal = disk.geometry.faces.length;
+				//console.log(faceNornal);
+				//for (i = 0; i < numberFaceNornal; i++) {
+				//	zVal = disk.geometry.faces[i].normal;
+					//console.log(zVal);
+				//	setcolor = disk.geometry.faces[i].color.setRGB(Math.abs(zVal.x),Math.abs(zVal.y), Math.abs(zVal.z));
+					//console.log(setcolor);
+					//console.log(zVal);
+					//text += cars[i] + "<br>";
+				//}
+				var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
+				//console.log(helper);
+				pointLight.add( disk );
 				scene.add(pointLight);
+
 				return pointLight;
-		}
-		function disk(){
-			// Create an array of points
-			var points = [];
-			//for ( var i = 0; i < 10; i ++ ) {
-			//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
-			points.push( new THREE.Vector3( 5, -0.1, 0 ) );
-			points.push( new THREE.Vector3( 6, -0.15, 0 ) );
-			points.push( new THREE.Vector3( 8, -1, 0 ) );
-			points.push( new THREE.Vector3( 10, -1.5, 0 ) );
-			points.push( new THREE.Vector3( 13, -3, 0 ) );
-			points.push( new THREE.Vector3( 13.4, 0, 0 ) );
-			points.push( new THREE.Vector3( 13, 3, 0 ) );
-			points.push( new THREE.Vector3( 10, 1.5, 0 ) );
-			points.push( new THREE.Vector3( 8, 1, 0 ) );
-			points.push( new THREE.Vector3( 6, 0.15, 0 ) );
-			points.push( new THREE.Vector3( 5, 0.1, 0 ) );
-			points.push( new THREE.Vector3( 5, -0.1, 0 ) );
-
-			// Make a spline curve to interpolate the curve between the points
-			var curve = new THREE.CatmullRomCurve3(points);
-			// then specify the number of points on that curve and make it into an array of points
-			var numPoints = 50;
-			var splinePoints = curve.getPoints(numPoints);
-
-			// Make a new lathe geometry out of of the array of points just created
-			var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
-			var material = new THREE.MeshPhysicalMaterial( {
-					color: 0xffffff,
-					vertexColors: THREE.FaceColors,
-					//shininess: 10,
-					//specular: 0x111111,
-					side: THREE.DoubleSide,
-					roughness: 1,
-				} );
-			var disk = new THREE.Mesh( geometry, material );
-			disk.receiveShadow = true;
-			disk.rotation.x = - Math.PI / 2.0 ;
-			//helper.rotation.x = - Math.PI / 2.0 ;
-			//var numberFaceNornal = disk.geometry.faces.length;
-			//console.log(faceNornal);
-			//for (i = 0; i < numberFaceNornal; i++) {
-			//	zVal = disk.geometry.faces[i].normal;
-				//console.log(zVal);
-			//	setcolor = disk.geometry.faces[i].color.setRGB(Math.abs(zVal.x),Math.abs(zVal.y), Math.abs(zVal.z));
-				//console.log(setcolor);
-				//console.log(zVal);
-				//text += cars[i] + "<br>";
-			//}
-			var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
-			//console.log(helper);
-			scene.add( disk );
 		}
 
 		function displaygui(){
