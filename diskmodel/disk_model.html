@@ -1,19 +1,19 @@
 <html>
 	<head>
-		<title>CircumstellarDiskModel</title>
+		<title>DiskModel</title>
 		<style>
 			body { margin: 0; }
 			canvas { width: 100%; height: 100% }
 		</style>
 	</head>
 	<body>
+		<script type="text/javascript" src="js/libs/dat.gui.min.js"> </script>
 		<script src="js/three.js"></script>
 		<script src="js/controls/OrbitControls.js"></script>
 		<script>
 			///////////////////////////
 			// Camera and Background //
 			///////////////////////////
-
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			renderer.shadowMap.enabled = true;
@@ -31,6 +31,7 @@
 			// controls.update() must be called after any manual changes to the camera's transform
 			camera.position.set( 0, 0, 70 );
 			controls.update();
+
 
 			///////////
 			// Light //
@@ -69,11 +70,11 @@
 								//sphere.shadowCameraVisible = true;
 								pointLight.add( sphere );
 
-								var texture = new THREE.CanvasTexture( generateTexture() );
-								texture.magFilter = THREE.NearestFilter;
-								texture.wrapT = THREE.RepeatWrapping;
-								texture.wrapS = THREE.RepeatWrapping;
-								texture.repeat.set( 1, 4.5 );
+								//var texture = new THREE.CanvasTexture( generateTexture() );
+								//texture.magFilter = THREE.NearestFilter;
+								//texture.wrapT = THREE.RepeatWrapping;
+								//texture.wrapS = THREE.RepeatWrapping;
+								//texture.repeat.set( 1, 4.5 );
 
 								// custom distance material
 								var distanceMaterial = new THREE.MeshDistanceMaterial( {
@@ -83,8 +84,20 @@
 								sphere.customDistanceMaterial = distanceMaterial;
 								return pointLight;
 			}
+			var params = {
+					color: 0xffffff,
+					intensity: 10,
+					distance: 20,
+			};
+			//var color = 0xffffff;
+			//var intensity = 10;
+			//var distance = 20;
 
-			var pointLight = createLight( 0xffffff, 5, 20 );
+			var pointLight = createLight(
+				params.color,
+				params.intensity,
+				params.distance
+			);
 			scene.add( pointLight );
 
 
@@ -198,6 +211,26 @@
 			curveObject.position.set(20, 0, 0)
 			//scene.add(curveObject)
 
+			/////////////////
+			/// GUI widget //
+			/////////////////
+			var gui = new dat.GUI();
+
+			var light = gui.addFolder('Light');
+			light.add(params, 'intensity')
+					.name('Intensity')
+					.min(1).max(20).step(1)
+					.onFinishChange(function(){
+    			// refresh based on the new value of params.interation
+					});
+			//var params = {
+    	//	interation: 5000
+			//};
+			//gui.add(params, 'interation').onFinishChange(function(){
+    	// refresh based on the new value of params.interation
+			//})
+
+
 			/////////////
 			// Animate //
 			/////////////
@@ -205,26 +238,26 @@
 			var animate = function () {
 				requestAnimationFrame( animate );
 
-				var numberFaceNornal = disk.geometry.faces.length;
-				//var numberVertice = disk.geometry.faceVertexUvs[0].length;
-				var numberVertice = disk.geometry.vertices.length;
-				initialVector = new THREE.Vector3( 5, -0.1, 0 );
-				colorVector = camera.getWorldDirection(initialVector);
-				for (i = 0; i < numberVertice; i++) {
-					//zVal = disk.geometry.faces[i].normal;
-					//console.log(zVal);
-					pos_x = disk.geometry.vertices[i].x;
-					pos_y = disk.geometry.vertices[i].y;
-					pos_z = disk.geometry.vertices[i].z;
-					big = Math.pow	(pos_x*pos_x + pos_y*pos_y + pos_z*pos_z, 0.5);
+				var number_face_normal = disk.geometry.faces.length;
+				//var number_vertice = disk.geometry.vertices.length;
+				initial_vector = new THREE.Vector3( 1, 1, 1 );
+				color_vector = camera.getWorldDirection(initial_vector);
+				for (i = 0; i < number_face_normal; i++) {
+					//pos_x = disk.geometry.vertices[i].x;
+					//pos_y = disk.geometry.vertices[i].y;
+					//pos_z = disk.geometry.vertices[i].z;
+					pos_x = disk.geometry.faces[i].normal.x;
+					pos_y = disk.geometry.faces[i].normal.y;
+					pos_z = disk.geometry.faces[i].normal.z;
+
+					big = Math.pow(pos_x*pos_x + pos_y*pos_y + pos_z*pos_z, 0.5);
+					// normalize the position vectors
 					pos_xn = pos_x/big;
 					pos_yn = pos_y/big;
 					pos_zn = pos_z/big;
 					// dot product
-					blag = colorVector.x*pos_xn + colorVector.y*pos_yn + colorVector.z*pos_zn
-					// xpostion face times x position
-					// x positon camera
-					//setcolor = disk.geometry.faces[i].color.setRGB(Math.random(),Math.abs(zVal.y), Math.abs(zVal.z));
+					blag = color_vector.x*pos_xn + color_vector.y*pos_yn + color_vector.z*pos_zn
+
 					setColor = disk.geometry.faces[i].color.setRGB(
 						Math.abs(blag),
 						Math.abs(blag),
@@ -232,8 +265,7 @@
 					);
 				}
 				disk.geometry.elementsNeedUpdate = true;
-				console.log(disk.geometry);
-				//console.log(disk.geometry.faces[0]);
+				//console.log(disk.geometry.faces[0].normal);
 
 				renderer.render( scene, camera );
 			};
