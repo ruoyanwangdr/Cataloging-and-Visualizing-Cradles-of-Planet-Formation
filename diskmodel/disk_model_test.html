@@ -15,13 +15,13 @@
 		// Camera and Background //
 		///////////////////////////
 		var scene, camera, renderer;
-		var gui, sphere;
+		var gui, pointLight, sphere, disk;
 
 		function init(){
 				scene = new THREE.Scene();
-				scene.add( new THREE.AmbientLight( 0x111122 ) );
+				//scene.add( new THREE.AmbientLight( 0x111122 ) );
 
-				renderer = new THREE.WebGLRenderer();
+				renderer = new THREE.WebGLRenderer({antialias: true});
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.shadowMap.enabled = true;
 
@@ -56,44 +56,30 @@
 						intensity: 10,
 						distance: 20,
 				};
-				var pointLight = new THREE.PointLight(
+				pointLight = new THREE.PointLight(
 						params.color,
 						params.intensity,
 						params.distance);
 				pointLight.castShadow = true;
 				pointLight.shadow.camera.near = 0.001;
-				pointLight.shadow.camera.far = 6000;
+				pointLight.shadow.camera.far = 10000;
 				pointLight.shadow.bias = - 0.005; // reduces self-shadowing on double-sided objects
 
-				var geometry = new THREE.SphereGeometry( 1.5, 48, 48 );
-				var material = new THREE.MeshBasicMaterial( {
+				var sphere_geometry = new THREE.SphereGeometry( 1.5, 48, 48 );
+				var sphere_material = new THREE.MeshBasicMaterial( {
 						color: params.color,
 						side: THREE.DoubleSide,
 						alphaTest: 0.5
 				} );
-				material.color.multiplyScalar( params.intensity );
-				sphere = new THREE.Mesh( geometry, material );
+				//material.color.multiplyScalar( params.intensity );
+				sphere = new THREE.Mesh(sphere_geometry, sphere_material);
 				sphere.castShadow = true;
 							//sphere.receiveShadow = true;
 							//sphere.shadowDarkness = 0.5;
 							//sphere.shadowCameraVisible = true;
 				pointLight.add(sphere);
 
-							//var texture = new THREE.CanvasTexture( generateTexture() );
-							//texture.magFilter = THREE.NearestFilter;
-							//texture.wrapT = THREE.RepeatWrapping;
-							//texture.wrapS = THREE.RepeatWrapping;
-							//texture.repeat.set( 1, 4.5 );
 
-							// custom distance material
-				//var distanceMaterial = new THREE.MeshDistanceMaterial({
-				//		alphaMap: material.alphaMap,
-				//		alphaTest: material.alphaTest
-				//});
-				//sphere.customDistanceMaterial = distanceMaterial;
-				//scene.add(pointLight);
-
-				// Create an array of points
 				var points = [];
 				//for ( var i = 0; i < 10; i ++ ) {
 				//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
@@ -117,31 +103,17 @@
 				var splinePoints = curve.getPoints(numPoints);
 
 				// Make a new lathe geometry out of of the array of points just created
-				var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
-				var material = new THREE.MeshPhysicalMaterial( {
+				var disk_geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
+				var disk_material = new THREE.MeshPhysicalMaterial( {
 						color: 0xffffff,
 						vertexColors: THREE.FaceColors,
-						//shininess: 10,
-						//specular: 0x111111,
 						side: THREE.DoubleSide,
 						roughness: 1,
 					} );
-				disk = new THREE.Mesh( geometry, material );
+				disk = new THREE.Mesh(disk_geometry, disk_material);
 				disk.receiveShadow = true;
 				disk.rotation.x = - Math.PI / 2.0 ;
-				//helper.rotation.x = - Math.PI / 2.0 ;
-				//var numberFaceNornal = disk.geometry.faces.length;
-				//console.log(faceNornal);
-				//for (i = 0; i < numberFaceNornal; i++) {
-				//	zVal = disk.geometry.faces[i].normal;
-					//console.log(zVal);
-				//	setcolor = disk.geometry.faces[i].color.setRGB(Math.abs(zVal.x),Math.abs(zVal.y), Math.abs(zVal.z));
-					//console.log(setcolor);
-					//console.log(zVal);
-					//text += cars[i] + "<br>";
-				//}
-				var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
-				//console.log(helper);
+
 				pointLight.add( disk );
 				scene.add(pointLight);
 
@@ -150,22 +122,24 @@
 
 		function displaygui(){
 				var gui = new dat.GUI();
+				var light = gui.addFolder('Light');
 				var jar;
 				parameters = {
 						color: 0xffffff,
 						intensity: 10,
 						distance: 20,
 				};
-				var color = gui.addColor(parameters, 'color');
-				var intensity = gui.add(parameters, 'intensity').min(0).max(20).step(1);
-				gui.add(parameters, 'distance').min(0).max(30).step(1);
+				var color = light.addColor(parameters, 'color');
+				var intensity = light.add(parameters, 'intensity').min(0).max(20).step(1);
+				var distance = light.add(parameters, 'distance').min(0).max(30).step(1);
 
 				color.onChange(function(jar){sphere.material.color.setHex(jar.toString().replace("#","0x"
 						));});
-				//intensity.onChange(function(jar){sphere.})
+				intensity.onChange(function(jar){pointLight.params.intensity = jar});
 				gui.open()
 		}
 		function animate(){
+				disk.geometry.colorNeedUpdate = true;
 				requestAnimationFrame(animate);
 				render();
 		}
