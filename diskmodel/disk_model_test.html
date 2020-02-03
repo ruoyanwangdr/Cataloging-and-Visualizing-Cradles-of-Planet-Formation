@@ -11,90 +11,91 @@
 		<script src="js/three.js"></script>
 		<script src="js/controls/OrbitControls.js"></script>
 		<script>
-			///////////////////////////
-			// Camera and Background //
-			///////////////////////////
-			var renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			renderer.shadowMap.enabled = true;
+		///////////////////////////
+		// Camera and Background //
+		///////////////////////////
+		var scene, camera, renderer;
+		var gui, sphere;
 
-			renderer.shadowMap.type = THREE.BasicShadowMap;
-			document.body.appendChild( renderer.domElement );
+		function init(){
+				scene = new THREE.Scene();
+				scene.add( new THREE.AmbientLight( 0x111122 ) );
 
-			var scene = new THREE.Scene();
-			scene.add( new THREE.AmbientLight( 0x111122 ) );
-			var camera_param = {
-					fov: 45,
-					aspect: window.innerWidth/window.innerHeight,
-					near: 1,
-					far: 1000
-			};
-			var camera = new THREE.PerspectiveCamera(
-					camera_param.fov,
-					camera_param.aspect,
-					camera_param.near,
-					camera_param.far);
-			var controls = new THREE.OrbitControls( camera, renderer.domElement );
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.shadowMap.enabled = true;
 
-			// controls.update() must be called after any manual changes to the camera's transform
-			camera.position.set( 0, 0, 70 );
-			controls.target.set(0, 0, 0);
-			controls.update();
+				renderer.shadowMap.type = THREE.BasicShadowMap;
+				document.body.appendChild(renderer.domElement);
 
-			/////////////////
-			/// GUI widget //
-			/////////////////
-			var gui = new dat.GUI();
+				var camera_params = {
+						fov: 45,
+						aspect: window.innerWidth/window.innerHeight,
+						near: 0.1,
+						far: 1000
+				};
+				camera = new THREE.PerspectiveCamera(
+						camera_params.fov,
+						camera_params.aspect,
+						camera_params.near,
+						camera_params.far);
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
 
-			//var light = gui.addFolder('Light');
-			//light.add(params, 'intensity')
-			//		.name('Intensity')
-			//		.min(1).max(20).step(1)
-			//		.onFinishChange(function(){
-					// refresh based on the new value of params.interation
-			//		});
+				// controls.update() must be called after any manual changes to the camera's transform
+				camera.position.set( 0, 0, 70 );
+				controls.target.set(0, 0, 0);
+				controls.update();
 
+				displaygui();
+				createLight();
+				disk();
 
+		}
+		function createLight() {
+				params = {
+						color: 0xffffff,
+						intensity: 10,
+						distance: 20,
+				};
+				var pointLight = new THREE.PointLight(
+						params.color,
+						params.intensity,
+						params.distance);
+				pointLight.castShadow = true;
+				pointLight.shadow.camera.near = 0.001;
+				pointLight.shadow.camera.far = 6000;
+				pointLight.shadow.bias = - 0.005; // reduces self-shadowing on double-sided objects
 
-			///////////
-			// Light //
-			///////////
+				var geometry = new THREE.SphereGeometry( 1.5, 48, 48 );
+				var material = new THREE.MeshBasicMaterial( {
+						color: params.color,
+						side: THREE.DoubleSide,
+						alphaTest: 0.5
+				} );
+				material.color.multiplyScalar( params.intensity );
+				sphere = new THREE.Mesh( geometry, material );
+				sphere.castShadow = true;
+							//sphere.receiveShadow = true;
+							//sphere.shadowDarkness = 0.5;
+							//sphere.shadowCameraVisible = true;
+				pointLight.add(sphere);
 
-			var params = {
-					color: 0xffffff,
-					intensity: 10,
-					distance: 20,
-			};
+							//var texture = new THREE.CanvasTexture( generateTexture() );
+							//texture.magFilter = THREE.NearestFilter;
+							//texture.wrapT = THREE.RepeatWrapping;
+							//texture.wrapS = THREE.RepeatWrapping;
+							//texture.repeat.set( 1, 4.5 );
 
-			var pointLight = new THREE.PointLight(
-					params.color,
-					params.intensity,
-					params.distance );
-			pointLight.castShadow = true;
-			pointLight.shadow.camera.near = 0.001;
-			pointLight.shadow.camera.far = 6000;
-			pointLight.shadow.bias = - 0.005; // reduces self-shadowing on double-sided objects
-
-			var geometry = new THREE.SphereGeometry( 1.5, 48, 48 );
-			var material = new THREE.MeshBasicMaterial( {
-				color: params.color,
-				side: THREE.DoubleSide,
-				alphaTest: 0.5
-			} );
-			material.color.multiplyScalar( params.intensity );
-			var sphere = new THREE.Mesh( geometry, material );
-			sphere.castShadow = true;
-			//sphere.receiveShadow = true;
-			//sphere.shadowDarkness = 0.5;
-			//sphere.shadowCameraVisible = true;
-			pointLight.add( sphere );
-			scene.add( pointLight );
-
-
-			//////////
-			// Disk //
-			//////////
-
+							// custom distance material
+				var distanceMaterial = new THREE.MeshDistanceMaterial({
+						alphaMap: material.alphaMap,
+						alphaTest: material.alphaTest
+				});
+				sphere.customDistanceMaterial = distanceMaterial;
+				scene.add(pointLight);
+				return pointLight;
+		}
+		function disk(){
 			// Create an array of points
 			var points = [];
 			//for ( var i = 0; i < 10; i ++ ) {
@@ -145,103 +146,36 @@
 			var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
 			//console.log(helper);
 			scene.add( disk );
-			//scene.add( helper );
+		}
 
-			//////////////////
-			// Polarization //
-			//////////////////
+		function displaygui(){
+				var gui = new dat.GUI();
+				var jar;
+				parameters = {
+						color: 0xffffff,
+						intensity: 10,
+						distance: 20,
+				};
+				var color = gui.addColor(parameters, 'color');
+				var intensity = gui.add(parameters, 'intensity').min(0).max(20).step(1);
+				gui.add(parameters, 'distance').min(0).max(30).step(1);
 
-			//var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
+				color.onChange(function(jar){sphere.material.color.setHex(jar.toString().replace("#","0x"
+						));});
+				//intensity.onChange(function(jar){sphere.})
+				gui.open()
+		}
+		function animate(){
+				requestAnimationFrame(animate);
+				render();
+		}
+		function render(){
+				renderer.clear();
+				renderer.render(scene, camera);
+		}
+		init();
+		animate();
 
-			//var faceCoordinates = geometry.computeFaceNormals();
-			//var faceNumber = disk.geometry.faces[0].normal;
-
-			//var numberFaceNornal = disk.geometry.faces.length;
-			//console.log(faceNornal);
-			//for (i = 0; i < numberFaceNornal; i++) {
-			//	zVal = Math.abs(disk.geometry.faces[i].normal);
-			//	disk.geometry.faces[i].color.setRGB(zVal);
-				//console.log(zVal);
-				//text += cars[i] + "<br>";
-			//}
-
-
-			/*
-			var loader = new THREE.FontLoader();
-
-			loader.load( 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
-
-				var geometry = new THREE.TextGeometry( 'Hello three.js!', {
-					font: font,
-					size: 80,
-					height: 5,
-					curveSegments: 12,
-					bevelEnabled: true,
-					bevelThickness: 10,
-					bevelSize: 8,
-					bevelOffset: 0,
-					bevelSegments: 5
-				} );
-			} );
-			*/
-
-
-			///////////////////
-			// Shape display //
-			///////////////////
-
-			// Create a closed wavey loop to see the shape
-			var points = curve.getPoints( 50 );
-			var geometry = new THREE.BufferGeometry().setFromPoints( points );
-
-			var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-
-			// Create the final object to add to the scene
-			var curveObject = new THREE.Line( geometry, material );
-			curveObject.position.set(20, 0, 0)
-			//scene.add(curveObject)
-
-
-			/////////////
-			// Animate //
-			/////////////
-
-			var animate = function () {
-				requestAnimationFrame( animate );
-
-				var number_face_normal = disk.geometry.faces.length;
-				//var number_vertice = disk.geometry.vertices.length;
-				initial_vector = new THREE.Vector3( 1, 1, 1 );
-				color_vector = camera.getWorldDirection(initial_vector);
-				for (i = 0; i < number_face_normal; i++) {
-					//pos_x = disk.geometry.vertices[i].x;
-					//pos_y = disk.geometry.vertices[i].y;
-					//pos_z = disk.geometry.vertices[i].z;
-					pos_x = disk.geometry.faces[i].normal.x;
-					pos_y = disk.geometry.faces[i].normal.y;
-					pos_z = disk.geometry.faces[i].normal.z;
-
-					big = Math.pow(pos_x*pos_x + pos_y*pos_y + pos_z*pos_z, 0.5);
-					// normalize the position vectors
-					pos_xn = pos_x/big;
-					pos_yn = pos_y/big;
-					pos_zn = pos_z/big;
-					// dot product
-					blag = color_vector.x*pos_xn + color_vector.y*pos_yn + color_vector.z*pos_zn
-
-					setColor = disk.geometry.faces[i].color.setRGB(
-						Math.abs(blag),
-						Math.abs(blag),
-						Math.abs(blag),
-					);
-				}
-				disk.geometry.elementsNeedUpdate = true;
-				//console.log(disk.geometry.faces[0].normal);
-
-				renderer.render( scene, camera );
-			};
-
-			animate();
 		</script>
 	</body>
 </html>
