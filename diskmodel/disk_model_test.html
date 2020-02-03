@@ -7,13 +7,14 @@
 		</style>
 	</head>
 	<body>
-		<script src="js/three.js"></script>
-		<script src="js/controls/OrbitControls.js"></script>
+		<script type="text/javascript" src="js/libs/dat.gui.min.js"> </script>
+		<script type="text/javascript" src="js/three.js"></script>
+		<script type="text/javascript" src="js/controls/OrbitControls.js"></script>
 		<script>
+			//import { GUI } from './jsm/libs/dat.gui.module.js'
 			///////////////////////////
 			// Camera and Background //
 			///////////////////////////
-
 			var renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			renderer.shadowMap.enabled = true;
@@ -224,7 +225,7 @@
 					pos_zn = pos_z/big;
 					// dot product
 					blag = color_vector.x*pos_xn + color_vector.y*pos_yn + color_vector.z*pos_zn
-					
+
 					setColor = disk.geometry.faces[i].color.setRGB(
 						Math.abs(blag),
 						Math.abs(blag),
