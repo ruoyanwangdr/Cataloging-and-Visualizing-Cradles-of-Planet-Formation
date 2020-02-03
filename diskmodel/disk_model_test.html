@@ -8,10 +8,9 @@
 	</head>
 	<body>
 		<script type="text/javascript" src="js/libs/dat.gui.min.js"> </script>
-		<script type="text/javascript" src="js/three.js"></script>
-		<script type="text/javascript" src="js/controls/OrbitControls.js"></script>
+		<script src="js/three.js"></script>
+		<script src="js/controls/OrbitControls.js"></script>
 		<script>
-			//import { GUI } from './jsm/libs/dat.gui.module.js'
 			///////////////////////////
 			// Camera and Background //
 			///////////////////////////
@@ -32,6 +31,7 @@
 			// controls.update() must be called after any manual changes to the camera's transform
 			camera.position.set( 0, 0, 70 );
 			controls.update();
+
 
 			///////////
 			// Light //
@@ -70,11 +70,11 @@
 								//sphere.shadowCameraVisible = true;
 								pointLight.add( sphere );
 
-								var texture = new THREE.CanvasTexture( generateTexture() );
-								texture.magFilter = THREE.NearestFilter;
-								texture.wrapT = THREE.RepeatWrapping;
-								texture.wrapS = THREE.RepeatWrapping;
-								texture.repeat.set( 1, 4.5 );
+								//var texture = new THREE.CanvasTexture( generateTexture() );
+								//texture.magFilter = THREE.NearestFilter;
+								//texture.wrapT = THREE.RepeatWrapping;
+								//texture.wrapS = THREE.RepeatWrapping;
+								//texture.repeat.set( 1, 4.5 );
 
 								// custom distance material
 								var distanceMaterial = new THREE.MeshDistanceMaterial( {
@@ -84,8 +84,20 @@
 								sphere.customDistanceMaterial = distanceMaterial;
 								return pointLight;
 			}
+			var params = {
+					color: 0xffffff,
+					intensity: 10,
+					distance: 20,
+			};
+			//var color = 0xffffff;
+			//var intensity = 10;
+			//var distance = 20;
 
-			var pointLight = createLight( 0xffffff, 10, 20 );
+			var pointLight = createLight(
+				params.color,
+				params.intensity,
+				params.distance
+			);
 			scene.add( pointLight );
 
 
@@ -198,6 +210,26 @@
 			var curveObject = new THREE.Line( geometry, material );
 			curveObject.position.set(20, 0, 0)
 			//scene.add(curveObject)
+
+			/////////////////
+			/// GUI widget //
+			/////////////////
+			var gui = new dat.GUI();
+
+			var light = gui.addFolder('Light');
+			light.add(params, 'intensity')
+					.name('Intensity')
+					.min(1).max(20).step(1)
+					.onFinishChange(function(){
+    			// refresh based on the new value of params.interation
+					});
+			//var params = {
+    	//	interation: 5000
+			//};
+			//gui.add(params, 'interation').onFinishChange(function(){
+    	// refresh based on the new value of params.interation
+			//})
+
 
 			/////////////
 			// Animate //
