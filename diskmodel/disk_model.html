@@ -24,12 +24,17 @@
 			var scene = new THREE.Scene();
 			scene.add( new THREE.AmbientLight( 0x111122 ) );
 			var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 10000 );
-			//console.log(camera);
-			var pointLight, pointLight2;
+
+			//var cameraHelper = new THREE.CameraHelper(camera);
+			//scene.add(cameraHelper);
+
+
+			var pointLight;
+
 			var controls = new THREE.OrbitControls( camera, renderer.domElement );
 
 			// controls.update() must be called after any manual changes to the camera's transform
-			camera.position.set( 0, 0, 70 );
+			camera.position.set( 0, 30, 70 );
 			controls.update();
 
 
@@ -86,12 +91,9 @@
 			}
 			var params = {
 					color: 0xffffff,
-					intensity: 10,
+					intensity: 20,
 					distance: 20,
 			};
-			//var color = 0xffffff;
-			//var intensity = 10;
-			//var distance = 20;
 
 			var pointLight = createLight(
 				params.color,
@@ -141,17 +143,7 @@
 			var disk = new THREE.Mesh( geometry, material );
 			disk.receiveShadow = true;
 			disk.rotation.x = - Math.PI / 2.0 ;
-			//helper.rotation.x = - Math.PI / 2.0 ;
-			//var numberFaceNornal = disk.geometry.faces.length;
-			//console.log(faceNornal);
-			//for (i = 0; i < numberFaceNornal; i++) {
-			//	zVal = disk.geometry.faces[i].normal;
-				//console.log(zVal);
-			//	setcolor = disk.geometry.faces[i].color.setRGB(Math.abs(zVal.x),Math.abs(zVal.y), Math.abs(zVal.z));
-				//console.log(setcolor);
-				//console.log(zVal);
-				//text += cars[i] + "<br>";
-			//}
+
 			var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
 			//console.log(helper);
 			scene.add( disk );
@@ -265,7 +257,23 @@
 					);
 				}
 				disk.geometry.elementsNeedUpdate = true;
-				//console.log(disk.geometry.faces[0].normal);
+				//var pLocal = new THREE.Vector3(0,1,0);
+				//var pWorld = pLocal.applyMatrix4(camera.matrixWorld).normalize();
+				//var dir = pWorld.sub(camera.position).normalize();
+				//console.log(dir);
+				//console.log(pWorld);
+
+				var pLocal = new THREE.Vector3(0,1,0);
+				var pWorld = pLocal.applyQuaternion(camera.quaternion);
+
+				var origin = new THREE.Vector3(0,0,0);
+				var length = 20;
+				var hex = 0xffff00;
+
+				var arrowHelper = new THREE.ArrowHelper(pWorld, origin, length, hex);
+				scene.add(arrowHelper);
+				//var dir = pWorld.sub(camera.position).normalize();
+				//console.log(pWorld);
 
 				renderer.render( scene, camera );
 			};
