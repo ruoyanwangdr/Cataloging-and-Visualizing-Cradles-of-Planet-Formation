@@ -201,7 +201,7 @@
 			// Create the final object to add to the scene
 			var curveObject = new THREE.Line( geometry, material );
 			curveObject.position.set(20, 0, 0)
-			//scene.add(curveObject)
+			scene.add(curveObject)
 
 			/////////////////
 			/// GUI widget //
@@ -227,21 +227,36 @@
 				//var number_vertice = disk.geometry.vertices.length;
 				initial_vector = new THREE.Vector3( 1, 1, 1 );
 				color_vector = camera.getWorldDirection(initial_vector);
+
+				var pLocal = new THREE.Vector3(0,1,0);
+				var pWorld = pLocal.applyQuaternion(camera.quaternion);
+
+				var origin = new THREE.Vector3(0,0,0);
+				var length = 20;
+				var hex = 0xffff00;
+
+				var arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
+
 				for (i = 0; i < number_face_normal; i++) {
 					//pos_x = disk.geometry.vertices[i].x;
 					//pos_y = disk.geometry.vertices[i].y;
 					//pos_z = disk.geometry.vertices[i].z;
-					pos_x = disk.geometry.faces[i].normal.x;
-					pos_y = disk.geometry.faces[i].normal.y;
-					pos_z = disk.geometry.faces[i].normal.z;
+					face_normal_x = disk.geometry.faces[i].normal.x;
+					face_normal_y = disk.geometry.faces[i].normal.y;
+					face_normal_z = disk.geometry.faces[i].normal.z;
 
-					big = Math.pow(pos_x*pos_x + pos_y*pos_y + pos_z*pos_z, 0.5);
+					norm = Math.pow(face_normal_x*face_normal_x
+						+ face_normal_y*face_normal_y
+						+ face_normal_z*face_normal_z,
+						0.5);
 					// normalize the position vectors
-					pos_xn = pos_x/big;
-					pos_yn = pos_y/big;
-					pos_zn = pos_z/big;
+					face_normalized_x = face_normal_x/norm;
+					face_normalized_y = face_normal_y/norm;
+					face_normalized_z = face_normal_z/norm;
 					// dot product
-					blag = color_vector.x*pos_xn + color_vector.y*pos_yn + color_vector.z*pos_zn
+					blag = arrow_up.quaternion.x*face_normalized_x
+						+ arrow_up.quaternion.y*face_normalized_y
+						+ arrow_up.quaternion.z*face_normalized_z
 
 					setColor = disk.geometry.faces[i].color.setRGB(
 						Math.abs(blag),
@@ -253,19 +268,9 @@
 				//var pLocal = new THREE.Vector3(0,1,0);
 				//var pWorld = pLocal.applyMatrix4(camera.matrixWorld).normalize();
 				//var dir = pWorld.sub(camera.position).normalize();
-				//console.log(dir);
-				//console.log(pWorld);
 
-				var pLocal = new THREE.Vector3(0,1,0);
-				var pWorld = pLocal.applyQuaternion(camera.quaternion);
-
-				var origin = new THREE.Vector3(0,0,0);
-				var length = 20;
-				var hex = 0xffff00;
-
-				var arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
-				//scene.add(arrowHelper);
-				//var dir = pWorld.sub(camera.position).normalize();
+				//console.log(arrow_up.quaternion.x);
+				//console.log(camera.quaternion);
 				//console.log(pWorld);
 
 
