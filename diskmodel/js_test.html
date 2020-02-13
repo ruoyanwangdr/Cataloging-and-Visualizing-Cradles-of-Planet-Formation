@@ -122,8 +122,22 @@
     });
     const mesh = new THREE.Mesh(planeGeo, planeMat);
     mesh.rotation.x = Math.PI * -.5;
-    scene.add(mesh);
+    //scene.add(mesh);
   }
+	{
+		const sphereRadius = 1.5;
+    const sphereWidthDivisions = 48;
+    const sphereHeightDivisions = 48;
+		const sphere = new THREE.SphereBufferGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
+
+		const sphereLightColor = 0xffffff;
+		const sphereLightIntensity = 20;
+		const sphereLightDistance = 20;
+
+		const sphereLight = new THREE.PointLight(sphereLightColor, sphereLightIntensity, sphereLightDistance);
+		sphereLight.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color: 0xffffff})));
+		scene.add(sphereLight);
+	}
   {
     const cubeSize = 4;
     const cubeGeo = new THREE.BoxBufferGeometry(cubeSize, cubeSize, cubeSize);
@@ -149,8 +163,8 @@
     const light = new THREE.DirectionalLight(color, intensity);
     light.position.set(0, 10, 0);
     light.target.position.set(-5, 0, 0);
-    scene.add(light);
-    scene.add(light.target);
+    //scene.add(light);
+    //scene.add(light.target);
   }
 
   function resizeRendererToDisplaySize(renderer) {
