@@ -138,14 +138,14 @@
 					sphereHeightDivisions
 				);
 
-				const sphereLightColor = 0xffffff;
-				const sphereLightIntensity = 10;
-				const sphereLightDistance = 15;
+				const lightColor = 0xffffff;
+				const lightIntensity = 20;
+				const lightDistance = 20;
 
-				const sphereLight = new THREE.PointLight(sphereLightColor, sphereLightIntensity, sphereLightDistance);
-				sphereLight.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color: 0xffffff})));
-				sphereLight.position.set(0,0,0);
-				scene.add(sphereLight);
+				const pointLight = new THREE.PointLight(lightColor, lightIntensity, lightDistance);
+				pointLight.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color: 0xffffff})));
+				pointLight.position.set(0,0,0);
+				scene.add(pointLight);
 			}
 			{
 				// Create an array of points
@@ -181,9 +181,10 @@
 						side: THREE.DoubleSide,
 						roughness: 1,
 					});
-				const disk = new THREE.Mesh(geometry, material);
+				var disk = new THREE.Mesh(geometry, material);
 				disk.receiveShadow = true;
-				disk.rotation.x = - Math.PI / 2.0 ;
+				disk.rotation.x = - Math.PI / 2.0;
+				disk.position.set(0,0,0);
 
 				const helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
 				//console.log(helper);
@@ -257,6 +258,51 @@
 
 				resizeRendererToDisplaySize(renderer);
 
+				{
+					const number_face_normal = disk.geometry.faces.length;
+					//var number_vertice = disk.geometry.vertices.length;
+					initial_vector = new THREE.Vector3( 1, 1, 1 );
+					color_vector = camera.getWorldDirection(initial_vector);
+
+					const pLocal = new THREE.Vector3(0,1,0);
+					const pWorld = pLocal.applyQuaternion(camera.quaternion);
+
+					const origin = new THREE.Vector3(0,0,0);
+					const length = 20;
+					const hex = 0xffff00;
+
+					const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
+
+					for (i = 0; i < number_face_normal; i++) {
+						//pos_x = disk.geometry.vertices[i].x;
+						//pos_y = disk.geometry.vertices[i].y;
+						//pos_z = disk.geometry.vertices[i].z;
+						face_normal_x = disk.geometry.faces[i].normal.x;
+						face_normal_y = disk.geometry.faces[i].normal.y;
+						face_normal_z = disk.geometry.faces[i].normal.z;
+
+						norm = Math.pow(face_normal_x*face_normal_x
+							+ face_normal_y*face_normal_y
+							+ face_normal_z*face_normal_z,
+							0.5);
+						// normalize the position vectors
+						face_normalized_x = face_normal_x/norm;
+						face_normalized_y = face_normal_y/norm;
+						face_normalized_z = face_normal_z/norm;
+						// dot product
+						blag = arrow_up.quaternion.x*face_normalized_x
+							+ arrow_up.quaternion.y*face_normalized_y
+							+ arrow_up.quaternion.z*face_normalized_z
+
+						setColor = disk.geometry.faces[i].color.setRGB(
+							Math.abs(blag),
+							Math.abs(blag),
+							Math.abs(blag),
+						);
+					}
+					disk.geometry.elementsNeedUpdate = true;
+				}
+
 				// turn on the scissor
 				renderer.setScissorTest(true);
 
@@ -285,9 +331,6 @@
 					// adjust the camera for this aspect
 					camera2.aspect = aspect;
 					camera2.updateProjectionMatrix();
-					var pLocal = new THREE.Vector3(0,1,0);
-					var pWorld = pLocal.applyMatrix4(camera2.matrixWorld).normalize();
-					console.log(pWorld);
 
 					// draw the camera helper in the 2nd view
 					cameraHelper.visible = true;
