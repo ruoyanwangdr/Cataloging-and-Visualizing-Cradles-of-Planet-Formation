@@ -78,11 +78,25 @@
     		}
   		}
 
-  		const gui = new dat.GUI();
-  		gui.add(camera, 'fov', 1, 180);
+			class ColorGUIHelper {
+  			constructor(object, prop) {
+					this.object = object;
+					this.prop = prop;
+				}
+				get value() {
+					return `#${this.object[this.prop].getHexString()}`;
+				}
+				set value(hexString) {
+					this.object[this.prop].set(hexString);
+				}
+			}
+
+  		const gui = new dat.GUI({autoplace:true});
+			const folder = gui.addFolder('Camera');
+  		folder.add(camera, 'fov', 1, 180);
   		const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
-			gui.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near');
-			gui.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
+			folder.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near');
+			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
 
 			const controls = new THREE.OrbitControls(camera, view1Elem);
 			controls.target.set(0, 0, 0);
@@ -146,7 +160,14 @@
 				pointLight.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color: 0xffffff})));
 				pointLight.position.set(0,0,0);
 				scene.add(pointLight);
+
+				const gui = new dat.GUI({autoplace:true});
+				const folder = gui.addFolder('Light');
+				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
+				folder.add(pointLight, 'intensity', 0, 50).name('Intensity');
+				folder.add(pointLight, 'distance', 0, 50).name('Distance');
 			}
+
 			{
 				// Create an array of points
 				const points = [];
@@ -174,10 +195,8 @@
 				// Make a new lathe geometry out of of the array of points just created
 				const geometry = new THREE.LatheGeometry(splinePoints, segments=36);
 				const material = new THREE.MeshPhysicalMaterial({
-						color: 0xffffff,
+						color: 0x000082,
 						vertexColors: THREE.FaceColors,
-						//shininess: 10,
-						//specular: 0x111111,
 						side: THREE.DoubleSide,
 						roughness: 1,
 					});
