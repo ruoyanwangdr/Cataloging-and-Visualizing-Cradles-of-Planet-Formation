@@ -41,11 +41,13 @@
 		<script>
 
 		function main() {
+			// Canvas setup
   		const canvas = document.querySelector('#c');
   		const view1Elem = document.querySelector('#view1');
   		const view2Elem = document.querySelector('#view2');
   		const renderer = new THREE.WebGLRenderer({canvas});
 
+			// Camera 1 setup
   		const fov = 45;
   		const aspect = 2;  // the canvas default
   		const near = 5;
@@ -55,6 +57,7 @@
 
   		const cameraHelper = new THREE.CameraHelper(camera);
 
+			// GUI helper for min and max
   		class MinMaxGUIHelper {
     		constructor(obj, minProp, maxProp, minDif) {
       		this.obj = obj;
@@ -78,6 +81,7 @@
     		}
   		}
 
+			// GUI helper for color
 			class ColorGUIHelper {
   			constructor(object, prop) {
 					this.object = object;
@@ -91,6 +95,7 @@
 				}
 			}
 
+			// Construct GUI for camera
   		const gui = new dat.GUI({autoplace:true});
 			const folder = gui.addFolder('Camera');
   		folder.add(camera, 'fov', 1, 180);
@@ -98,10 +103,12 @@
 			folder.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near');
 			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
 
+			// Orbit control of camera 1
 			const controls = new THREE.OrbitControls(camera, view1Elem);
 			controls.target.set(0, 0, 0);
 			controls.update();
 
+			// Camera 2 setup
 			const camera2 = new THREE.PerspectiveCamera(
 				60,  // fov
 				2,   // aspect
@@ -111,15 +118,18 @@
   		camera2.position.set(-80, 80, 100);
 			camera2.lookAt(0, 0, 0);
 
+			// Orbit control of camera 2
 			const controls2 = new THREE.OrbitControls(camera2, view2Elem);
 			controls2.target.set(0, 0, 0);
 			controls2.update();
 
+			// Blackground setup and camera helper
 			const scene = new THREE.Scene();
 			scene.background = new THREE.Color('black');
 			scene.add(cameraHelper);
 			//console.log(cameraHelper);
 
+			// Construct a plane for primitives
 			{
 				const planeSize = 40;
 
@@ -142,6 +152,7 @@
 				//scene.add(mesh);
 			}
 
+			// Add the central light source
 			{
 				const sphereRadius = 1.5;
 				const sphereWidthDivisions = 48;
@@ -161,6 +172,7 @@
 				pointLight.position.set(0,0,0);
 				scene.add(pointLight);
 
+				// Add GUI panel for light
 				const gui = new dat.GUI({autoplace:true});
 				const folder = gui.addFolder('Light');
 				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
@@ -168,6 +180,7 @@
 				folder.add(pointLight, 'distance', 0, 50).name('Distance');
 			}
 
+			// Construct the disk
 			{
 				// Create an array of points
 				const points = [];
@@ -277,6 +290,7 @@
 
 				resizeRendererToDisplaySize(renderer);
 
+				// Calculate and update polarization
 				{
 					const number_face_normal = disk.geometry.faces.length;
 					//var number_vertice = disk.geometry.vertices.length;
