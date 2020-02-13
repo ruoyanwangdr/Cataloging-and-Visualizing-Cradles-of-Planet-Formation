@@ -51,7 +51,7 @@
   		const near = 5;
   		const far = 100;
   		const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  		camera.position.set(0, 10, 20);
+  		camera.position.set(0, 30, 60);
 
   		const cameraHelper = new THREE.CameraHelper(camera);
 
@@ -85,20 +85,20 @@
 			gui.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
 
 			const controls = new THREE.OrbitControls(camera, view1Elem);
-			controls.target.set(0, 5, 0);
+			controls.target.set(0, 0, 0);
 			controls.update();
 
 			const camera2 = new THREE.PerspectiveCamera(
 				60,  // fov
 				2,   // aspect
 				0.1, // near
-				500, // far
+				1000, // far
 			);
-  		camera2.position.set(40, 10, 30);
-			camera2.lookAt(0, 5, 0);
+  		camera2.position.set(-80, 80, 100);
+			camera2.lookAt(0, 0, 0);
 
 			const controls2 = new THREE.OrbitControls(camera2, view2Elem);
-			controls2.target.set(0, 5, 0);
+			controls2.target.set(0, 0, 0);
 			controls2.update();
 
 			const scene = new THREE.Scene();
@@ -139,44 +139,86 @@
 				);
 
 				const sphereLightColor = 0xffffff;
-				const sphereLightIntensity = 20;
-				const sphereLightDistance = 20;
+				const sphereLightIntensity = 10;
+				const sphereLightDistance = 15;
 
 				const sphereLight = new THREE.PointLight(sphereLightColor, sphereLightIntensity, sphereLightDistance);
 				sphereLight.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color: 0xffffff})));
 				sphereLight.position.set(0,0,0);
 				scene.add(sphereLight);
 			}
-
 			{
-				const cubeSize = 4;
-				const cubeGeo = new THREE.BoxBufferGeometry(cubeSize, cubeSize, cubeSize);
-				const cubeMat = new THREE.MeshPhongMaterial({color: '#8AC'});
-				const mesh = new THREE.Mesh(cubeGeo, cubeMat);
-				mesh.position.set(cubeSize + 1, cubeSize / 2, 0);
-				scene.add(mesh);
+				// Create an array of points
+				const points = [];
+				//for ( var i = 0; i < 10; i ++ ) {
+				//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
+				points.push( new THREE.Vector3( 5, -0.1, 0 ) );
+				points.push( new THREE.Vector3( 6, -0.15, 0 ) );
+				points.push( new THREE.Vector3( 8, -1, 0 ) );
+				points.push( new THREE.Vector3( 10, -1.5, 0 ) );
+				points.push( new THREE.Vector3( 13, -3, 0 ) );
+				points.push( new THREE.Vector3( 13.4, 0, 0 ) );
+				points.push( new THREE.Vector3( 13, 3, 0 ) );
+				points.push( new THREE.Vector3( 10, 1.5, 0 ) );
+				points.push( new THREE.Vector3( 8, 1, 0 ) );
+				points.push( new THREE.Vector3( 6, 0.15, 0 ) );
+				points.push( new THREE.Vector3( 5, 0.1, 0 ) );
+				points.push( new THREE.Vector3( 5, -0.1, 0 ) );
+
+				// Make a spline curve to interpolate the curve between the points
+				const curve = new THREE.CatmullRomCurve3(points);
+				// then specify the number of points on that curve and make it into an array of points
+				const numPoints = 50;
+				const splinePoints = curve.getPoints(numPoints);
+
+				// Make a new lathe geometry out of of the array of points just created
+				const geometry = new THREE.LatheGeometry(splinePoints, segments=36);
+				const material = new THREE.MeshPhysicalMaterial({
+						color: 0xffffff,
+						vertexColors: THREE.FaceColors,
+						//shininess: 10,
+						//specular: 0x111111,
+						side: THREE.DoubleSide,
+						roughness: 1,
+					});
+				const disk = new THREE.Mesh(geometry, material);
+				disk.receiveShadow = true;
+				disk.rotation.x = - Math.PI / 2.0 ;
+
+				const helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
+				//console.log(helper);
+				scene.add(disk);
 			}
 
-			{
-				const sphereRadius = 3;
-				const sphereWidthDivisions = 32;
-				const sphereHeightDivisions = 16;
-				const sphereGeo = new THREE.SphereBufferGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
-				const sphereMat = new THREE.MeshPhongMaterial({color: '#CA8'});
-				const mesh = new THREE.Mesh(sphereGeo, sphereMat);
-				mesh.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
-				scene.add(mesh);
-			}
+			//{
+			//	const cubeSize = 4;
+			//	const cubeGeo = new THREE.BoxBufferGeometry(cubeSize, cubeSize, cubeSize);
+			//	const cubeMat = new THREE.MeshPhongMaterial({color: '#8AC'});
+			//	const mesh = new THREE.Mesh(cubeGeo, cubeMat);
+			//	mesh.position.set(cubeSize + 1, cubeSize / 2, 0);
+			//	scene.add(mesh);
+			//}
 
-			{
-				const color = 0xFFFFFF;
-				const intensity = 1;
-				const light = new THREE.DirectionalLight(color, intensity);
-				light.position.set(0, 10, 0);
-				light.target.position.set(-5, 0, 0);
-				//scene.add(light);
-				//scene.add(light.target);
-			}
+			//{
+			//	const sphereRadius = 3;
+			//	const sphereWidthDivisions = 32;
+			//	const sphereHeightDivisions = 16;
+			//	const sphereGeo = new THREE.SphereBufferGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
+			//	const sphereMat = new THREE.MeshPhongMaterial({color: '#CA8'});
+			//	const mesh = new THREE.Mesh(sphereGeo, sphereMat);
+			//	mesh.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
+			//	scene.add(mesh);
+			//}
+
+			//{
+			//	const color = 0xFFFFFF;
+			//	const intensity = 1;
+			//	const light = new THREE.DirectionalLight(color, intensity);
+			//	light.position.set(0, 10, 0);
+			//	light.target.position.set(-5, 0, 0);
+			//	scene.add(light);
+			//	scene.add(light.target);
+			//}
 
 			function resizeRendererToDisplaySize(renderer) {
 				const canvas = renderer.domElement;
