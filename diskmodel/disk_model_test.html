@@ -1,89 +1,96 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>DiskModelTest</title>
-		<style>
-		html, body {
-        margin: 0;
-        height: 100%;
-    }
-    #c {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-    .split {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-    }
-    .split>div {
-      width: 100%;
-      height: 100%;
-    }
-		</style>
-	</head>
-	<body>
-		<canvas id="c"></canvas>
 
-		<div class="split">
-			<div id="view1" tabindex="1"></div>
-			<div id="view2" tabindex="2"></div>
-		</div>
+<head>
+	<title>DiskModelTest</title>
+	<style>
+		html,
+		body {
+			margin: 0;
+			height: 100%;
+		}
 
-		<script type="text/javascript" src="js/libs/dat.gui.min.js"> </script>
-		<script src="js/three.js"></script>
-		<script src="js/controls/OrbitControls.js"></script>
+		#c {
+			width: 100%;
+			height: 100%;
+			display: block;
+		}
 
-		<script>
+		.split {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+		}
 
+		.split>div {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<canvas id="c"></canvas>
+
+	<div class="split">
+		<div id="view1" tabindex="1"></div>
+		<div id="view2" tabindex="2"></div>
+	</div>
+
+	<script type="text/javascript" src="js/libs/dat.gui.min.js"> </script>
+	<script src="js/three.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+
+	<script>
 		function main() {
 			// Canvas setup
-  		const canvas = document.querySelector('#c');
-  		const view1Elem = document.querySelector('#view1');
-  		const view2Elem = document.querySelector('#view2');
-  		const renderer = new THREE.WebGLRenderer({canvas});
+			const canvas = document.querySelector('#c');
+			const view1Elem = document.querySelector('#view1');
+			const view2Elem = document.querySelector('#view2');
+			const renderer = new THREE.WebGLRenderer({
+				canvas
+			});
 
 			// Camera 1 setup
-  		const fov = 45;
-  		const aspect = 2;  // the canvas default
-  		const near = 5;
-  		const far = 100;
-  		const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-  		camera.position.set(0, 30, 60);
+			const fov = 45;
+			const aspect = 2; // the canvas default
+			const near = 5;
+			const far = 100;
+			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			camera.position.set(0, 30, 60);
 
-  		const cameraHelper = new THREE.CameraHelper(camera);
+			const cameraHelper = new THREE.CameraHelper(camera);
 
 			// GUI helper for min and max
-  		class MinMaxGUIHelper {
-    		constructor(obj, minProp, maxProp, minDif) {
-      		this.obj = obj;
-      		this.minProp = minProp;
-      		this.maxProp = maxProp;
+			class MinMaxGUIHelper {
+				constructor(obj, minProp, maxProp, minDif) {
+					this.obj = obj;
+					this.minProp = minProp;
+					this.maxProp = maxProp;
 					this.minDif = minDif;
-    		}
-    		get min() {
-      		return this.obj[this.minProp];
-    		}
-    		set min(v) {
-      		this.obj[this.minProp] = v;
-      		this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
-    		}
-    		get max() {
-      		return this.obj[this.maxProp];
-    		}
-    		set max(v) {
-      		this.obj[this.maxProp] = v;
-      		this.min = this.min;  // this will call the min setter
-    		}
-  		}
+				}
+				get min() {
+					return this.obj[this.minProp];
+				}
+				set min(v) {
+					this.obj[this.minProp] = v;
+					this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
+				}
+				get max() {
+					return this.obj[this.maxProp];
+				}
+				set max(v) {
+					this.obj[this.maxProp] = v;
+					this.min = this.min; // this will call the min setter
+				}
+			}
 
 			// GUI helper for color
 			class ColorGUIHelper {
-  			constructor(object, prop) {
+				constructor(object, prop) {
 					this.object = object;
 					this.prop = prop;
 				}
@@ -96,10 +103,12 @@
 			}
 
 			// Construct GUI for camera
-  		const gui = new dat.GUI({autoplace:true});
+			const gui = new dat.GUI({
+				autoplace: true
+			});
 			const folder = gui.addFolder('Camera');
-  		folder.add(camera, 'fov', 1, 180);
-  		const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
+			folder.add(camera, 'fov', 1, 180);
+			const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
 			folder.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near');
 			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
 
@@ -110,12 +119,12 @@
 
 			// Camera 2 setup
 			const camera2 = new THREE.PerspectiveCamera(
-				60,  // fov
-				2,   // aspect
+				60, // fov
+				2, // aspect
 				0.1, // near
 				1000, // far
 			);
-  		camera2.position.set(-80, 80, 100);
+			camera2.position.set(-80, 80, 100);
 			camera2.lookAt(0, 0, 0);
 
 			// Orbit control of camera 2
@@ -168,12 +177,16 @@
 				const lightDistance = 20;
 
 				const pointLight = new THREE.PointLight(lightColor, lightIntensity, lightDistance);
-				pointLight.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color: 0xffffff})));
-				pointLight.position.set(0,0,0);
+				pointLight.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({
+					color: 0xffffff
+				})));
+				pointLight.position.set(0, 0, 0);
 				scene.add(pointLight);
 
 				// Add GUI panel for light
-				const gui = new dat.GUI({autoplace:true});
+				const gui = new dat.GUI({
+					autoplace: true
+				});
 				const folder = gui.addFolder('Light');
 				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
 				folder.add(pointLight, 'intensity', 0, 50).name('Intensity');
@@ -186,18 +199,18 @@
 				const points = [];
 				//for ( var i = 0; i < 10; i ++ ) {
 				//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
-				points.push( new THREE.Vector3( 5, -0.1, 0 ) );
-				points.push( new THREE.Vector3( 6, -0.15, 0 ) );
-				points.push( new THREE.Vector3( 8, -1, 0 ) );
-				points.push( new THREE.Vector3( 10, -1.5, 0 ) );
-				points.push( new THREE.Vector3( 13, -3, 0 ) );
-				points.push( new THREE.Vector3( 13.4, 0, 0 ) );
-				points.push( new THREE.Vector3( 13, 3, 0 ) );
-				points.push( new THREE.Vector3( 10, 1.5, 0 ) );
-				points.push( new THREE.Vector3( 8, 1, 0 ) );
-				points.push( new THREE.Vector3( 6, 0.15, 0 ) );
-				points.push( new THREE.Vector3( 5, 0.1, 0 ) );
-				points.push( new THREE.Vector3( 5, -0.1, 0 ) );
+				points.push(new THREE.Vector3(5, -0.1, 0));
+				points.push(new THREE.Vector3(6, -0.15, 0));
+				points.push(new THREE.Vector3(8, -1, 0));
+				points.push(new THREE.Vector3(10, -1.5, 0));
+				points.push(new THREE.Vector3(13, -3, 0));
+				points.push(new THREE.Vector3(13.4, 0, 0));
+				points.push(new THREE.Vector3(13, 3, 0));
+				points.push(new THREE.Vector3(10, 1.5, 0));
+				points.push(new THREE.Vector3(8, 1, 0));
+				points.push(new THREE.Vector3(6, 0.15, 0));
+				points.push(new THREE.Vector3(5, 0.1, 0));
+				points.push(new THREE.Vector3(5, -0.1, 0));
 
 				// Make a spline curve to interpolate the curve between the points
 				const curve = new THREE.CatmullRomCurve3(points);
@@ -206,19 +219,19 @@
 				const splinePoints = curve.getPoints(numPoints);
 
 				// Make a new lathe geometry out of of the array of points just created
-				const geometry = new THREE.LatheGeometry(splinePoints, segments=36);
+				const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
 				const material = new THREE.MeshPhysicalMaterial({
-						color: 0x000082,
-						vertexColors: THREE.FaceColors,
-						side: THREE.DoubleSide,
-						roughness: 1,
-					});
+					color: 0x000082,
+					vertexColors: THREE.FaceColors,
+					side: THREE.DoubleSide,
+					roughness: 1,
+				});
 				var disk = new THREE.Mesh(geometry, material);
 				disk.receiveShadow = true;
-				disk.rotation.x = - Math.PI / 2.0;
-				disk.position.set(0,0,0);
+				disk.rotation.x = -Math.PI / 2.0;
+				disk.position.set(0, 0, 0);
 
-				const helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
+				const helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				//console.log(helper);
 				scene.add(disk);
 			}
@@ -294,13 +307,13 @@
 				{
 					const number_face_normal = disk.geometry.faces.length;
 					//var number_vertice = disk.geometry.vertices.length;
-					initial_vector = new THREE.Vector3( 1, 1, 1 );
+					initial_vector = new THREE.Vector3(1, 1, 1);
 					color_vector = camera.getWorldDirection(initial_vector);
 
-					const pLocal = new THREE.Vector3(0,1,0);
+					const pLocal = new THREE.Vector3(0, 1, 0);
 					const pWorld = pLocal.applyQuaternion(camera.quaternion);
 
-					const origin = new THREE.Vector3(0,0,0);
+					const origin = new THREE.Vector3(0, 0, 0);
 					const length = 20;
 					const hex = 0xffff00;
 
@@ -314,18 +327,18 @@
 						face_normal_y = disk.geometry.faces[i].normal.y;
 						face_normal_z = disk.geometry.faces[i].normal.z;
 
-						norm = Math.pow(face_normal_x*face_normal_x
-							+ face_normal_y*face_normal_y
-							+ face_normal_z*face_normal_z,
+						norm = Math.pow(face_normal_x * face_normal_x +
+							face_normal_y * face_normal_y +
+							face_normal_z * face_normal_z,
 							0.5);
 						// normalize the position vectors
-						face_normalized_x = face_normal_x/norm;
-						face_normalized_y = face_normal_y/norm;
-						face_normalized_z = face_normal_z/norm;
+						face_normalized_x = face_normal_x / norm;
+						face_normalized_y = face_normal_y / norm;
+						face_normalized_z = face_normal_z / norm;
 						// dot product
-						blag = arrow_up.quaternion.x*face_normalized_x
-							+ arrow_up.quaternion.y*face_normalized_y
-							+ arrow_up.quaternion.z*face_normalized_z
+						blag = arrow_up.quaternion.x * face_normalized_x +
+							arrow_up.quaternion.y * face_normalized_y +
+							arrow_up.quaternion.z * face_normalized_z
 
 						setColor = disk.geometry.faces[i].color.setRGB(
 							Math.abs(blag),
@@ -380,7 +393,7 @@
 		}
 
 		main();
+	</script>
+</body>
 
-		</script>
-	</body>
 </html>
