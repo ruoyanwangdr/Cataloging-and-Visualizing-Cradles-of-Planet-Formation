@@ -60,7 +60,7 @@
 			const near = 5;
 			const far = 100;
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-			camera.position.set(0, 30, 60);
+			camera.position.set(0, 40, 50);
 
 			const cameraHelper = new THREE.CameraHelper(camera);
 
@@ -136,7 +136,6 @@
 			const scene = new THREE.Scene();
 			scene.background = new THREE.Color('black');
 			scene.add(cameraHelper);
-			//console.log(cameraHelper);
 
 			// Construct a plane for primitives
 			{
@@ -173,7 +172,7 @@
 				);
 
 				const lightColor = 0xffffff;
-				const lightIntensity = 20;
+				const lightIntensity = 10;
 				const lightDistance = 20;
 
 				const pointLight = new THREE.PointLight(lightColor, lightIntensity, lightDistance);
@@ -181,7 +180,7 @@
 					color: 0xffffff
 				})));
 				pointLight.position.set(0, 0, 0);
-				//scene.add(pointLight);
+				scene.add(pointLight);
 
 				// Add GUI panel for light
 				const gui = new dat.GUI({
@@ -189,8 +188,8 @@
 				});
 				const folder = gui.addFolder('Light');
 				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
-				folder.add(pointLight, 'intensity', 0, 50).name('Intensity');
-				folder.add(pointLight, 'distance', 0, 50).name('Distance');
+				folder.add(pointLight, 'intensity', 0, 40).name('Intensity');
+				folder.add(pointLight, 'distance', 0, 40).name('Distance');
 			}
 
 			// Calculate face centroid
@@ -251,7 +250,7 @@
 
 				// Make a new lathe geometry out of of the array of points just created
 				const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
-				const material = new THREE.MeshBasicMaterial({
+				const material = new THREE.MeshPhongMaterial({
 					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
 					side: THREE.DoubleSide,
@@ -263,7 +262,7 @@
 
 				var disk = new THREE.Mesh(geometry, material);
 				disk.receiveShadow = true;
-				disk.rotation.x = -Math.PI / 2.0;
+				//disk.rotation.x = -Math.PI / 2.0;
 				disk.position.set(0, 0, 0);
 
 				const helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
