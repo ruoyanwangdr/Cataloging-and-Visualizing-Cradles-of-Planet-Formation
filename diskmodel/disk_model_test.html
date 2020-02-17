@@ -342,9 +342,9 @@
 				// Calculate and update polarization
 				{
 					const number_face_normal = disk.geometry.faces.length;
-					//var number_vertice = disk.geometry.vertices.length;
+
 					initial_vector = new THREE.Vector3(1, 1, 1);
-					color_vector = camera.getWorldDirection(initial_vector);
+					camera_vector = camera.getWorldDirection(initial_vector);
 
 					const pLocal = new THREE.Vector3(0, 1, 0);
 					const pWorld = pLocal.applyQuaternion(camera.quaternion);
@@ -357,38 +357,23 @@
 
 					for (i = 0; i < number_face_normal; i++) {
 
-						face_normal_x = disk.geometry.faces[i].normal.x;
-						face_normal_y = disk.geometry.faces[i].normal.y;
-						face_normal_z = disk.geometry.faces[i].normal.z;
-
 						face_normal = disk.geometry.faces[i].normal;
 						face_centroid = disk.geometry.faces[i].centroid;
 
-						res = new THREE.Vector3();
-						res.crossVectors(face_normal.normalize(), face_centroid.normalize());
+						polar = new THREE.Vector3();
+						polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
 
-						//console.log(face_centroid);
-
-						norm = Math.pow(face_normal_x * face_normal_x +
-							face_normal_y * face_normal_y +
-							face_normal_z * face_normal_z,
-							0.5);
-						// normalize the position vectors
-						face_normalized_x = face_normal_x / norm;
-						face_normalized_y = face_normal_y / norm;
-						face_normalized_z = face_normal_z / norm;
-						// dot product
-						//blag = pWorld.x * face_normalized_x +
-						//	pWorld.y * face_normalized_y +
-						//	pWorld.z * face_normalized_z
-
-						blag = pWorld.normalize().dot(res);
-						setColor = disk.geometry.faces[i].color.setRGB(
-							Math.abs(blag),
-							Math.abs(blag),
-							Math.abs(blag),
+						//	setColor = disk.geometry.faces[i].color.setRGB(
+						//		Math.abs(pWorld.normalize().dot(polar)),
+						//		Math.abs(pWorld.normalize().dot(polar)),
+						//		Math.abs(pWorld.normalize().dot(polar)),
+						//	);
+						//}
+						setScalar = disk.geometry.faces[i].color.setScalar(
+							Math.abs(pWorld.normalize().dot(polar))
 						);
 					}
+
 					disk.geometry.elementsNeedUpdate = true;
 				}
 
