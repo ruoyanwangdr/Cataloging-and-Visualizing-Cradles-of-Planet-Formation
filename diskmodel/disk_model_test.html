@@ -181,7 +181,7 @@
 					color: 0xffffff
 				})));
 				pointLight.position.set(0, 0, 0);
-				scene.add(pointLight);
+				//scene.add(pointLight);
 
 				// Add GUI panel for light
 				const gui = new dat.GUI({
@@ -191,6 +191,37 @@
 				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
 				folder.add(pointLight, 'intensity', 0, 50).name('Intensity');
 				folder.add(pointLight, 'distance', 0, 50).name('Distance');
+			}
+
+			// Calculate face centroid
+			function computeFaceCentroids(geometry) {
+
+				var f, fl, face;
+
+				for (f = 0, fl = geometry.faces.length; f < fl; f++) {
+
+					face = geometry.faces[f];
+					face.centroid = new THREE.Vector3(0, 0, 0);
+
+					if (face instanceof THREE.Face3) {
+
+						face.centroid.add(geometry.vertices[face.a]);
+						face.centroid.add(geometry.vertices[face.b]);
+						face.centroid.add(geometry.vertices[face.c]);
+						face.centroid.divideScalar(3);
+
+					} else if (face instanceof THREE.Face4) {
+
+						face.centroid.add(geometry.vertices[face.a]);
+						face.centroid.add(geometry.vertices[face.b]);
+						face.centroid.add(geometry.vertices[face.c]);
+						face.centroid.add(geometry.vertices[face.d]);
+						face.centroid.divideScalar(4);
+
+					}
+
+				}
+
 			}
 
 			// Construct the disk
@@ -220,20 +251,24 @@
 
 				// Make a new lathe geometry out of of the array of points just created
 				const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
-				const material = new THREE.MeshPhysicalMaterial({
-					color: 0x000082,
+				const material = new THREE.MeshBasicMaterial({
+					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
 					side: THREE.DoubleSide,
 					roughness: 1,
 				});
+
+				// Add centroid as an attibute to geometry
+				computeFaceCentroids(geometry);
+
 				var disk = new THREE.Mesh(geometry, material);
 				disk.receiveShadow = true;
 				disk.rotation.x = -Math.PI / 2.0;
 				disk.position.set(0, 0, 0);
 
 				const helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
-				//console.log(helper);
 				scene.add(disk);
+				//scene.add(helper);
 			}
 
 			//{
@@ -299,6 +334,7 @@
 				return width / height;
 			}
 
+
 			function render() {
 
 				resizeRendererToDisplaySize(renderer);
@@ -320,12 +356,18 @@
 					const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
 
 					for (i = 0; i < number_face_normal; i++) {
-						//pos_x = disk.geometry.vertices[i].x;
-						//pos_y = disk.geometry.vertices[i].y;
-						//pos_z = disk.geometry.vertices[i].z;
+
 						face_normal_x = disk.geometry.faces[i].normal.x;
 						face_normal_y = disk.geometry.faces[i].normal.y;
 						face_normal_z = disk.geometry.faces[i].normal.z;
+
+						face_normal = disk.geometry.faces[i].normal;
+						face_centroid = disk.geometry.faces[i].centroid;
+
+						res = new THREE.Vector3();
+						res.crossVectors(face_normal.normalize(), face_centroid.normalize());
+
+						//console.log(face_centroid);
 
 						norm = Math.pow(face_normal_x * face_normal_x +
 							face_normal_y * face_normal_y +
@@ -336,10 +378,11 @@
 						face_normalized_y = face_normal_y / norm;
 						face_normalized_z = face_normal_z / norm;
 						// dot product
-						blag = arrow_up.quaternion.x * face_normalized_x +
-							arrow_up.quaternion.y * face_normalized_y +
-							arrow_up.quaternion.z * face_normalized_z
+						//blag = pWorld.x * face_normalized_x +
+						//	pWorld.y * face_normalized_y +
+						//	pWorld.z * face_normalized_z
 
+						blag = pWorld.normalize().dot(res);
 						setColor = disk.geometry.faces[i].color.setRGB(
 							Math.abs(blag),
 							Math.abs(blag),
