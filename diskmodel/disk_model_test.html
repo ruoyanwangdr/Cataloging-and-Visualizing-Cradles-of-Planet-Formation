@@ -57,7 +57,7 @@
 			// Camera 1 setup
 			const fov = 45;
 			const aspect = 2; // the canvas default
-			const near = 5;
+			const near = 20;
 			const far = 100;
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 			camera.position.set(0, 40, 50);
@@ -109,7 +109,7 @@
 			const folder = gui.addFolder('Camera');
 			folder.add(camera, 'fov', 1, 180);
 			const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
-			folder.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near');
+			folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
 			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
 
 			// Orbit control of camera 1
