@@ -1,4 +1,4 @@
-# Cataloging-and-Visualizing-Cradles-of-Planet-Formation
+# Cataloging and Visualizing Cradles of Planet Formation
 
 ## Project Description
 
