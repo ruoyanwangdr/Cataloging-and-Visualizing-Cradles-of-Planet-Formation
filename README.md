@@ -1,4 +1,4 @@
-# Cataloging-and-Visualising-Cradles-of-Planet-Formation
+# Cataloging-and-Visualizing-Cradles-of-Planet-Formation
 
 ## Project Description
 
@@ -7,7 +7,7 @@ In the past 5 years we have opened the possibility to observe these disks at hig
 
 Recently the first VLT/SPHERE survey of such disks came to a conclusion. At the same time a new program lead by researchers from Amsterdam and Leiden University is about to start that will significantly extend the sample of resolved disks. The student will be introduced to the concept of scattered light imaging. The goal is to assemble a complete catalog of all such observation that were conducted and published to date. The catalog will be combined with a web interface for easy access and basic statistical analysis. 
 
-The goal is on the one hand to design an efficient tool for researchers, which can be easily queried, maintained and updated, and on the other hand a visualisation experience for a general audience. One possibility that can be explored would be the (simplified) 3d reconstruction of circumstellar disks from 2d data.
+The goal is on the one hand to design an efficient tool for researchers, which can be easily queried, maintained and updated, and on the other hand a visualization experience for a general audience. One possibility that can be explored would be the (simplified) 3d reconstruction of circumstellar disks from 2d data.
 
 A research blog to track the work done can be found [here](https://rywjhzd.github.io/posts/2019/09/cataloging-visualizing-circumstellar-disks). 
 The database is created with Django and DataTables. Disk models make uses of threejs.org examples. 
@@ -22,8 +22,8 @@ The database is created with Django and DataTables. Disk models make uses of thr
 * Load http://localhost:8000/ to the database. 
 
 ```
-git clone https://github.com/rywjhzd/Cataloging-and-Visualising-Cradles-of-Planet-Formation.git
-cd Cataloging-and-Visualising-Cradles-of-Planet-Formation
+git clone https://github.com/rywjhzd/Cataloging-and-Visualizing-Cradles-of-Planet-Formation.git
+cd Cataloging-and-Visualizing-Cradles-of-Planet-Formation
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -45,6 +45,6 @@ Note: when importing files, make sure item *id* is not duplicated. This column c
 ## Disk Display
 disk_model.html contains the model and disk_model_test.html is to test scripts. Both can be opened directly with a double click or by the command lines below.
 ```
-cd Cataloging-and-Visualising-Cradles-of-Planet-Formation/diskmodel
+cd Cataloging-and-Visualizing-Cradles-of-Planet-Formation/diskmodel
 open disk_model.html
 ```
