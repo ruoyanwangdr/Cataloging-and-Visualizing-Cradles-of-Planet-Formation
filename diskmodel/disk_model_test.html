@@ -254,7 +254,8 @@
 					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
 					side: THREE.DoubleSide,
-					roughness: 1,
+					shininess: 0,
+					//roughness: 1,
 				});
 
 				// Add centroid as an attibute to geometry
@@ -356,6 +357,7 @@
 
 					for (i = 0; i < number_face_normal; i++) {
 
+						// Get face normal and face centroid as vectors
 						face_normal = disk.geometry.faces[i].normal;
 						face_centroid = disk.geometry.faces[i].centroid;
 
