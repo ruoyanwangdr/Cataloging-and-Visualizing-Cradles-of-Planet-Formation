@@ -266,9 +266,9 @@
 				//disk.rotation.x = -Math.PI / 2.0;
 				disk.position.set(0, 0, 0);
 
-				const helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
+				const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				scene.add(disk);
-				//scene.add(helper);
+				//scene.add(disk_helper);
 			}
 
 			//{
@@ -376,6 +376,7 @@
 					}
 
 					disk.geometry.elementsNeedUpdate = true;
+					//console.log(disk.geometry.faces);
 				}
 
 				// turn on the scissor
