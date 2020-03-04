@@ -254,12 +254,12 @@
 			// Construct the disk
 			{
 				// path
-				const path = new Ellipse(10, 20);
+				const path = new Ellipse(8, 16);
 
 				// params
-				const pathSegments = 64;
-				const tubeRadius = 0.5;
-				const radiusSegments = 16;
+				const pathSegments = 128;
+				const tubeRadius = 1;
+				const radiusSegments = 32;
 				const closed = true;
 
 				const geometry = new THREE.TubeGeometry(path, pathSegments, tubeRadius, radiusSegments, closed);
