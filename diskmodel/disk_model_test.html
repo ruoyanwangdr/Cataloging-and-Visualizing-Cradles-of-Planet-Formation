@@ -223,33 +223,46 @@
 
 			}
 
+			// Ellipse class, which extends the virtual base class Curve
+			function Ellipse(xRadius, yRadius) {
+
+				THREE.Curve.call(this);
+
+				// add the desired properties
+				this.xRadius = xRadius;
+				this.yRadius = yRadius;
+
+			}
+
+			{
+				Ellipse.prototype = Object.create(THREE.Curve.prototype);
+				Ellipse.prototype.constructor = Ellipse;
+
+				// define the getPoint function for the subClass
+				Ellipse.prototype.getPoint = function(t) {
+
+					const radians = 2 * Math.PI * t;
+
+					return new THREE.Vector3(this.xRadius * Math.cos(radians),
+						this.yRadius * Math.sin(radians),
+						0);
+
+				};
+			}
+
+
 			// Construct the disk
 			{
-				// Create an array of points
-				const points = [];
-				//for ( var i = 0; i < 10; i ++ ) {
-				//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
-				points.push(new THREE.Vector3(5, -0.1, 0));
-				points.push(new THREE.Vector3(6, -0.15, 0));
-				points.push(new THREE.Vector3(8, -1, 0));
-				points.push(new THREE.Vector3(10, -1.5, 0));
-				points.push(new THREE.Vector3(13, -3, 0));
-				points.push(new THREE.Vector3(13.4, 0, 0));
-				points.push(new THREE.Vector3(13, 3, 0));
-				points.push(new THREE.Vector3(10, 1.5, 0));
-				points.push(new THREE.Vector3(8, 1, 0));
-				points.push(new THREE.Vector3(6, 0.15, 0));
-				points.push(new THREE.Vector3(5, 0.1, 0));
-				points.push(new THREE.Vector3(5, -0.1, 0));
+				// path
+				const path = new Ellipse(10, 20);
 
-				// Make a spline curve to interpolate the curve between the points
-				const curve = new THREE.CatmullRomCurve3(points);
-				// then specify the number of points on that curve and make it into an array of points
-				const numPoints = 50;
-				const splinePoints = curve.getPoints(numPoints);
+				// params
+				const pathSegments = 64;
+				const tubeRadius = 0.5;
+				const radiusSegments = 16;
+				const closed = true;
 
-				// Make a new lathe geometry out of of the array of points just created
-				const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
+				const geometry = new THREE.TubeGeometry(path, pathSegments, tubeRadius, radiusSegments, closed);
 				const material = new THREE.MeshPhongMaterial({
 					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
@@ -266,9 +279,21 @@
 				//disk.rotation.x = -Math.PI / 2.0;
 				disk.position.set(0, 0, 0);
 
-				const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
+				//const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				scene.add(disk);
 				//scene.add(disk_helper);
+
+				//const curvepoints = curve.getPoints(50);
+				//const curvegeometry = new THREE.BufferGeometry().setFromPoints(curvepoints);
+
+				//const curvematerial = new THREE.LineBasicMaterial({
+				//	color: 0xff0000
+				//});
+
+				// Create the final object to add to the scene
+				//const curveObject = new THREE.Line(curvegeometry, curvematerial);
+				//curveObject.position.set(20, 0, 0)
+				//scene.add(curveObject)
 			}
 
 			//{
