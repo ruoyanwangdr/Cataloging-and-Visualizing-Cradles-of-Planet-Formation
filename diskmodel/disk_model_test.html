@@ -283,48 +283,7 @@
 				scene.add(disk);
 				//scene.add(disk_helper);
 
-				//const curvepoints = curve.getPoints(50);
-				//const curvegeometry = new THREE.BufferGeometry().setFromPoints(curvepoints);
-
-				//const curvematerial = new THREE.LineBasicMaterial({
-				//	color: 0xff0000
-				//});
-
-				// Create the final object to add to the scene
-				//const curveObject = new THREE.Line(curvegeometry, curvematerial);
-				//curveObject.position.set(20, 0, 0)
-				//scene.add(curveObject)
 			}
-
-			//{
-			//	const cubeSize = 4;
-			//	const cubeGeo = new THREE.BoxBufferGeometry(cubeSize, cubeSize, cubeSize);
-			//	const cubeMat = new THREE.MeshPhongMaterial({color: '#8AC'});
-			//	const mesh = new THREE.Mesh(cubeGeo, cubeMat);
-			//	mesh.position.set(cubeSize + 1, cubeSize / 2, 0);
-			//	scene.add(mesh);
-			//}
-
-			//{
-			//	const sphereRadius = 3;
-			//	const sphereWidthDivisions = 32;
-			//	const sphereHeightDivisions = 16;
-			//	const sphereGeo = new THREE.SphereBufferGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
-			//	const sphereMat = new THREE.MeshPhongMaterial({color: '#CA8'});
-			//	const mesh = new THREE.Mesh(sphereGeo, sphereMat);
-			//	mesh.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
-			//	scene.add(mesh);
-			//}
-
-			//{
-			//	const color = 0xFFFFFF;
-			//	const intensity = 1;
-			//	const light = new THREE.DirectionalLight(color, intensity);
-			//	light.position.set(0, 10, 0);
-			//	light.target.position.set(-5, 0, 0);
-			//	scene.add(light);
-			//	scene.add(light.target);
-			//}
 
 			function resizeRendererToDisplaySize(renderer) {
 				const canvas = renderer.domElement;
@@ -389,12 +348,6 @@
 						polar = new THREE.Vector3();
 						polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
 
-						//	setColor = disk.geometry.faces[i].color.setRGB(
-						//		Math.abs(pWorld.normalize().dot(polar)),
-						//		Math.abs(pWorld.normalize().dot(polar)),
-						//		Math.abs(pWorld.normalize().dot(polar)),
-						//	);
-						//}
 						setScalar = disk.geometry.faces[i].color.setScalar(
 							Math.abs(pWorld.normalize().dot(polar))
 						);
