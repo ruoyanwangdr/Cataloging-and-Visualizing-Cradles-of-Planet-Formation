@@ -1,283 +1,429 @@
+<!DOCTYPE html>
 <html>
-	<head>
-		<title>DiskModel</title>
-		<style>
-			body { margin: 0; }
-			canvas { width: 100%; height: 100% }
-		</style>
-	</head>
-	<body>
-		<script type="text/javascript" src="js/libs/dat.gui.min.js"> </script>
-		<script src="js/three.js"></script>
-		<script src="js/controls/OrbitControls.js"></script>
-		<script>
-			///////////////////////////
-			// Camera and Background //
-			///////////////////////////
-			var renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			renderer.shadowMap.enabled = true;
 
-			renderer.shadowMap.type = THREE.BasicShadowMap;
-			document.body.appendChild( renderer.domElement );
+<head>
+	<title>DiskModelTest</title>
+	<style>
+		html,
+		body {
+			margin: 0;
+			height: 100%;
+		}
 
-			var scene = new THREE.Scene();
-			scene.add( new THREE.AmbientLight( 0x111122 ) );
-			var camera = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, 1, 10000 );
+		#c {
+			width: 100%;
+			height: 100%;
+			display: block;
+		}
 
-			//var cameraHelper = new THREE.CameraHelper(camera);
-			//scene.add(cameraHelper);
+		.split {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			display: flex;
+		}
 
+		.split>div {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
 
-			var pointLight;
+<body>
+	<canvas id="c"></canvas>
 
-			var controls = new THREE.OrbitControls( camera, renderer.domElement );
+	<div class="split">
+		<div id="view1" tabindex="1"></div>
+		<div id="view2" tabindex="2"></div>
+	</div>
 
-			// controls.update() must be called after any manual changes to the camera's transform
-			camera.position.set( 0, 30, 70 );
+	<script type="text/javascript" src="js/libs/dat.gui.min.js"> </script>
+	<script src="js/three.js"></script>
+	<script src="js/controls/OrbitControls.js"></script>
+
+	<script>
+		function main() {
+			// Canvas setup
+			const canvas = document.querySelector('#c');
+			const view1Elem = document.querySelector('#view1');
+			const view2Elem = document.querySelector('#view2');
+			const renderer = new THREE.WebGLRenderer({
+				canvas
+			});
+
+			// Camera 1 setup
+			const fov = 45;
+			const aspect = 2; // the canvas default
+			const near = 20;
+			const far = 100;
+			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			camera.position.set(0, 40, 50);
+
+			const cameraHelper = new THREE.CameraHelper(camera);
+
+			// GUI helper for min and max
+			class MinMaxGUIHelper {
+				constructor(obj, minProp, maxProp, minDif) {
+					this.obj = obj;
+					this.minProp = minProp;
+					this.maxProp = maxProp;
+					this.minDif = minDif;
+				}
+				get min() {
+					return this.obj[this.minProp];
+				}
+				set min(v) {
+					this.obj[this.minProp] = v;
+					this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
+				}
+				get max() {
+					return this.obj[this.maxProp];
+				}
+				set max(v) {
+					this.obj[this.maxProp] = v;
+					this.min = this.min; // this will call the min setter
+				}
+			}
+
+			// GUI helper for color
+			class ColorGUIHelper {
+				constructor(object, prop) {
+					this.object = object;
+					this.prop = prop;
+				}
+				get value() {
+					return `#${this.object[this.prop].getHexString()}`;
+				}
+				set value(hexString) {
+					this.object[this.prop].set(hexString);
+				}
+			}
+
+			// Construct GUI for camera
+			const gui = new dat.GUI({
+				autoplace: true
+			});
+			const folder = gui.addFolder('Camera');
+			folder.add(camera, 'fov', 1, 180);
+			const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
+			folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
+			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
+
+			// Orbit control of camera 1
+			const controls = new THREE.OrbitControls(camera, view1Elem);
+			controls.target.set(0, 0, 0);
 			controls.update();
 
-
-			///////////
-			// Light //
-			///////////
-
-			// Texture
-			function generateTexture() {
-				var canvas = document.createElement( 'canvas' );
-				canvas.width = 2;
-				canvas.height = 2;
-				var context = canvas.getContext( '2d' );
-				context.fillStyle = 'white';
-				context.fillRect( 0, 1, 2, 1 );
-				return canvas;
-			}
-
-			// Shadow light from the light source at center
-			function createLight( color, intensity, distance ) {
-								var pointLight = new THREE.PointLight( color, intensity, distance );
-								pointLight.castShadow = true;
-								pointLight.shadow.camera.near = 0.001;
-								pointLight.shadow.camera.far = 6000;
-								pointLight.shadow.bias = - 0.005; // reduces self-shadowing on double-sided objects
-
-								var geometry = new THREE.SphereGeometry( 1.5, 48, 48 );
-								var material = new THREE.MeshBasicMaterial( {
-									color: color,
-									side: THREE.DoubleSide,
-									alphaTest: 0.5
-								} );
-								material.color.multiplyScalar( intensity );
-								var sphere = new THREE.Mesh( geometry, material );
-								sphere.castShadow = true;
-								//sphere.receiveShadow = true;
-								//sphere.shadowDarkness = 0.5;
-								//sphere.shadowCameraVisible = true;
-								pointLight.add( sphere );
-
-								//var texture = new THREE.CanvasTexture( generateTexture() );
-								//texture.magFilter = THREE.NearestFilter;
-								//texture.wrapT = THREE.RepeatWrapping;
-								//texture.wrapS = THREE.RepeatWrapping;
-								//texture.repeat.set( 1, 4.5 );
-
-								// custom distance material
-								var distanceMaterial = new THREE.MeshDistanceMaterial( {
-									alphaMap: material.alphaMap,
-									alphaTest: material.alphaTest
-								} );
-								sphere.customDistanceMaterial = distanceMaterial;
-								return pointLight;
-			}
-			var params = {
-					color: 0xffffff,
-					intensity: 20,
-					distance: 20,
-			};
-
-			var pointLight = createLight(
-				params.color,
-				params.intensity,
-				params.distance
+			// Camera 2 setup
+			const camera2 = new THREE.PerspectiveCamera(
+				60, // fov
+				2, // aspect
+				0.1, // near
+				1000, // far
 			);
-			scene.add( pointLight );
+			camera2.position.set(-80, 80, 100);
+			camera2.lookAt(0, 0, 0);
 
+			// Orbit control of camera 2
+			const controls2 = new THREE.OrbitControls(camera2, view2Elem);
+			controls2.target.set(0, 0, 0);
+			controls2.update();
 
-			//////////
-			// Disk //
-			//////////
+			// Blackground setup and camera helper
+			const scene = new THREE.Scene();
+			scene.background = new THREE.Color('black');
+			scene.add(cameraHelper);
 
-			// Create an array of points
-			var points = [];
-			//for ( var i = 0; i < 10; i ++ ) {
-			//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
-			points.push( new THREE.Vector3( 5, -0.1, 0 ) );
-			points.push( new THREE.Vector3( 6, -0.15, 0 ) );
-			points.push( new THREE.Vector3( 8, -1, 0 ) );
-			points.push( new THREE.Vector3( 10, -1.5, 0 ) );
-			points.push( new THREE.Vector3( 13, -3, 0 ) );
-			points.push( new THREE.Vector3( 13.4, 0, 0 ) );
-			points.push( new THREE.Vector3( 13, 3, 0 ) );
-			points.push( new THREE.Vector3( 10, 1.5, 0 ) );
-			points.push( new THREE.Vector3( 8, 1, 0 ) );
-			points.push( new THREE.Vector3( 6, 0.15, 0 ) );
-			points.push( new THREE.Vector3( 5, 0.1, 0 ) );
-			points.push( new THREE.Vector3( 5, -0.1, 0 ) );
+			// Construct a plane for primitives
+			{
+				const planeSize = 40;
 
-			// Make a spline curve to interpolate the curve between the points
-			var curve = new THREE.CatmullRomCurve3(points);
-			// then specify the number of points on that curve and make it into an array of points
-			var numPoints = 50;
-			var splinePoints = curve.getPoints(numPoints);
+				//const loader = new THREE.TextureLoader();
+				//const texture = loader.load('resources/images/checker.png');
+				//texture.wrapS = THREE.RepeatWrapping;
+				//texture.wrapT = THREE.RepeatWrapping;
+				//texture.magFilter = THREE.NearestFilter;
+				//const repeats = planeSize / 2;
+				//texture.repeat.set(repeats, repeats);
 
-			// Make a new lathe geometry out of of the array of points just created
-			var geometry = new THREE.LatheGeometry( splinePoints, segments=36 );
-			var material = new THREE.MeshPhysicalMaterial( {
-					color: 0xffffff,
-					vertexColors: THREE.FaceColors,
-					//shininess: 10,
-					//specular: 0x111111,
+				const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
+				const planeMat = new THREE.MeshPhongMaterial({
+					color: 0xc0c0c0,
+					//map: texture,
 					side: THREE.DoubleSide,
-					roughness: 1,
-				} );
-			var disk = new THREE.Mesh( geometry, material );
-			disk.receiveShadow = true;
-			disk.rotation.x = - Math.PI / 2.0 ;
+				});
+				const mesh = new THREE.Mesh(planeGeo, planeMat);
+				mesh.rotation.x = Math.PI * -.5;
+				//scene.add(mesh);
+			}
 
-			var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
-			//console.log(helper);
-			scene.add( disk );
-			//scene.add( helper );
+			// Add the central light source
+			{
+				const sphereRadius = 1.5;
+				const sphereWidthDivisions = 48;
+				const sphereHeightDivisions = 48;
+				const sphere = new THREE.SphereBufferGeometry(
+					sphereRadius,
+					sphereWidthDivisions,
+					sphereHeightDivisions
+				);
 
-			//////////////////
-			// Polarization //
-			//////////////////
+				const lightColor = 0xffffff;
+				const lightIntensity = 10;
+				const lightDistance = 20;
 
-			//var helper = new THREE.FaceNormalsHelper( disk, 1, 0x00ff00, 1 );
+				const pointLight = new THREE.PointLight(lightColor, lightIntensity, lightDistance);
+				pointLight.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({
+					color: 0xffffff
+				})));
+				pointLight.position.set(0, 0, 0);
+				scene.add(pointLight);
 
-			//var faceCoordinates = geometry.computeFaceNormals();
-			//var faceNumber = disk.geometry.faces[0].normal;
+				// Add GUI panel for light
+				const gui = new dat.GUI({
+					autoplace: true
+				});
+				const folder = gui.addFolder('Light');
+				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
+				folder.add(pointLight, 'intensity', 0, 40).name('Intensity');
+				folder.add(pointLight, 'distance', 0, 40).name('Distance');
+			}
 
-			//var numberFaceNornal = disk.geometry.faces.length;
-			//console.log(faceNornal);
-			//for (i = 0; i < numberFaceNornal; i++) {
-			//	zVal = Math.abs(disk.geometry.faces[i].normal);
-			//	disk.geometry.faces[i].color.setRGB(zVal);
-				//console.log(zVal);
-				//text += cars[i] + "<br>";
+			// Calculate face centroid
+			function computeFaceCentroids(geometry) {
+
+				var f, fl, face;
+
+				for (f = 0, fl = geometry.faces.length; f < fl; f++) {
+
+					face = geometry.faces[f];
+					face.centroid = new THREE.Vector3(0, 0, 0);
+
+					if (face instanceof THREE.Face3) {
+
+						face.centroid.add(geometry.vertices[face.a]);
+						face.centroid.add(geometry.vertices[face.b]);
+						face.centroid.add(geometry.vertices[face.c]);
+						face.centroid.divideScalar(3);
+
+					} else if (face instanceof THREE.Face4) {
+
+						face.centroid.add(geometry.vertices[face.a]);
+						face.centroid.add(geometry.vertices[face.b]);
+						face.centroid.add(geometry.vertices[face.c]);
+						face.centroid.add(geometry.vertices[face.d]);
+						face.centroid.divideScalar(4);
+
+					}
+
+				}
+
+			}
+
+			// Construct the disk
+			{
+				// Create an array of points
+				const points = [];
+				//for ( var i = 0; i < 10; i ++ ) {
+				//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
+				points.push(new THREE.Vector3(5, -0.1, 0));
+				points.push(new THREE.Vector3(6, -0.15, 0));
+				points.push(new THREE.Vector3(8, -1, 0));
+				points.push(new THREE.Vector3(10, -1.5, 0));
+				points.push(new THREE.Vector3(13, -3, 0));
+				points.push(new THREE.Vector3(13.4, 0, 0));
+				points.push(new THREE.Vector3(13, 3, 0));
+				points.push(new THREE.Vector3(10, 1.5, 0));
+				points.push(new THREE.Vector3(8, 1, 0));
+				points.push(new THREE.Vector3(6, 0.15, 0));
+				points.push(new THREE.Vector3(5, 0.1, 0));
+				points.push(new THREE.Vector3(5, -0.1, 0));
+
+				// Make a spline curve to interpolate the curve between the points
+				const curve = new THREE.CatmullRomCurve3(points);
+				// then specify the number of points on that curve and make it into an array of points
+				const numPoints = 50;
+				const splinePoints = curve.getPoints(numPoints);
+
+				// Make a new lathe geometry out of of the array of points just created
+				const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
+				const material = new THREE.MeshPhongMaterial({
+					//color: 0xffffff,
+					vertexColors: THREE.FaceColors,
+					side: THREE.DoubleSide,
+					shininess: 0,
+					//roughness: 1,
+				});
+
+				// Add centroid as an attibute to geometry
+				computeFaceCentroids(geometry);
+
+				var disk = new THREE.Mesh(geometry, material);
+				disk.receiveShadow = true;
+				//disk.rotation.x = -Math.PI / 2.0;
+				disk.position.set(0, 0, 0);
+
+				const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
+				scene.add(disk);
+				//scene.add(disk_helper);
+			}
+
+			//{
+			//	const cubeSize = 4;
+			//	const cubeGeo = new THREE.BoxBufferGeometry(cubeSize, cubeSize, cubeSize);
+			//	const cubeMat = new THREE.MeshPhongMaterial({color: '#8AC'});
+			//	const mesh = new THREE.Mesh(cubeGeo, cubeMat);
+			//	mesh.position.set(cubeSize + 1, cubeSize / 2, 0);
+			//	scene.add(mesh);
 			//}
 
+			//{
+			//	const sphereRadius = 3;
+			//	const sphereWidthDivisions = 32;
+			//	const sphereHeightDivisions = 16;
+			//	const sphereGeo = new THREE.SphereBufferGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
+			//	const sphereMat = new THREE.MeshPhongMaterial({color: '#CA8'});
+			//	const mesh = new THREE.Mesh(sphereGeo, sphereMat);
+			//	mesh.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
+			//	scene.add(mesh);
+			//}
 
-			/*
-			var loader = new THREE.FontLoader();
+			//{
+			//	const color = 0xFFFFFF;
+			//	const intensity = 1;
+			//	const light = new THREE.DirectionalLight(color, intensity);
+			//	light.position.set(0, 10, 0);
+			//	light.target.position.set(-5, 0, 0);
+			//	scene.add(light);
+			//	scene.add(light.target);
+			//}
 
-			loader.load( 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
-
-				var geometry = new THREE.TextGeometry( 'Hello three.js!', {
-					font: font,
-					size: 80,
-					height: 5,
-					curveSegments: 12,
-					bevelEnabled: true,
-					bevelThickness: 10,
-					bevelSize: 8,
-					bevelOffset: 0,
-					bevelSegments: 5
-				} );
-			} );
-			*/
-
-
-			///////////////////
-			// Shape display //
-			///////////////////
-
-			// Create a closed wavey loop to see the shape
-			var points = curve.getPoints( 50 );
-			var geometry = new THREE.BufferGeometry().setFromPoints( points );
-
-			var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-
-			// Create the final object to add to the scene
-			var curveObject = new THREE.Line( geometry, material );
-			curveObject.position.set(20, 0, 0)
-			scene.add(curveObject)
-
-			/////////////////
-			/// GUI widget //
-			/////////////////
-			var gui = new dat.GUI();
-
-			var light = gui.addFolder('Light');
-			light.add(params, 'intensity')
-					.name('Intensity')
-					.min(1).max(20).step(1)
-					.onFinishChange(function(){
-    			// refresh based on the new value of params.interation
-					});
-
-			/////////////
-			// Animate //
-			/////////////
-
-			var animate = function () {
-				requestAnimationFrame( animate );
-
-				var number_face_normal = disk.geometry.faces.length;
-				//var number_vertice = disk.geometry.vertices.length;
-				initial_vector = new THREE.Vector3( 1, 1, 1 );
-				color_vector = camera.getWorldDirection(initial_vector);
-
-				var pLocal = new THREE.Vector3(0,1,0);
-				var pWorld = pLocal.applyQuaternion(camera.quaternion);
-
-				var origin = new THREE.Vector3(0,0,0);
-				var length = 20;
-				var hex = 0xffff00;
-
-				var arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
-
-				for (i = 0; i < number_face_normal; i++) {
-					//pos_x = disk.geometry.vertices[i].x;
-					//pos_y = disk.geometry.vertices[i].y;
-					//pos_z = disk.geometry.vertices[i].z;
-					face_normal_x = disk.geometry.faces[i].normal.x;
-					face_normal_y = disk.geometry.faces[i].normal.y;
-					face_normal_z = disk.geometry.faces[i].normal.z;
-
-					norm = Math.pow(face_normal_x*face_normal_x
-						+ face_normal_y*face_normal_y
-						+ face_normal_z*face_normal_z,
-						0.5);
-					// normalize the position vectors
-					face_normalized_x = face_normal_x/norm;
-					face_normalized_y = face_normal_y/norm;
-					face_normalized_z = face_normal_z/norm;
-					// dot product
-					blag = arrow_up.quaternion.x*face_normalized_x
-						+ arrow_up.quaternion.y*face_normalized_y
-						+ arrow_up.quaternion.z*face_normalized_z
-
-					setColor = disk.geometry.faces[i].color.setRGB(
-						Math.abs(blag),
-						Math.abs(blag),
-						Math.abs(blag),
-					);
+			function resizeRendererToDisplaySize(renderer) {
+				const canvas = renderer.domElement;
+				const width = canvas.clientWidth;
+				const height = canvas.clientHeight;
+				const needResize = canvas.width !== width || canvas.height !== height;
+				if (needResize) {
+					renderer.setSize(width, height, false);
 				}
-				disk.geometry.elementsNeedUpdate = true;
-				//var pLocal = new THREE.Vector3(0,1,0);
-				//var pWorld = pLocal.applyMatrix4(camera.matrixWorld).normalize();
-				//var dir = pWorld.sub(camera.position).normalize();
+				return needResize;
+			}
 
-				//console.log(arrow_up.quaternion.x);
-				//console.log(camera.quaternion);
-				//console.log(pWorld);
+			function setScissorForElement(elem) {
+				const canvasRect = canvas.getBoundingClientRect();
+				const elemRect = elem.getBoundingClientRect();
+
+				// compute a canvas relative rectangle
+				const right = Math.min(elemRect.right, canvasRect.right) - canvasRect.left;
+				const left = Math.max(0, elemRect.left - canvasRect.left);
+				const bottom = Math.min(elemRect.bottom, canvasRect.bottom) - canvasRect.top;
+				const top = Math.max(0, elemRect.top - canvasRect.top);
+
+				const width = Math.min(canvasRect.width, right - left);
+				const height = Math.min(canvasRect.height, bottom - top);
+
+				// setup the scissor to only render to that part of the canvas
+				const positiveYUpBottom = canvasRect.height - bottom;
+				renderer.setScissor(left, positiveYUpBottom, width, height);
+				renderer.setViewport(left, positiveYUpBottom, width, height);
+
+				// return the aspect
+				return width / height;
+			}
 
 
-				renderer.render( scene, camera );
-			};
+			function render() {
 
-			animate();
-		</script>
-	</body>
+				resizeRendererToDisplaySize(renderer);
+
+				// Calculate and update polarization
+				{
+					const number_face_normal = disk.geometry.faces.length;
+
+					initial_vector = new THREE.Vector3(1, 1, 1);
+					camera_vector = camera.getWorldDirection(initial_vector);
+
+					const pLocal = new THREE.Vector3(0, 1, 0);
+					const pWorld = pLocal.applyQuaternion(camera.quaternion);
+
+					const origin = new THREE.Vector3(0, 0, 0);
+					const length = 20;
+					const hex = 0xffff00;
+
+					const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
+
+					for (i = 0; i < number_face_normal; i++) {
+
+						// Get face normal and face centroid as vectors
+						face_normal = disk.geometry.faces[i].normal;
+						face_centroid = disk.geometry.faces[i].centroid;
+
+						polar = new THREE.Vector3();
+						polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
+
+						//	setColor = disk.geometry.faces[i].color.setRGB(
+						//		Math.abs(pWorld.normalize().dot(polar)),
+						//		Math.abs(pWorld.normalize().dot(polar)),
+						//		Math.abs(pWorld.normalize().dot(polar)),
+						//	);
+						//}
+						setScalar = disk.geometry.faces[i].color.setScalar(
+							Math.abs(pWorld.normalize().dot(polar))
+						);
+					}
+
+					disk.geometry.elementsNeedUpdate = true;
+					//console.log(disk.geometry.faces);
+				}
+
+				// turn on the scissor
+				renderer.setScissorTest(true);
+
+				// render the original view
+				{
+					const aspect = setScissorForElement(view1Elem);
+
+					// adjust the camera for this aspect
+					camera.aspect = aspect;
+					camera.updateProjectionMatrix();
+					cameraHelper.update();
+
+					// don't draw the camera helper in the original view
+					cameraHelper.visible = false;
+
+					scene.background.set(0x000000);
+
+					// render
+					renderer.render(scene, camera);
+				}
+
+				// render from the 2nd camera
+				{
+					const aspect = setScissorForElement(view2Elem);
+
+					// adjust the camera for this aspect
+					camera2.aspect = aspect;
+					camera2.updateProjectionMatrix();
+
+					// draw the camera helper in the 2nd view
+					cameraHelper.visible = true;
+
+					scene.background.set(0x000040);
+
+					renderer.render(scene, camera2);
+				}
+
+				requestAnimationFrame(render);
+			}
+
+			requestAnimationFrame(render);
+		}
+
+		main();
+	</script>
+</body>
+
 </html>
