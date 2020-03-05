@@ -40,29 +40,22 @@
 		<div id="view2" tabindex="2"></div>
 	</div>
 
-	<script src="js/libs/dat.gui.min.js"> </script>
-	<script src="js/three.min.js"></script>
-	<script src="js/controls/OrbitControls.js"></script>
+	<script src="script/three.min.js"></script>
+	<script src="script/libs/dat.gui.min.js"> </script>
+	<script src="script/controls/OrbitControls.js"></script>
 
 	<script>
 		function main() {
+
 			// Canvas setup
-			const canvas = document.querySelector('#c');
-			const view1Elem = document.querySelector('#view1');
-			const view2Elem = document.querySelector('#view2');
-			const renderer = new THREE.WebGLRenderer({
-				canvas
-			});
-
-			// Camera 1 setup
-			const fov = 45;
-			const aspect = 2; // the canvas default
-			const near = 20;
-			const far = 100;
-			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-			camera.position.set(0, 40, 50);
-
-			const cameraHelper = new THREE.CameraHelper(camera);
+			{
+				const canvas = document.querySelector('#c');
+				const view1Elem = document.querySelector('#view1');
+				const view2Elem = document.querySelector('#view2');
+				const renderer = new THREE.WebGLRenderer({
+					canvas
+				});
+			}
 
 			// GUI helper for min and max
 			class MinMaxGUIHelper {
@@ -103,39 +96,54 @@
 			}
 
 			// Construct GUI for camera
-			const gui = new dat.GUI({
-				autoplace: true
-			});
-			const folder = gui.addFolder('Camera');
-			folder.add(camera, 'fov', 1, 180);
-			const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
-			folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
-			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
+			{
+				const gui = new dat.GUI({
+					autoplace: true
+				});
+				const folder = gui.addFolder('Camera');
+				folder.add(camera, 'fov', 1, 180);
+				const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
+				folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
+				folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
+			}
 
-			// Orbit control of camera 1
-			const controls = new THREE.OrbitControls(camera, view1Elem);
-			controls.target.set(0, 0, 0);
-			controls.update();
+			// Camera and background
+			{
+				// Camera 1 setup
+				const fov = 45;
+				const aspect = 2; // the canvas default
+				const near = 20;
+				const far = 100;
+				const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+				camera.position.set(0, 40, 50);
 
-			// Camera 2 setup
-			const camera2 = new THREE.PerspectiveCamera(
-				60, // fov
-				2, // aspect
-				0.1, // near
-				1000, // far
-			);
-			camera2.position.set(-80, 80, 100);
-			camera2.lookAt(0, 0, 0);
+				const cameraHelper = new THREE.CameraHelper(camera);
 
-			// Orbit control of camera 2
-			const controls2 = new THREE.OrbitControls(camera2, view2Elem);
-			controls2.target.set(0, 0, 0);
-			controls2.update();
+				// Orbit control of camera 1
+				const controls = new THREE.OrbitControls(camera, view1Elem);
+				controls.target.set(0, 0, 0);
+				controls.update();
 
-			// Blackground setup and camera helper
-			const scene = new THREE.Scene();
-			scene.background = new THREE.Color('black');
-			scene.add(cameraHelper);
+				// Camera 2 setup
+				const camera2 = new THREE.PerspectiveCamera(
+					60, // fov
+					2, // aspect
+					0.1, // near
+					1000, // far
+				);
+				camera2.position.set(-80, 80, 100);
+				camera2.lookAt(0, 0, 0);
+
+				// Orbit control of camera 2
+				const controls2 = new THREE.OrbitControls(camera2, view2Elem);
+				controls2.target.set(0, 0, 0);
+				controls2.update();
+
+				// Blackground setup and camera helper
+				const scene = new THREE.Scene();
+				scene.background = new THREE.Color('black');
+				scene.add(cameraHelper);
+			}
 
 			// Construct a plane for primitives
 			{
@@ -160,7 +168,7 @@
 				//scene.add(mesh);
 			}
 
-			// Add the central light source
+			// Construct a central light source
 			{
 				const sphereRadius = 1.5;
 				const sphereWidthDivisions = 48;
@@ -224,17 +232,17 @@
 			}
 
 			// Ellipse class, which extends the virtual base class Curve
-			function Ellipse(xRadius, yRadius) {
-
-				THREE.Curve.call(this);
-
-				// add the desired properties
-				this.xRadius = xRadius;
-				this.yRadius = yRadius;
-
-			}
-
 			{
+				function Ellipse(xRadius, yRadius) {
+
+					THREE.Curve.call(this);
+
+					// add the desired properties
+					this.xRadius = xRadius;
+					this.yRadius = yRadius;
+
+				}
+
 				Ellipse.prototype = Object.create(THREE.Curve.prototype);
 				Ellipse.prototype.constructor = Ellipse;
 
@@ -248,8 +256,8 @@
 						0);
 
 				};
-			}
 
+			}
 
 			// Construct the disk
 			{
@@ -285,6 +293,7 @@
 
 			}
 
+			// Render class
 			function resizeRendererToDisplaySize(renderer) {
 				const canvas = renderer.domElement;
 				const width = canvas.clientWidth;
@@ -317,7 +326,6 @@
 				// return the aspect
 				return width / height;
 			}
-
 
 			function render() {
 
