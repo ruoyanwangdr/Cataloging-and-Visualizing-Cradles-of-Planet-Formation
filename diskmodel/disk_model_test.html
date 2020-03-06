@@ -35,11 +35,13 @@
 <body>
 	<canvas id="c"></canvas>
 
+	<!-- Split window -->
 	<div class="split">
 		<div id="view1" tabindex="1"></div>
 		<div id="view2" tabindex="2"></div>
 	</div>
 
+	<!-- Load core scripts -->
 	<script src="script/three.min.js"></script>
 	<script src="script/libs/dat.gui.min.js"> </script>
 	<script src="script/controls/OrbitControls.js"></script>
@@ -48,14 +50,12 @@
 		function main() {
 
 			// Canvas setup
-			{
-				const canvas = document.querySelector('#c');
-				const view1Elem = document.querySelector('#view1');
-				const view2Elem = document.querySelector('#view2');
-				const renderer = new THREE.WebGLRenderer({
-					canvas
-				});
-			}
+			const canvas = document.querySelector('#c');
+			const view1Elem = document.querySelector('#view1');
+			const view2Elem = document.querySelector('#view2');
+			const renderer = new THREE.WebGLRenderer({
+				canvas
+			});
 
 			// GUI helper for min and max
 			class MinMaxGUIHelper {
@@ -95,78 +95,75 @@
 				}
 			}
 
+			// Camera 1 setup
+			const fov = 45;
+			const aspect = 2; // the canvas default
+			const near = 20;
+			const far = 100;
+			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			camera.position.set(0, 40, 50);
+
+			const cameraHelper = new THREE.CameraHelper(camera);
+
+			// Orbit control of camera 1
+			const controls = new THREE.OrbitControls(camera, view1Elem);
+			controls.target.set(0, 0, 0);
+			controls.update();
+
+			// Camera 2 setup
+			const camera2 = new THREE.PerspectiveCamera(
+				60, // fov
+				2, // aspect
+				0.1, // near
+				1000, // far
+			);
+			camera2.position.set(-80, 80, 100);
+			camera2.lookAt(0, 0, 0);
+
+			// Orbit control of camera 2
+			const controls2 = new THREE.OrbitControls(camera2, view2Elem);
+			controls2.target.set(0, 0, 0);
+			controls2.update();
+
+			// Blackground setup and camera helper
+			const scene = new THREE.Scene();
+			scene.background = new THREE.Color('black');
+			scene.add(cameraHelper);
+
 			// Construct GUI for camera
-			{
-				const gui = new dat.GUI({
-					autoplace: true
-				});
-				const folder = gui.addFolder('Camera');
-				folder.add(camera, 'fov', 1, 180);
-				const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
-				folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
-				folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
-			}
+			const gui = new dat.GUI({
+				autoplace: true
+			});
+			const folder = gui.addFolder('Camera');
+			folder.add(camera, 'fov', 1, 180);
+			const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
+			folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
+			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
 
-			// Camera and background
-			{
-				// Camera 1 setup
-				const fov = 45;
-				const aspect = 2; // the canvas default
-				const near = 20;
-				const far = 100;
-				const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-				camera.position.set(0, 40, 50);
-
-				const cameraHelper = new THREE.CameraHelper(camera);
-
-				// Orbit control of camera 1
-				const controls = new THREE.OrbitControls(camera, view1Elem);
-				controls.target.set(0, 0, 0);
-				controls.update();
-
-				// Camera 2 setup
-				const camera2 = new THREE.PerspectiveCamera(
-					60, // fov
-					2, // aspect
-					0.1, // near
-					1000, // far
-				);
-				camera2.position.set(-80, 80, 100);
-				camera2.lookAt(0, 0, 0);
-
-				// Orbit control of camera 2
-				const controls2 = new THREE.OrbitControls(camera2, view2Elem);
-				controls2.target.set(0, 0, 0);
-				controls2.update();
-
-				// Blackground setup and camera helper
-				const scene = new THREE.Scene();
-				scene.background = new THREE.Color('black');
-				scene.add(cameraHelper);
-			}
-
+			/*
 			// Construct a plane for primitives
 			{
 				const planeSize = 40;
 
-				//const loader = new THREE.TextureLoader();
-				//const texture = loader.load('resources/images/checker.png');
-				//texture.wrapS = THREE.RepeatWrapping;
-				//texture.wrapT = THREE.RepeatWrapping;
-				//texture.magFilter = THREE.NearestFilter;
-				//const repeats = planeSize / 2;
-				//texture.repeat.set(repeats, repeats);
+				const loader = new THREE.TextureLoader();
+				const texture = loader.load('resources/images/checker.png');
+				texture.wrapS = THREE.RepeatWrapping;
+				texture.wrapT = THREE.RepeatWrapping;
+				texture.magFilter = THREE.NearestFilter;
+				const repeats = planeSize / 2;
+				texture.repeat.set(repeats, repeats);
 
 				const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
 				const planeMat = new THREE.MeshPhongMaterial({
 					color: 0xc0c0c0,
-					//map: texture,
+					map: texture,
 					side: THREE.DoubleSide,
 				});
 				const mesh = new THREE.Mesh(planeGeo, planeMat);
 				mesh.rotation.x = Math.PI * -.5;
-				//scene.add(mesh);
+				scene.add(mesh);
 			}
+			*/
 
 			// Construct a central light source
 			{
@@ -266,11 +263,34 @@
 
 				// params
 				const pathSegments = 128;
-				const tubeRadius = 1;
-				const radiusSegments = 32;
+				const tubeRadius = 0.4;
+				const radialSegments = 4;
 				const closed = true;
 
-				const geometry = new THREE.TubeGeometry(path, pathSegments, tubeRadius, radiusSegments, closed);
+				/*
+				// Arc shape
+				var arcShape = new THREE.Shape()
+					.moveTo(0, 0)
+					.absellipse(10, 10, 40, 70, Math.PI * 2, false);
+
+				var holePath = new THREE.Path()
+					.moveTo(0, 0)
+					.absellipse(10, 10, 10, 30, Math.PI * 2, true)
+
+				arcShape.holes.push(holePath);
+
+				const extrudeSettings = {
+					steps: 50,
+					depth: 1,
+					bevelEnabled: false,
+					bevelThickness: 1,
+					bevelSize: 1,
+					bevelSegments: 2,
+				};
+				*/
+
+				//const geometry = new THREE.ExtrudeGeometry(arcShape, extrudeSettings);
+				const geometry = new THREE.TubeGeometry(path, pathSegments, tubeRadius, radialSegments, closed);
 				const material = new THREE.MeshPhongMaterial({
 					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
@@ -282,13 +302,14 @@
 				// Add centroid as an attibute to geometry
 				computeFaceCentroids(geometry);
 
+				// Declare disk to be global
 				var disk = new THREE.Mesh(geometry, material);
 				disk.receiveShadow = true;
-				//disk.rotation.x = -Math.PI / 2.0;
 				disk.position.set(0, 0, 0);
+				//disk.rotation.x = -Math.PI / 2.0;
+				scene.add(disk);
 
 				//const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
-				scene.add(disk);
 				//scene.add(disk_helper);
 
 			}
