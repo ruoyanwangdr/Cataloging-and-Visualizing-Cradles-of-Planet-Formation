@@ -259,44 +259,46 @@
 			// Construct the disk
 			{
 				// path
-				const path = new Ellipse(8, 16);
+				const path = new Ellipse(16, 8);
 
 				// params
 				const pathSegments = 128;
-				const tubeRadius = 0.4;
-				const radialSegments = 4;
+				const tubeRadius = 4;
+				const radialSegments = 32;
 				const closed = true;
 
-				/*
-				// Arc shape
-				var arcShape = new THREE.Shape()
-					.moveTo(0, 0)
-					.absellipse(10, 10, 40, 70, Math.PI * 2, false);
+				// Create an array of points
+				const points = [];
+				//for ( var i = 0; i < 10; i ++ ) {
+				//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
+				points.push(new THREE.Vector3(5, -0.1, 0));
+				points.push(new THREE.Vector3(6, -0.15, 0));
+				points.push(new THREE.Vector3(8, -1, 0));
+				points.push(new THREE.Vector3(10, -1.5, 0));
+				points.push(new THREE.Vector3(13, -3, 0));
+				points.push(new THREE.Vector3(13.4, 0, 0));
+				points.push(new THREE.Vector3(13, 3, 0));
+				points.push(new THREE.Vector3(10, 1.5, 0));
+				points.push(new THREE.Vector3(8, 1, 0));
+				points.push(new THREE.Vector3(6, 0.15, 0));
+				points.push(new THREE.Vector3(5, 0.1, 0));
+				points.push(new THREE.Vector3(5, -0.1, 0));
 
-				var holePath = new THREE.Path()
-					.moveTo(0, 0)
-					.absellipse(10, 10, 10, 30, Math.PI * 2, true)
+				// Make a spline curve to interpolate the curve between the points
+				const curve = new THREE.CatmullRomCurve3(points);
+				// then specify the number of points on that curve and make it into an array of points
+				const numPoints = 50;
+				const splinePoints = curve.getPoints(numPoints);
 
-				arcShape.holes.push(holePath);
 
-				const extrudeSettings = {
-					steps: 50,
-					depth: 1,
-					bevelEnabled: false,
-					bevelThickness: 1,
-					bevelSize: 1,
-					bevelSegments: 2,
-				};
-				*/
-
-				//const geometry = new THREE.ExtrudeGeometry(arcShape, extrudeSettings);
-				const geometry = new THREE.TubeGeometry(path, pathSegments, tubeRadius, radialSegments, closed);
+				// Make a new lathe geometry out of of the array of points just created
+				const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
+				//const geometry = new THREE.TubeGeometry(path, pathSegments, tubeRadius, radialSegments, closed);
 				const material = new THREE.MeshPhongMaterial({
 					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
 					side: THREE.DoubleSide,
 					shininess: 0,
-					//roughness: 1,
 				});
 
 				// Add centroid as an attibute to geometry
