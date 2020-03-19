@@ -269,8 +269,10 @@
 
 				// Create an array of points
 				const points = [];
-				//for ( var i = 0; i < 10; i ++ ) {
-				//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
+				for (var i = 0; i < (2 * Math.PI + 1); i = i + (2 * Math.PI / 50)) {
+					points.push(new THREE.Vector2(Math.sin(i) * 2.5 + 13, Math.cos(i) * 0.5 + 0));
+				}
+				/*
 				points.push(new THREE.Vector3(5, -0.1, 0));
 				points.push(new THREE.Vector3(6, -0.15, 0));
 				points.push(new THREE.Vector3(8, -1, 0));
@@ -283,22 +285,22 @@
 				points.push(new THREE.Vector3(6, 0.15, 0));
 				points.push(new THREE.Vector3(5, 0.1, 0));
 				points.push(new THREE.Vector3(5, -0.1, 0));
-
+				*/
 				// Make a spline curve to interpolate the curve between the points
-				const curve = new THREE.CatmullRomCurve3(points);
-				// then specify the number of points on that curve and make it into an array of points
-				const numPoints = 50;
-				const splinePoints = curve.getPoints(numPoints);
+				//const curve = new THREE.CatmullRomCurve3(points);
+				//then specify the number of points on that curve and make it into an array of points
+				//const numPoints = 50;
+				//const splinePoints = curve.getPoints(numPoints);
 
 
 				// Make a new lathe geometry out of of the array of points just created
-				const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
-				//const geometry = new THREE.TubeGeometry(path, pathSegments, tubeRadius, radialSegments, closed);
-				const material = new THREE.MeshPhongMaterial({
-					//color: 0xffffff,
+				//const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
+				const geometry = new THREE.LatheGeometry(points, segments = 200);
+				const material = new THREE.MeshBasicMaterial({
+					color: 0xffffff,
 					vertexColors: THREE.FaceColors,
 					side: THREE.DoubleSide,
-					shininess: 0,
+					//shininess: 0,
 				});
 
 				// Add centroid as an attibute to geometry
@@ -314,6 +316,14 @@
 				//const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				//scene.add(disk_helper);
 
+				const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
+				const line_material = new THREE.LineBasicMaterial({
+					color: 0xff0000,
+					linewidth: 10,
+				});
+				const line = new THREE.Line(line_geometry, line_material);
+				line.position.set(-10, 2, 0)
+				scene.add(line);
 			}
 
 			// Render class
@@ -358,34 +368,49 @@
 				{
 					const number_face_normal = disk.geometry.faces.length;
 
-					initial_vector = new THREE.Vector3(1, 1, 1);
-					camera_vector = camera.getWorldDirection(initial_vector);
+					// Get world space direction in which the camera is looking
+					camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
 
 					const pLocal = new THREE.Vector3(0, 1, 0);
-					const pWorld = pLocal.applyQuaternion(camera.quaternion);
+					const pWorld = pLocal.applyQuaternion(camera.quaternion).normalize();
 
-					const origin = new THREE.Vector3(0, 0, 0);
-					const length = 20;
-					const hex = 0xffff00;
+					//const origin = new THREE.Vector3(0, 0, 0);
+					//const length = 20;
+					//const hex = 0xffff00;
 
-					const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
+					//const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
 
 					for (i = 0; i < number_face_normal; i++) {
 
-						// Get face normal and face centroid as vectors
+						// Get normalized face normal and face centroid as vectors
 						face_normal = disk.geometry.faces[i].normal;
 						face_centroid = disk.geometry.faces[i].centroid;
+
+						camera_norm = Math.pow(camera_direction.x * camera_direction.x +
+							camera_direction.y * camera_direction.y +
+							camera_direction.z * camera_direction.z,
+							0.5);
+
+						face_centroid_norm = Math.pow(face_centroid.x * face_centroid.x +
+							face_centroid.y * face_centroid.y +
+							face_centroid.z * face_centroid.z,
+							0.5);
+
+						//scattering_angle = Math.acos(
+						//	(camera_direction.dot(face_centroid)) / (
+						//		(camera_norm) * (face_centroid_norm)
+						//	));
 
 						polar = new THREE.Vector3();
 						polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
 
 						setScalar = disk.geometry.faces[i].color.setScalar(
-							Math.abs(pWorld.normalize().dot(polar))
+							Math.abs(pWorld.dot(polar))
 						);
 					}
+					//console.log(face_centroid);
 
 					disk.geometry.elementsNeedUpdate = true;
-					//console.log(disk.geometry.faces);
 				}
 
 				// turn on the scissor
