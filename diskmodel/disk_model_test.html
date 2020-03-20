@@ -371,6 +371,11 @@
 					// Get world space direction in which the camera is looking
 					camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
 
+					//camera_norm = Math.pow(camera_direction.x * camera_direction.x +
+					//	camera_direction.y * camera_direction.y +
+					//	camera_direction.z * camera_direction.z,
+					//	0.5);
+
 					const pLocal = new THREE.Vector3(0, 1, 0);
 					const pWorld = pLocal.applyQuaternion(camera.quaternion).normalize();
 
@@ -380,32 +385,38 @@
 
 					//const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
 
+					var g = 0.2
+
+					function Henyey_Greenstein(g, phi) {
+						p = []
+						for (i = 0; i < g; i++) {
+							p.push((1 - Math.pow(g, 2)) /
+							Math.pow((1 + Math.pow(g, 2) - 2 * g * Math.cos(phi[i])), (3 / 2)));
+						}
+					}
+
 					for (i = 0; i < number_face_normal; i++) {
 
 						// Get normalized face normal and face centroid as vectors
 						face_normal = disk.geometry.faces[i].normal;
 						face_centroid = disk.geometry.faces[i].centroid;
 
-						camera_norm = Math.pow(camera_direction.x * camera_direction.x +
-							camera_direction.y * camera_direction.y +
-							camera_direction.z * camera_direction.z,
-							0.5);
+						//face_centroid_norm = Math.pow(face_centroid.x * face_centroid.x +
+						//	face_centroid.y * face_centroid.y +
+						//	face_centroid.z * face_centroid.z,
+						//	0.5);
 
-						face_centroid_norm = Math.pow(face_centroid.x * face_centroid.x +
-							face_centroid.y * face_centroid.y +
-							face_centroid.z * face_centroid.z,
-							0.5);
+						scattering_angle =
+							(camera_direction.normalize().dot(face_centroid.normalize()));
 
-						//scattering_angle = Math.acos(
-						//	(camera_direction.dot(face_centroid)) / (
-						//		(camera_norm) * (face_centroid_norm)
-						//	));
+						//console.log(Henyey_Greenstein(g, scattering_angle));
 
-						polar = new THREE.Vector3();
-						polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
+						//polar = new THREE.Vector3();
+						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
 
 						setScalar = disk.geometry.faces[i].color.setScalar(
-							Math.abs(pWorld.dot(polar))
+							//Math.abs(pWorld.dot(polar))
+							Math.abs(scattering_angle)
 						);
 					}
 					//console.log(face_centroid);
