@@ -371,11 +371,6 @@
 					// Get world space direction in which the camera is looking
 					camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
 
-					//camera_norm = Math.pow(camera_direction.x * camera_direction.x +
-					//	camera_direction.y * camera_direction.y +
-					//	camera_direction.z * camera_direction.z,
-					//	0.5);
-
 					const pLocal = new THREE.Vector3(0, 1, 0);
 					const pWorld = pLocal.applyQuaternion(camera.quaternion).normalize();
 
@@ -385,14 +380,10 @@
 
 					//const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
 
-					var g = 0.2
 
 					function Henyey_Greenstein(g, phi) {
-						p = []
-						for (i = 0; i < g; i++) {
-							p.push((1 - Math.pow(g, 2)) /
-							Math.pow((1 + Math.pow(g, 2) - 2 * g * Math.cos(phi[i])), (3 / 2)));
-						}
+						var p = ((1 - Math.pow(g, 2)) / Math.pow((1 + Math.pow(g, 2) - 2 * g * Math.cos(phi)), (3 / 2)));
+						return p
 					}
 
 					for (i = 0; i < number_face_normal; i++) {
@@ -401,16 +392,10 @@
 						face_normal = disk.geometry.faces[i].normal;
 						face_centroid = disk.geometry.faces[i].centroid;
 
-						//face_centroid_norm = Math.pow(face_centroid.x * face_centroid.x +
-						//	face_centroid.y * face_centroid.y +
-						//	face_centroid.z * face_centroid.z,
-						//	0.5);
+						// Calculate scattering angle
+						scattering_angle = (camera_direction.normalize().dot(face_centroid.normalize()));
 
-						scattering_angle =
-							(camera_direction.normalize().dot(face_centroid.normalize()));
-
-						//console.log(Henyey_Greenstein(g, scattering_angle));
-
+						//console.log(Henyey_Greenstein(0.2, scattering_angle));
 						//polar = new THREE.Vector3();
 						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
 
@@ -419,7 +404,7 @@
 							Math.abs(scattering_angle)
 						);
 					}
-					//console.log(face_centroid);
+					//console.log(Henyey_Greenstein(0.2, scattering_angle));
 
 					disk.geometry.elementsNeedUpdate = true;
 				}
