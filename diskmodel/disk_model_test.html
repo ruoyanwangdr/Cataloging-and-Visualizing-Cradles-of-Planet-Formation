@@ -200,7 +200,7 @@
 			// Calculate face centroid
 			function computeFaceCentroids(geometry) {
 
-				var f, fl, face;
+				//var f, fl, face;
 
 				for (f = 0, fl = geometry.faces.length; f < fl; f++) {
 
@@ -228,48 +228,11 @@
 
 			}
 
-			// Ellipse class, which extends the virtual base class Curve
-			{
-				function Ellipse(xRadius, yRadius) {
-
-					THREE.Curve.call(this);
-
-					// add the desired properties
-					this.xRadius = xRadius;
-					this.yRadius = yRadius;
-
-				}
-
-				Ellipse.prototype = Object.create(THREE.Curve.prototype);
-				Ellipse.prototype.constructor = Ellipse;
-
-				// define the getPoint function for the subClass
-				Ellipse.prototype.getPoint = function(t) {
-
-					const radians = 2 * Math.PI * t;
-
-					return new THREE.Vector3(this.xRadius * Math.cos(radians),
-						this.yRadius * Math.sin(radians),
-						0);
-
-				};
-
-			}
-
 			// Construct the disk
 			{
-				// path
-				const path = new Ellipse(16, 8);
-
-				// params
-				const pathSegments = 128;
-				const tubeRadius = 4;
-				const radialSegments = 32;
-				const closed = true;
-
 				// Create an array of points
 				const points = [];
-				for (var i = 0; i < (2 * Math.PI + 1); i = i + (2 * Math.PI / 50)) {
+				for (i = 0; i < (2 * Math.PI + 1); i = i + (2 * Math.PI / 10)) {
 					points.push(new THREE.Vector2(Math.sin(i) * 2.5 + 13, Math.cos(i) * 0.5 + 0));
 				}
 				/*
@@ -295,7 +258,7 @@
 
 				// Make a new lathe geometry out of of the array of points just created
 				//const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
-				const geometry = new THREE.LatheGeometry(points, segments = 200);
+				const geometry = new THREE.LatheGeometry(points, segments = 5);
 				const material = new THREE.MeshBasicMaterial({
 					color: 0xffffff,
 					vertexColors: THREE.FaceColors,
@@ -366,10 +329,9 @@
 
 				// Calculate and update polarization
 				{
-					const number_face_normal = disk.geometry.faces.length;
 
 					// Get world space direction in which the camera is looking
-					camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
+					const camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
 
 					const pLocal = new THREE.Vector3(0, 1, 0);
 					const pWorld = pLocal.applyQuaternion(camera.quaternion).normalize();
@@ -382,29 +344,41 @@
 
 
 					function Henyey_Greenstein(g, phi) {
-						var p = ((1 - Math.pow(g, 2)) / Math.pow((1 + Math.pow(g, 2) - 2 * g * Math.cos(phi)), (3 / 2)));
+						const p = ((1 - Math.pow(g, 2)) / Math.pow((1 + Math.pow(g, 2) - 2 * g * Math.cos(phi)), (3 / 2)));
 						return p
 					}
+					//console.log(Henyey_Greenstein(0.2, 3.14));
 
-					for (i = 0; i < number_face_normal; i++) {
+					//const g = 0.2;
+					//const aaa = 2
+					// hg = Henyey_Greenstein(g, aaa);
+					//console.log(hg);
+
+					for (i = 0; i < disk.geometry.faces.length; i++) {
 
 						// Get normalized face normal and face centroid as vectors
-						face_normal = disk.geometry.faces[i].normal;
-						face_centroid = disk.geometry.faces[i].centroid;
+						const face_normal = disk.geometry.faces[i].normal;
+						const face_centroid = disk.geometry.faces[i].centroid;
 
 						// Calculate scattering angle
-						scattering_angle = (camera_direction.normalize().dot(face_centroid.normalize()));
+						const scattering_angle = camera_direction.normalize().dot(face_centroid.normalize());
+						//console.log(scattering_angle);
 
-						//console.log(Henyey_Greenstein(0.2, scattering_angle));
+						//const g = 0.2;
+						//var hg = Henyey_Greenstein(g, scattering_angle[i]);
+						//var sum_hg = hg.reduce(function(a, b) {
+						//	return a + b;
+						//}, 0);
+						//var normalized_hg = hg / sum_hg;
+						//console.log(hg.length);
 						//polar = new THREE.Vector3();
 						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
 
-						setScalar = disk.geometry.faces[i].color.setScalar(
-							//Math.abs(pWorld.dot(polar))
-							Math.abs(scattering_angle)
-						);
+						//const setScalar = disk.geometry.faces[i].color.setScalar(
+						//Math.abs(pWorld.dot(polar))
+						//	Math.abs(scattering_angle)
+						//);
 					}
-					//console.log(Henyey_Greenstein(0.2, scattering_angle));
 
 					disk.geometry.elementsNeedUpdate = true;
 				}
@@ -448,6 +422,7 @@
 
 				requestAnimationFrame(render);
 			}
+
 
 			requestAnimationFrame(render);
 		}
