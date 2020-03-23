@@ -349,10 +349,11 @@
 					}
 					//console.log(Henyey_Greenstein(0.2, 3.14));
 
-					//const g = 0.2;
+					const g = 0.2;
 					//const aaa = 2
 					// hg = Henyey_Greenstein(g, aaa);
 					//console.log(hg);
+					var hg_0 = Henyey_Greenstein(g, 0);
 
 					for (i = 0; i < disk.geometry.faces.length; i++) {
 
@@ -365,10 +366,11 @@
 						//console.log(scattering_angle);
 
 						//const g = 0.2;
-						//var hg = Henyey_Greenstein(g, scattering_angle[i]);
 						//var sum_hg = hg.reduce(function(a, b) {
 						//	return a + b;
 						//}, 0);
+
+
 						//var normalized_hg = hg / sum_hg;
 						//console.log(hg.length);
 						//polar = new THREE.Vector3();
