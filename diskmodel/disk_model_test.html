@@ -232,7 +232,7 @@
 			{
 				// Create an array of points
 				const points = [];
-				for (i = 0; i < (2 * Math.PI + 1); i = i + (2 * Math.PI / 10)) {
+				for (i = 0; i < (2 * Math.PI + 1); i = i + (2 * Math.PI / 24)) {
 					points.push(new THREE.Vector2(Math.sin(i) * 2.5 + 13, Math.cos(i) * 0.5 + 0));
 				}
 				/*
@@ -248,19 +248,20 @@
 				points.push(new THREE.Vector3(6, 0.15, 0));
 				points.push(new THREE.Vector3(5, 0.1, 0));
 				points.push(new THREE.Vector3(5, -0.1, 0));
-				*/
-				// Make a spline curve to interpolate the curve between the points
-				//const curve = new THREE.CatmullRomCurve3(points);
-				//then specify the number of points on that curve and make it into an array of points
-				//const numPoints = 50;
-				//const splinePoints = curve.getPoints(numPoints);
 
+				// Make a spline curve to interpolate the curve between the points
+				const curve = new THREE.CatmullRomCurve3(points);
+
+				//then specify the number of points on that curve and make it into an array of points
+				const numPoints = 50;
+				const splinePoints = curve.getPoints(numPoints);
+				*/
 
 				// Make a new lathe geometry out of of the array of points just created
 				//const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
-				const geometry = new THREE.LatheGeometry(points, segments = 5);
+				const geometry = new THREE.LatheGeometry(points, segments = 84);
 				const material = new THREE.MeshBasicMaterial({
-					color: 0xffffff,
+					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
 					side: THREE.DoubleSide,
 					//shininess: 0,
@@ -342,18 +343,35 @@
 
 					//const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
 
-
+					// Define Henyey-Greenstein funtion
 					function Henyey_Greenstein(g, phi) {
 						const p = ((1 - Math.pow(g, 2)) / Math.pow((1 + Math.pow(g, 2) - 2 * g * Math.cos(phi)), (3 / 2)));
 						return p
 					}
-					//console.log(Henyey_Greenstein(0.2, 3.14));
 
-					const g = 0.2;
-					//const aaa = 2
-					// hg = Henyey_Greenstein(g, aaa);
-					//console.log(hg);
+					// Set parameters and two ends of scattering angle
+					var g = 0.6;
 					var hg_0 = Henyey_Greenstein(g, 0);
+					var hg_pi = Henyey_Greenstein(g, Math.PI);
+
+					// Set max value of H-G
+					var hg_max;
+
+					if (hg_0 > hg_pi) {
+						hg_max = hg_0
+					} else {
+						hg_max = hg_pi
+					};
+
+					//const gui = new dat.GUI({
+					//	autoplace: true
+					//});
+					//const folder = gui.addFolder('H-G');
+					//folder.add(params, 'g', -0.9, 0.9).name('g');
+
+					//console.log('hgmax = ' + hg_max);
+					//console.log('hg0 = ' + hg_0);
+					//console.log('hgpi = ' + hg_pi);
 
 					for (i = 0; i < disk.geometry.faces.length; i++) {
 
@@ -365,21 +383,18 @@
 						const scattering_angle = camera_direction.normalize().dot(face_centroid.normalize());
 						//console.log(scattering_angle);
 
-						//const g = 0.2;
-						//var sum_hg = hg.reduce(function(a, b) {
-						//	return a + b;
-						//}, 0);
+						// Normalize H-G wrt max
+						const normalized_hg = Henyey_Greenstein(g, scattering_angle) / hg_max;
+						//console.log(normalized_hg);
 
-
-						//var normalized_hg = hg / sum_hg;
-						//console.log(hg.length);
-						//polar = new THREE.Vector3();
+						//const polar = new THREE.Vector3();
 						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
 
-						//const setScalar = disk.geometry.faces[i].color.setScalar(
-						//Math.abs(pWorld.dot(polar))
-						//	Math.abs(scattering_angle)
-						//);
+						// Set disk color intensity
+						const setScalar = disk.geometry.faces[i].color.setScalar(
+							//Math.abs(pWorld.dot(polar))
+							Math.abs(normalized_hg)
+						);
 					}
 
 					disk.geometry.elementsNeedUpdate = true;
