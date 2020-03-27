@@ -350,7 +350,7 @@
 					}
 
 					// Set parameters and two ends of scattering angle
-					var g = 0.6;
+					var g = .9;
 					var hg_0 = Henyey_Greenstein(g, 0);
 					var hg_pi = Henyey_Greenstein(g, Math.PI);
 
@@ -382,9 +382,10 @@
 						// Calculate scattering angle
 						const scattering_angle = camera_direction.normalize().dot(face_centroid.normalize());
 						//console.log(scattering_angle);
+						const tempa = Math.pow((1 - Math.pow(scattering_angle, 2)), 0.5);
 
 						// Normalize H-G wrt max
-						const normalized_hg = Henyey_Greenstein(g, scattering_angle) / hg_max;
+						const normalized_hg = Henyey_Greenstein(g, tempa) / hg_max;
 						//console.log(normalized_hg);
 
 						//const polar = new THREE.Vector3();
