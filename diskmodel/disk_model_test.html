@@ -349,13 +349,30 @@
 						return p
 					}
 
-					// Set parameters and two ends of scattering angle
-					var g = .9;
-					var hg_0 = Henyey_Greenstein(g, 0);
-					var hg_pi = Henyey_Greenstein(g, Math.PI);
+					function Henyey_Greenstein_2(g1, w1, g2, w2, phi) {
+						const p2 = w1 * Henyey_Greenstein(g1, phi) + w2 * Henyey_Greenstein(g2, phi);
+						return p2
+					}
 
-					// Set max value of H-G
-					var hg_max;
+					// Set parameters and two ends of scattering angle
+					const g = 0.6;
+					const g1 = 4.0; //0.99
+					const g2 = 0.82; //-0.14
+					const w1 = 0.83;
+					const w2 = 0.17;
+
+					const hg_0 = Henyey_Greenstein(g, 0);
+					const hg_pi = Henyey_Greenstein(g, Math.PI);
+
+					const hg2_0 = Henyey_Greenstein_2(g1, w1, g2, w2, 0);
+					const hg2_pi = Henyey_Greenstein_2(g1, w1, g2, w2, Math.PI);
+
+					//console.log('hg2_max = ' + hg2_max);
+					//console.log('hg2_0 = ' + hg2_0);
+					//console.log('hg2_pi = ' + hg2_pi);
+
+					// Set max value of H-G and HG2
+					var hg_max, hg2_max;
 
 					if (hg_0 > hg_pi) {
 						hg_max = hg_0
@@ -363,15 +380,19 @@
 						hg_max = hg_pi
 					};
 
+					if (hg2_0 > hg2_pi) {
+						hg2_max = hg2_0
+					} else {
+						hg2_max = hg2_pi
+					};
+
+
 					//const gui = new dat.GUI({
 					//	autoplace: true
 					//});
 					//const folder = gui.addFolder('H-G');
 					//folder.add(params, 'g', -0.9, 0.9).name('g');
 
-					//console.log('hgmax = ' + hg_max);
-					//console.log('hg0 = ' + hg_0);
-					//console.log('hgpi = ' + hg_pi);
 
 					for (i = 0; i < disk.geometry.faces.length; i++) {
 
@@ -381,12 +402,12 @@
 
 						// Calculate scattering angle
 						const scattering_angle = camera_direction.normalize().dot(face_centroid.normalize());
-						//console.log(scattering_angle);
-						const tempa = Math.pow((1 - Math.pow(scattering_angle, 2)), 0.5);
+						const trigonometry = Math.pow((1 - Math.pow(scattering_angle, 2)), 0.5);
 
 						// Normalize H-G wrt max
-						const normalized_hg = Henyey_Greenstein(g, tempa) / hg_max;
-						//console.log(normalized_hg);
+						const normalized_hg = Henyey_Greenstein(g, trigonometry) / hg_max;
+						const normalized_hg2 = Henyey_Greenstein_2(g1, w1, g2, w2, trigonometry) / hg2_max;
+						//console.log(normalized_hg2);
 
 						//const polar = new THREE.Vector3();
 						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
@@ -394,7 +415,7 @@
 						// Set disk color intensity
 						const setScalar = disk.geometry.faces[i].color.setScalar(
 							//Math.abs(pWorld.dot(polar))
-							Math.abs(normalized_hg)
+							Math.abs(normalized_hg2)
 						);
 					}
 
