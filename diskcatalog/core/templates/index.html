@@ -41,20 +41,20 @@
         </thead>
         <tbody>
           {% for disk in disk_list %}
-            <tr>
-              <th>{{disk.object}}</th>
-              <th>{{disk.category}}</th>
-              <th>{{disk.spec_type}}</th>
-              <th>{{disk.r_band}}</th>
-              <th>{{disk.distance}}</th>
-              <th>{{disk.disk_major_axis}}</th>
-              <th>{{disk.inclination}}</th>
-              <th>{{disk.ra}}</th>
-              <th>{{disk.dec}}</th>
-              <th>{{disk.system_age}}</th>
-              <th>{{disk.stellar_mass}}</th>
-              <th>{{disk.references}}</th>
-            </tr>
+          <tr>
+            <th>{{disk.object}}</th>
+            <th>{{disk.category}}</th>
+            <th>{{disk.spec_type}}</th>
+            <th>{{disk.r_band}}</th>
+            <th>{{disk.distance}}</th>
+            <th>{{disk.disk_major_axis}}</th>
+            <th>{{disk.inclination}}</th>
+            <th>{{disk.ra}}</th>
+            <th>{{disk.dec}}</th>
+            <th>{{disk.system_age}}</th>
+            <th>{{disk.stellar_mass}}</th>
+            <th>{{disk.references}}</th>
+          </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -68,16 +68,14 @@
 {% endblock content %}
 
 {% block js%}
-  <script>
-    $(document).ready(function() {
-        $('#diskTable').DataTable( {
-            columnDefs: [
-                {
-                    targets: [ 0, 1, 2 ],
-                    className: 'mdl-data-table__cell--non-numeric'
-                }
-            ]
-        } );
-    } );
-  </script>
+<script>
+  $(document).ready(function() {
+    $('#diskTable').DataTable({
+      columnDefs: [{
+        targets: [0, 1, 2],
+        className: 'mdl-data-table__cell--non-numeric'
+      }]
+    });
+  });
+</script>
 {% endblock js%}
