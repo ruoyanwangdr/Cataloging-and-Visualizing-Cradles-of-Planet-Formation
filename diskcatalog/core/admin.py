@@ -5,7 +5,7 @@ from .models import Disk
 
 @admin.register(Disk)
 class DiskAdmin(ImportExportModelAdmin):
-    list_display = ('__str__',
+    list_display = ('Object',
                     'Category',
                     'SpecType',
                     'Rband',
