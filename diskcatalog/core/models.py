@@ -1,21 +1,22 @@
 from django.db import models
 
+
 class Disk(models.Model):
-    object = models.CharField(max_length=100)
-    category = models.CharField(max_length=100, null=True, blank=True)
-    spec_type = models.CharField(max_length=100, null=True, blank=True)
-    r_band = models.CharField(max_length=100, null=True, blank=True)
-    distance = models.CharField(max_length=100, null=True, blank=True)
-    disk_major_axis = models.CharField(max_length=100, null=True, blank=True)
-    inclination = models.CharField(max_length=100, null=True, blank=True)
-    ra = models.CharField(max_length=100, null=True, blank=True)
-    dec = models.CharField(max_length=100, null=True, blank=True)
-    system_age = models.CharField(max_length=100, null=True, blank=True)
-    stellar_mass = models.CharField(max_length=100, null=True, blank=True)
-    references = models.CharField(max_length=1000, null=True, blank=True)
+    Object = models.CharField(max_length=100)
+    Category = models.CharField(max_length=100, null=True, blank=True)
+    SpecType = models.CharField(max_length=100, null=True, blank=True)
+    Rband = models.CharField(max_length=100, null=True, blank=True)
+    Distance = models.CharField(max_length=100, null=True, blank=True)
+    DiskMajorAxis = models.CharField(max_length=100, null=True, blank=True)
+    Inclination = models.CharField(max_length=100, null=True, blank=True)
+    RA = models.CharField(max_length=100, null=True, blank=True)
+    DEC = models.CharField(max_length=100, null=True, blank=True)
+    SystemAge = models.CharField(max_length=100, null=True, blank=True)
+    StellarMass = models.CharField(max_length=100, null=True, blank=True)
+    References = models.CharField(max_length=1000, null=True, blank=True)
 
     class Meta:
-        ordering = ('object',)
+        ordering = ('Object',)
         verbose_name = 'disk'
         verbose_name_plural = 'disks'
 
