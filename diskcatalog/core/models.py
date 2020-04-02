@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Disk(models.Model):
-    Object = models.CharField(max_length=100)
+    Object = models.CharField(max_length=100, null=True, blank=True)
     Category = models.CharField(max_length=100, null=True, blank=True)
     SpecType = models.CharField(max_length=100, null=True, blank=True)
     Rband = models.CharField(max_length=100, null=True, blank=True)
@@ -21,4 +21,4 @@ class Disk(models.Model):
         verbose_name_plural = 'disks'
 
     def __str__(self):
-        return self.object
+        return self.Object
