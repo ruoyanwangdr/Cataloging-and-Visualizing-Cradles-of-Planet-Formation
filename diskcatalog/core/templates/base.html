@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8">
@@ -26,21 +27,21 @@
     }
   </style>
 </head>
+
 <body>
 
-    {% include "nav.html" %}
+  {% include "nav.html" %}
 
-    <main role="main">
+  <main role="main">
 
     {% block content %}{% endblock content %}
 
-    </main>
+  </main>
 
-    <footer class="container">
-      <p><script
-      type="text/JavaScript"
-      language="JavaScript">
-      <!--
+  <footer class="container">
+    <p>
+      <script type="text/JavaScript" language="JavaScript">
+        <!--
       //
       // format date as dd-mmm-yy
       // example: 12-Jan-99
@@ -107,8 +108,9 @@
           date_lastmodified() + ".");
 
           // -->
-      </script></p>
-    </footer>
+      </script>
+    </p>
+  </footer>
 
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
@@ -118,4 +120,5 @@
   {% block js %}{% endblock js %}
 
 </body>
+
 </html>
