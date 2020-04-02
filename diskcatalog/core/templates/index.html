@@ -27,15 +27,16 @@
           <tr>
             <th>Object</th>
             <th>Category</th>
-            <th>RA <br />(J2000)</th>
-            <th>Dec <br />(J2000)</th>
+            <th>Spec Type</th>
+            <th>R band (mag)</th>
             <th>Distance <br />(pc)</th>
-            <th>System Age <br />(Myr)</th>
-            <th>Stellar Mass <br />(M⊙)</th>
             <th>Disk Major Axis</th>
             <th>Inclination <br />(degrees)</th>
+            <th>RA <br />(J2000)</th>
+            <th>Dec <br />(J2000)</th>
+            <th>System Age <br />(Myr)</th>
+            <th>Stellar Mass <br />(M⊙)</th>
             <th>References</th>
-            <th>Catalog</th>
           </tr>
         </thead>
         <tbody>
@@ -43,15 +44,16 @@
             <tr>
               <th>{{disk.object}}</th>
               <th>{{disk.category}}</th>
-              <th>{{disk.ra}}</th>
-              <th>{{disk.dec}}</th>
+              <th>{{disk.spec_type}}</th>
+              <th>{{disk.r_band}}</th>
               <th>{{disk.distance}}</th>
-              <th>{{disk.system_age}}</th>
-              <th>{{disk.stellar_mass}}</th>
               <th>{{disk.disk_major_axis}}</th>
               <th>{{disk.inclination}}</th>
+              <th>{{disk.ra}}</th>
+              <th>{{disk.dec}}</th>
+              <th>{{disk.system_age}}</th>
+              <th>{{disk.stellar_mass}}</th>
               <th>{{disk.references}}</th>
-              <th>{{disk.catalog}}</th>
             </tr>
           {% endfor %}
         </tbody>
