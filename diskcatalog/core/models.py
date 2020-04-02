@@ -16,7 +16,7 @@ class Disk(models.Model):
     References = models.CharField(max_length=1000, null=True, blank=True)
 
     class Meta:
-        ordering = ('Object',)
+        ordering = ['Object']
         verbose_name = 'disk'
         verbose_name_plural = 'disks'
 
