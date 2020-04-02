@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8">
@@ -17,13 +16,17 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
    -->
 
-
-
   <title>Catalog of Circumstellar Disks</title>
 
   <style>
     body {
-      padding-top: 3.5rem;
+      padding-top: 0rem;
+    }
+    h1, h2, h3 {
+      margin-left: 0.4em;
+    }
+    footer {
+      margin-left: 1em;
     }
   </style>
 </head>
@@ -40,75 +43,16 @@
 
   <footer class="container">
     <p>
-      <script type="text/JavaScript" language="JavaScript">
-        <!--
-      //
-      // format date as dd-mmm-yy
-      // example: 12-Jan-99
-      //
-      function date_ddmmmyy(date)
-      {
-        var d = date.getDate();
-        var m = date.getMonth() + 1;
-        var y = date.getYear();
-
-        // handle different year values
-        // returned by IE and NS in
-        // the year 2000.
-        if(y >= 2000)
-        {
-          y -= 2000;
-        }
-        if(y >= 100)
-        {
-          y -= 100;
-      }
-
-        // could use splitString() here
-        // but the following method is
-        // more compatible
-        var mmm =
-        ( 1==m)?'Jan':( 2==m)?'Feb':(3==m)?'Mar':
-        ( 4==m)?'Apr':( 5==m)?'May':(6==m)?'Jun':
-        ( 7==m)?'Jul':( 8==m)?'Aug':(9==m)?'Sep':
-        (10==m)?'Oct':(11==m)?'Nov':'Dec';
-
-        return "" +
-        (d<10?"0"+d:d) + "-" +
-        mmm + "-" +
-        (y<10?"0"+y:y);
-        }
-
-        //
-        // get last modified date of the
-        // current document.
-        //
-        function date_lastmodified()
-        {
-          var lmd = document.lastModified;
-          var s   = "Unknown";
-          var d1;
-
-          // check if we have a valid date
-          // before proceeding
-          if(0 != (d1=Date.parse(lmd)))
-          {
-            s = "" + date_ddmmmyy(new Date(d1));
-          }
-
-          return s;
-        }
-
-        //
-        // finally display the last modified date
-        // as DD-MMM-YY
-        //
+      <script>
+        var time = document.lastModified;
         document.write(
-          "Created by Ruoyan Wang. Last updated " +
-          date_lastmodified() + ".");
-
-          // -->
-      </script>
+          "Created by Ruoyan Wang. Last updated at " +
+          time + ".");
+      </script><br />
+      This table makes uses of <a href="https://datatables.net/" target="_blank">DataTables</a>
+        and <a href="https://www.djangoproject.com/" target="_blank">Django</a>.
+        References include <a href="https://webdisks.jpl.nasa.gov/index.php" target="_blank">NASA disk catalogs</a>
+        and <a href="https://ui.adsabs.harvard.edu/abs/2018A%26A...620A..94G/abstract" target="_blank">Garufi et al. (2018)</a>.
     </p>
   </footer>
 
