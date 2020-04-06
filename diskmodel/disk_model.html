@@ -35,17 +35,20 @@
 <body>
 	<canvas id="c"></canvas>
 
+	<!-- Split window -->
 	<div class="split">
 		<div id="view1" tabindex="1"></div>
 		<div id="view2" tabindex="2"></div>
 	</div>
 
-	<script type="text/javascript" src="js/libs/dat.gui.min.js"> </script>
-	<script src="js/three.js"></script>
-	<script src="js/controls/OrbitControls.js"></script>
+	<!-- Load core scripts -->
+	<script src="script/three.min.js"></script>
+	<script src="script/libs/dat.gui.min.js"> </script>
+	<script src="script/controls/OrbitControls.js"></script>
 
 	<script>
 		function main() {
+
 			// Canvas setup
 			const canvas = document.querySelector('#c');
 			const view1Elem = document.querySelector('#view1');
@@ -53,16 +56,6 @@
 			const renderer = new THREE.WebGLRenderer({
 				canvas
 			});
-
-			// Camera 1 setup
-			const fov = 45;
-			const aspect = 2; // the canvas default
-			const near = 20;
-			const far = 100;
-			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-			camera.position.set(0, 40, 50);
-
-			const cameraHelper = new THREE.CameraHelper(camera);
 
 			// GUI helper for min and max
 			class MinMaxGUIHelper {
@@ -102,15 +95,16 @@
 				}
 			}
 
-			// Construct GUI for camera
-			const gui = new dat.GUI({
-				autoplace: true
-			});
-			const folder = gui.addFolder('Camera');
-			folder.add(camera, 'fov', 1, 180);
-			const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
-			folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
-			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
+			// Camera 1 setup
+			const fov = 65; //45;
+			const aspect = 2; // the canvas default
+			const near = 20;
+			const far = 100;
+			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			camera.position.set(0, 40, 50);
+			//camera.position.set(0, 200, 300);
+
+			const cameraHelper = new THREE.CameraHelper(camera);
 
 			// Orbit control of camera 1
 			const controls = new THREE.OrbitControls(camera, view1Elem);
@@ -125,6 +119,7 @@
 				1000, // far
 			);
 			camera2.position.set(-80, 80, 100);
+			//camera2.position.set(-400, 400, 700);
 			camera2.lookAt(0, 0, 0);
 
 			// Orbit control of camera 2
@@ -137,30 +132,44 @@
 			scene.background = new THREE.Color('black');
 			scene.add(cameraHelper);
 
+			// Construct GUI for camera
+			const gui = new dat.GUI({
+				autoplace: true
+			});
+			const folder = gui.addFolder('Camera');
+			folder.add(camera, 'fov', 1, 180);
+			const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
+			folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
+			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
+			//folder.add(minMaxGUIHelper, 'min', 1, 100, 1).name('near');
+			//folder.add(minMaxGUIHelper, 'max', 1, 400, 1).name('far');
+
+			/*
 			// Construct a plane for primitives
 			{
 				const planeSize = 40;
 
-				//const loader = new THREE.TextureLoader();
-				//const texture = loader.load('resources/images/checker.png');
-				//texture.wrapS = THREE.RepeatWrapping;
-				//texture.wrapT = THREE.RepeatWrapping;
-				//texture.magFilter = THREE.NearestFilter;
-				//const repeats = planeSize / 2;
-				//texture.repeat.set(repeats, repeats);
+				const loader = new THREE.TextureLoader();
+				const texture = loader.load('resources/images/checker.png');
+				texture.wrapS = THREE.RepeatWrapping;
+				texture.wrapT = THREE.RepeatWrapping;
+				texture.magFilter = THREE.NearestFilter;
+				const repeats = planeSize / 2;
+				texture.repeat.set(repeats, repeats);
 
 				const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
 				const planeMat = new THREE.MeshPhongMaterial({
 					color: 0xc0c0c0,
-					//map: texture,
+					map: texture,
 					side: THREE.DoubleSide,
 				});
 				const mesh = new THREE.Mesh(planeGeo, planeMat);
 				mesh.rotation.x = Math.PI * -.5;
-				//scene.add(mesh);
+				scene.add(mesh);
 			}
+			*/
 
-			// Add the central light source
+			// Construct a central light source
 			{
 				const sphereRadius = 1.5;
 				const sphereWidthDivisions = 48;
@@ -172,8 +181,8 @@
 				);
 
 				const lightColor = 0xffffff;
-				const lightIntensity = 10;
-				const lightDistance = 20;
+				const lightIntensity = 80;
+				const lightDistance = 40;
 
 				const pointLight = new THREE.PointLight(lightColor, lightIntensity, lightDistance);
 				pointLight.add(new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({
@@ -188,14 +197,14 @@
 				});
 				const folder = gui.addFolder('Light');
 				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
-				folder.add(pointLight, 'intensity', 0, 40).name('Intensity');
-				folder.add(pointLight, 'distance', 0, 40).name('Distance');
+				folder.add(pointLight, 'intensity', 0, 400).name('Intensity');
+				folder.add(pointLight, 'distance', 0, 100).name('Distance');
 			}
 
 			// Calculate face centroid
 			function computeFaceCentroids(geometry) {
 
-				var f, fl, face;
+				//var f, fl, face;
 
 				for (f = 0, fl = geometry.faces.length; f < fl; f++) {
 
@@ -227,8 +236,15 @@
 			{
 				// Create an array of points
 				const points = [];
-				//for ( var i = 0; i < 10; i ++ ) {
-				//	points.push( new THREE.Vector2( Math.sin( i * 0.2 ) * 10 + 5, ( i - 5 ) * 2 ) );
+				//for (i = 0; i < (2 * Math.PI + 1); i = i + (2 * Math.PI / 24)) {
+				//points.push(new THREE.Vector2(Math.sin(i) * 2.5 + 13, Math.cos(i) * 0.5 + 0));
+				//}
+				for (i = 0; i < 270 / 10; i = i + 1) {
+					points.push(new THREE.Vector2(i, 0.0064 * Math.pow(i, 1.73)));
+					points.push(new THREE.Vector2(i, -0.0064 * Math.pow(i, 1.73)));
+				}
+				//console.log(p);
+				/*
 				points.push(new THREE.Vector3(5, -0.1, 0));
 				points.push(new THREE.Vector3(6, -0.15, 0));
 				points.push(new THREE.Vector3(8, -1, 0));
@@ -244,63 +260,46 @@
 
 				// Make a spline curve to interpolate the curve between the points
 				const curve = new THREE.CatmullRomCurve3(points);
-				// then specify the number of points on that curve and make it into an array of points
+
+				//then specify the number of points on that curve and make it into an array of points
 				const numPoints = 50;
 				const splinePoints = curve.getPoints(numPoints);
+				*/
 
 				// Make a new lathe geometry out of of the array of points just created
-				const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
-				const material = new THREE.MeshPhongMaterial({
+				//const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
+				const geometry = new THREE.LatheGeometry(points, segments = 120);
+				const material = new THREE.MeshBasicMaterial({
 					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
 					side: THREE.DoubleSide,
-					shininess: 0,
-					//roughness: 1,
+					//shininess: 0,
 				});
 
 				// Add centroid as an attibute to geometry
 				computeFaceCentroids(geometry);
 
+				// Declare disk to be global
 				var disk = new THREE.Mesh(geometry, material);
 				disk.receiveShadow = true;
-				//disk.rotation.x = -Math.PI / 2.0;
 				disk.position.set(0, 0, 0);
-
-				const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
+				//disk.rotation.x = -Math.PI / 2.0;
 				scene.add(disk);
+
+				//const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				//scene.add(disk_helper);
+
+				const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
+				const line_material = new THREE.LineBasicMaterial({
+					color: 0xff0000,
+					linewidth: 10,
+				});
+				const line = new THREE.Line(line_geometry, line_material);
+				line.position.set(0, 20, 0)
+				scene.add(line);
 			}
 
-			//{
-			//	const cubeSize = 4;
-			//	const cubeGeo = new THREE.BoxBufferGeometry(cubeSize, cubeSize, cubeSize);
-			//	const cubeMat = new THREE.MeshPhongMaterial({color: '#8AC'});
-			//	const mesh = new THREE.Mesh(cubeGeo, cubeMat);
-			//	mesh.position.set(cubeSize + 1, cubeSize / 2, 0);
-			//	scene.add(mesh);
-			//}
-
-			//{
-			//	const sphereRadius = 3;
-			//	const sphereWidthDivisions = 32;
-			//	const sphereHeightDivisions = 16;
-			//	const sphereGeo = new THREE.SphereBufferGeometry(sphereRadius, sphereWidthDivisions, sphereHeightDivisions);
-			//	const sphereMat = new THREE.MeshPhongMaterial({color: '#CA8'});
-			//	const mesh = new THREE.Mesh(sphereGeo, sphereMat);
-			//	mesh.position.set(-sphereRadius - 1, sphereRadius + 2, 0);
-			//	scene.add(mesh);
-			//}
-
-			//{
-			//	const color = 0xFFFFFF;
-			//	const intensity = 1;
-			//	const light = new THREE.DirectionalLight(color, intensity);
-			//	light.position.set(0, 10, 0);
-			//	light.target.position.set(-5, 0, 0);
-			//	scene.add(light);
-			//	scene.add(light.target);
-			//}
-
+			// Render class
 			function resizeRendererToDisplaySize(renderer) {
 				const canvas = renderer.domElement;
 				const width = canvas.clientWidth;
@@ -334,6 +333,8 @@
 				return width / height;
 			}
 
+			var array1 = new Array();
+			var array2 = new Array();
 
 			function render() {
 
@@ -341,43 +342,103 @@
 
 				// Calculate and update polarization
 				{
-					const number_face_normal = disk.geometry.faces.length;
 
-					initial_vector = new THREE.Vector3(1, 1, 1);
-					camera_vector = camera.getWorldDirection(initial_vector);
+					// Get world space direction in which the camera is looking
+					const camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
 
 					const pLocal = new THREE.Vector3(0, 1, 0);
-					const pWorld = pLocal.applyQuaternion(camera.quaternion);
+					const pWorld = pLocal.applyQuaternion(camera.quaternion).normalize();
 
-					const origin = new THREE.Vector3(0, 0, 0);
-					const length = 20;
-					const hex = 0xffff00;
+					//const origin = new THREE.Vector3(0, 0, 0);
+					//const length = 20;
+					//const hex = 0xffff00;
 
-					const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
+					//const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
 
-					for (i = 0; i < number_face_normal; i++) {
+					// Define Henyey-Greenstein funtion
+					function Henyey_Greenstein(g, phi) {
+						const p = ((1 - Math.pow(g, 2)) / Math.pow((1 + Math.pow(g, 2) - 2 * g * Math.cos(phi)), (3 / 2)));
+						return p
+					}
 
-						// Get face normal and face centroid as vectors
-						face_normal = disk.geometry.faces[i].normal;
-						face_centroid = disk.geometry.faces[i].centroid;
+					function Henyey_Greenstein_2(g1, w1, g2, w2, phi) {
+						const p2 = w1 * Henyey_Greenstein(g1, phi) + w2 * Henyey_Greenstein(g2, phi);
+						return p2
+					}
 
-						polar = new THREE.Vector3();
-						polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
+					// Set parameters and two ends of scattering angle
+					const g = 0.6;
+					const g1 = 0.79;
+					const g2 = -0.14;
+					const w1 = 4.0;
+					const w2 = 0.82;
 
-						//	setColor = disk.geometry.faces[i].color.setRGB(
-						//		Math.abs(pWorld.normalize().dot(polar)),
-						//		Math.abs(pWorld.normalize().dot(polar)),
-						//		Math.abs(pWorld.normalize().dot(polar)),
-						//	);
-						//}
-						setScalar = disk.geometry.faces[i].color.setScalar(
-							Math.abs(pWorld.normalize().dot(polar))
+					const hg_0 = Henyey_Greenstein(g, 0);
+					const hg_pi = Henyey_Greenstein(g, Math.PI);
+
+					const hg2_0 = Henyey_Greenstein_2(g1, w1, g2, w2, 0);
+					const hg2_pi = Henyey_Greenstein_2(g1, w1, g2, w2, Math.PI);
+
+					//console.log('hg2_max = ' + hg2_max);
+					//console.log('hg2_0 = ' + hg2_0);
+					//console.log('hg2_pi = ' + hg2_pi);
+
+					// Set max value of H-G and HG2
+					var hg_max, hg2_max;
+
+					if (hg_0 > hg_pi) {
+						hg_max = hg_0
+					} else {
+						hg_max = hg_pi
+					};
+
+					if (hg2_0 > hg2_pi) {
+						hg2_max = hg2_0
+					} else {
+						hg2_max = hg2_pi
+					};
+
+
+					//const gui = new dat.GUI({
+					//	autoplace: true
+					//});
+					//const folder = gui.addFolder('H-G');
+					//folder.add(params, 'g', -0.9, 0.9).name('g');
+
+					//var all = new Array();
+					for (i = 0; i < disk.geometry.faces.length; i++) {
+
+						// Get normalized face normal and face centroid as vectors
+						const face_normal = disk.geometry.faces[i].normal;
+						const face_centroid = disk.geometry.faces[i].centroid;
+
+						// Calculate scattering anglel; sin for forward and backward scattering
+						const scattering_angle_cos = camera_direction.normalize().dot(face_centroid.normalize());
+						const scattering_angle_sin = Math.pow((1 - Math.pow(scattering_angle_cos, 2)), 0.5);
+						array1[i] = scattering_angle_sin;
+
+						// Polarizatiom efficiency
+						const pe = -(Math.pow(scattering_angle_cos, 2) - 1) / (Math.pow(scattering_angle_cos, 2) + 1);
+
+						// Normalize H-G wrt max
+						const normalized_hg = Henyey_Greenstein(g, scattering_angle_sin) / hg_max;
+						const normalized_hg2 = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle_sin) * 1 / hg2_max;
+						array2[i] = normalized_hg2;
+
+						//const polar = new THREE.Vector3();
+						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
+
+						// Set disk color intensity
+						const setScalar = disk.geometry.faces[i].color.setScalar(
+							//Math.abs(pWorld.dot(polar))
+							Math.abs(normalized_hg2)
 						);
 					}
 
 					disk.geometry.elementsNeedUpdate = true;
-					//console.log(disk.geometry.faces);
 				}
+				//console.log(array1[0]);
+				//console.log(array2[10]);
 
 				// turn on the scissor
 				renderer.setScissorTest(true);
@@ -418,6 +479,7 @@
 
 				requestAnimationFrame(render);
 			}
+			//console.log(all[10]);
 
 			requestAnimationFrame(render);
 		}
