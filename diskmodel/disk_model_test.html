@@ -4,7 +4,6 @@
 <head>
 	<title>DiskModelTest</title>
 	<style>
-		html,
 		body {
 			margin: 0;
 			height: 100%;
@@ -42,6 +41,7 @@
 	</div>
 
 	<!-- Load core scripts -->
+	<script src="script/plotly-latest.min.js"></script>
 	<script src="script/three.min.js"></script>
 	<script src="script/libs/dat.gui.min.js"> </script>
 	<script src="script/controls/OrbitControls.js"></script>
@@ -132,6 +132,7 @@
 			scene.background = new THREE.Color('black');
 			scene.add(cameraHelper);
 
+			/*
 			// Construct GUI for camera
 			const gui = new dat.GUI({
 				autoplace: true
@@ -143,6 +144,7 @@
 			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
 			//folder.add(minMaxGUIHelper, 'min', 1, 100, 1).name('near');
 			//folder.add(minMaxGUIHelper, 'max', 1, 400, 1).name('far');
+			*/
 
 			/*
 			// Construct a plane for primitives
@@ -191,6 +193,7 @@
 				pointLight.position.set(0, 0, 0);
 				scene.add(pointLight);
 
+				/*
 				// Add GUI panel for light
 				const gui = new dat.GUI({
 					autoplace: true
@@ -199,6 +202,7 @@
 				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
 				folder.add(pointLight, 'intensity', 0, 400).name('Intensity');
 				folder.add(pointLight, 'distance', 0, 100).name('Distance');
+				*/
 			}
 
 			// Calculate face centroid
@@ -243,7 +247,7 @@
 					points.push(new THREE.Vector2(i, 0.0064 * Math.pow(i, 1.73)));
 					points.push(new THREE.Vector2(i, -0.0064 * Math.pow(i, 1.73)));
 				}
-				//console.log(p);
+
 				/*
 				points.push(new THREE.Vector3(5, -0.1, 0));
 				points.push(new THREE.Vector3(6, -0.15, 0));
@@ -333,9 +337,6 @@
 				return width / height;
 			}
 
-			var array1 = new Array();
-			var array2 = new Array();
-
 			function render() {
 
 				resizeRendererToDisplaySize(renderer);
@@ -379,9 +380,6 @@
 					const hg2_0 = Henyey_Greenstein_2(g1, w1, g2, w2, 0);
 					const hg2_pi = Henyey_Greenstein_2(g1, w1, g2, w2, Math.PI);
 
-					//console.log('hg2_max = ' + hg2_max);
-					//console.log('hg2_0 = ' + hg2_0);
-					//console.log('hg2_pi = ' + hg2_pi);
 
 					// Set max value of H-G and HG2
 					var hg_max, hg2_max;
@@ -406,6 +404,9 @@
 					//folder.add(params, 'g', -0.9, 0.9).name('g');
 
 					//var all = new Array();
+					var test_angle = new Array();
+					var test_hg = new Array();
+
 					for (i = 0; i < disk.geometry.faces.length; i++) {
 
 						// Get normalized face normal and face centroid as vectors
@@ -415,7 +416,7 @@
 						// Calculate scattering anglel; sin for forward and backward scattering
 						const scattering_angle_cos = camera_direction.normalize().dot(face_centroid.normalize());
 						const scattering_angle_sin = Math.pow((1 - Math.pow(scattering_angle_cos, 2)), 0.5);
-						array1[i] = scattering_angle_sin;
+						test_angle[i] = scattering_angle_sin;
 
 						// Polarizatiom efficiency
 						const pe = -(Math.pow(scattering_angle_cos, 2) - 1) / (Math.pow(scattering_angle_cos, 2) + 1);
@@ -423,7 +424,7 @@
 						// Normalize H-G wrt max
 						const normalized_hg = Henyey_Greenstein(g, scattering_angle_sin) / hg_max;
 						const normalized_hg2 = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle_sin) * 1 / hg2_max;
-						array2[i] = normalized_hg2;
+						test_hg[i] = normalized_hg2;
 
 						//const polar = new THREE.Vector3();
 						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
@@ -437,8 +438,30 @@
 
 					disk.geometry.elementsNeedUpdate = true;
 				}
-				//console.log(array1[0]);
-				//console.log(array2[10]);
+
+				var layout = {
+					xaxis: {
+						title: {
+							text: 'Scattering angle in radian',
+							font: {
+								family: 'Courier New, monospace',
+								size: 18,
+								color: '#7f7f7f'
+							}
+						},
+					},
+					yaxis: {
+						title: {
+							text: 'Phase function',
+							font: {
+								family: 'Courier New, monospace',
+								size: 18,
+								color: '#7f7f7f'
+							}
+						}
+					}
+				};
+				//Plotly.newPlot('view2', [{x: test_angle, y: test_hg, type: 'scatter'}], layout);
 
 				// turn on the scissor
 				renderer.setScissorTest(true);
@@ -479,7 +502,6 @@
 
 				requestAnimationFrame(render);
 			}
-			//console.log(all[10]);
 
 			requestAnimationFrame(render);
 		}
