@@ -337,18 +337,19 @@
 				return width / height;
 			}
 
+			// Render funcion
 			function render() {
 
 				resizeRendererToDisplaySize(renderer);
 
-				// Calculate and update polarization
+				// Calculate and update intensity
 				{
 
 					// Get world space direction in which the camera is looking
 					const camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
 
-					const pLocal = new THREE.Vector3(0, 1, 0);
-					const pWorld = pLocal.applyQuaternion(camera.quaternion).normalize();
+					//const pLocal = new THREE.Vector3(0, 1, 0);
+					//const pWorld = pLocal.applyQuaternion(camera.quaternion).normalize();
 
 					//const origin = new THREE.Vector3(0, 0, 0);
 					//const length = 20;
@@ -362,6 +363,7 @@
 						return p
 					}
 
+					// Phase function in Milli et al. (2017)
 					function Henyey_Greenstein_2(g1, w1, g2, w2, phi) {
 						const p2 = w1 * Henyey_Greenstein(g1, phi) + w2 * Henyey_Greenstein(g2, phi);
 						return p2
@@ -403,10 +405,11 @@
 					//const folder = gui.addFolder('H-G');
 					//folder.add(params, 'g', -0.9, 0.9).name('g');
 
-					//var all = new Array();
+					// Create two empty arrays for plot
 					var test_angle = new Array();
 					var test_hg = new Array();
 
+					// Loop over each facet for calculation
 					for (i = 0; i < disk.geometry.faces.length; i++) {
 
 						// Get normalized face normal and face centroid as vectors
