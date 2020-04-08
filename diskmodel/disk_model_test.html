@@ -371,7 +371,7 @@
 
 					// Set parameters and two ends of scattering angle
 					const g = 0.6;
-					const g1 = 0.79;
+					const g1 = 0.99;
 					const g2 = -0.14;
 					const w1 = 4.0;
 					const w2 = 0.82;
@@ -418,15 +418,17 @@
 
 						// Calculate scattering anglel; sin for forward and backward scattering
 						const scattering_angle_cos = camera_direction.normalize().dot(face_centroid.normalize());
-						const scattering_angle_sin = Math.pow((1 - Math.pow(scattering_angle_cos, 2)), 0.5);
-						test_angle[i] = scattering_angle_sin;
+						//const scattering_angle_sin = Math.pow((1 - Math.pow(scattering_angle_cos, 2)), 0.5);
+
+						const scattering_angle = Math.acos(scattering_angle_cos);
+						test_angle[i] = scattering_angle;
 
 						// Polarizatiom efficiency
 						const pe = -(Math.pow(scattering_angle_cos, 2) - 1) / (Math.pow(scattering_angle_cos, 2) + 1);
 
 						// Normalize H-G wrt max
-						const normalized_hg = Henyey_Greenstein(g, scattering_angle_sin) / hg_max;
-						const normalized_hg2 = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle_sin) * 1 / hg2_max;
+						//const normalized_hg = Henyey_Greenstein(g, scattering_angle_sin) / hg_max;
+						const normalized_hg2 = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) * 1; /// hg2_max;
 						test_hg[i] = normalized_hg2;
 
 						//const polar = new THREE.Vector3();
