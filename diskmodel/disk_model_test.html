@@ -45,6 +45,7 @@
 	<script src="script/three.min.js"></script>
 	<script src="script/libs/dat.gui.min.js"> </script>
 	<script src="script/controls/OrbitControls.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.6.3/math.min.js"></script>
 
 	<script>
 		function main() {
@@ -118,7 +119,7 @@
 				0.1, // near
 				1000, // far
 			);
-			camera2.position.set(-80, 60, 80);
+			camera2.position.set(-120, 100, 120);
 			//camera2.position.set(-400, 400, 700);
 			camera2.lookAt(0, 0, 0);
 
@@ -366,6 +367,14 @@
 						return p2
 					}
 
+					function dot_product(vector1, vector2) {
+						var result = 0;
+						for (var i = 0; i < 3; i++) {
+							result += vector1[i] * vector2[i];
+						}
+						return result;
+					}
+
 					// Set parameters and two ends of scattering angle
 					const g = 0.6;
 					const g1 = 0.99;
@@ -405,6 +414,8 @@
 					// Create two empty arrays for plot
 					let test_angle = new Array();
 					let test_hg = new Array();
+					let test_int = new Array();
+					let dot_two = new Array();
 
 					// Loop over each facet for calculation
 					for (i = 0; i < disk.geometry.faces.length; i++) {
@@ -436,8 +447,14 @@
 						test_angle[i] = scattering_angle;
 
 						const normalized_hg2 = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) *
-							1 / Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+							pe / Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
 						test_hg[i] = normalized_hg2;
+
+						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) /
+							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						test_int[i] = total_intensity;
+
+						dot_two[i] = total_intensity*normalized_hg2;
 
 						//const polar = new THREE.Vector3();
 						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
@@ -449,7 +466,7 @@
 							//Math.abs(scattering_angle/(2*Math.PI))
 						);
 					}
-					//console.log(test_angle);
+					//console.log(dot_two);
 
 					disk.geometry.elementsNeedUpdate = true;
 
@@ -477,7 +494,39 @@
 							}
 						}
 					};
-					//Plotly.newPlot('view2', [{x: test_angle, y: test_hg, type: 'scatter'}], layout);
+					var trace1 = {
+						x: test_angle,
+						y: test_angle,
+						type: 'scatter',
+						name: 'Scattering angle'
+					};
+
+					var trace2 = {
+						x: test_angle,
+						y: test_int,
+						type: 'scatter',
+						name: 'Total intensity'
+					};
+
+					var trace3 = {
+						x: test_angle,
+						y: test_hg,
+						type: 'scatter',
+						name: 'Polarized'
+					};
+
+					var trace4 = {
+						x: test_angle,
+						y: dot_two,
+						type: 'scatter',
+						name: 'Dot product'
+					}
+
+					var data = [trace2, trace3, trace4];
+
+					//Plotly.newPlot('view2', data);
+					//Plotly.newPlot('view2', [{x: test_angle, y: test_angle, name: 'Scattering angle', type: 'scatter'}], layout);
+					//Plotly.newPlot('view2', [{x: test_angle, y: test_hg, name: 'Total intensity', type: 'scatter'}], layout);
 				}
 
 				// turn on the scissor
