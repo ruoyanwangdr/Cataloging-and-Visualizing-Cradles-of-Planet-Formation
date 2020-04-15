@@ -457,16 +457,19 @@
 					disk.geometry.elementsNeedUpdate = true;
 
 					// Plot
-					let layout = {
+					const layout = {
 						xaxis: {
 							title: {
 								text: 'Scattering angle in degrees',
 								font: {
 									family: 'Courier New, monospace',
 									size: 18,
-									color: '#7f7f7f'
-								}
+									color: 'black'
+								},
 							},
+							showgrid: true,
+							showline: true,
+							mirror: 'ticks',
 						},
 						yaxis: {
 							title: {
@@ -474,41 +477,47 @@
 								font: {
 									family: 'Courier New, monospace',
 									size: 18,
-									color: '#7f7f7f'
-								}
-							}
-						}
+									color: 'black'
+								},
+							},
+							showgrid: true,
+							showline: true,
+							mirror: 'ticks',
+						},
+						showlegend: true,
+						legend: {
+							x: 1,
+							xanchor: 'right',
+							y: 1,
+							traceorder: 'normal',
+							font: {
+								size: 10,
+							},
+						},
 					};
 
-					var trace1 = {
-						x: scatter_angle,
-						y: scatter_angle,
-						type: 'scatter',
-						name: 'Scattering angle'
-					};
-
-					var trace2 = {
+					const trace1 = {
 						x: scatter_angle,
 						y: total_int,
 						type: 'scatter',
 						name: 'Total intensity'
 					};
 
-					var trace3 = {
+					const trace2 = {
+						x: scatter_angle,
+						y: pe,
+						type: 'scatter',
+						name: 'Polarization efficiency'
+					};
+
+					const trace3 = {
 						x: scatter_angle,
 						y: polar_int,
 						type: 'scatter',
 						name: 'Polarized intensity'
 					};
 
-					var trace4 = {
-						x: scatter_angle,
-						y: pe,
-						type: 'scatter',
-						name: 'Polarization efficiency'
-					}
-
-					var data = [trace2]; //, trace3, trace4];
+					const data = [trace1, trace2, trace3];
 
 					Plotly.newPlot('view2', data, layout);
 
