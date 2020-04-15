@@ -42,10 +42,10 @@
 
 	<!-- Load core scripts -->
 	<script src="script/plotly-latest.min.js"></script>
+	<script src="script/math.min.js"></script>
 	<script src="script/three.min.js"></script>
 	<script src="script/libs/dat.gui.min.js"> </script>
 	<script src="script/controls/OrbitControls.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.6.3/math.min.js"></script>
 
 	<script>
 		function main() {
@@ -103,7 +103,6 @@
 			const far = 120;
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 			camera.position.set(0, 60, 60 * 0.836130); // 39.9 degree inclination, 	tan(39.9)
-			//camera.position.set(0, 200, 300);
 
 			const cameraHelper = new THREE.CameraHelper(camera);
 
@@ -120,7 +119,6 @@
 				1000, // far
 			);
 			camera2.position.set(-120, 100, 120);
-			//camera2.position.set(-400, 400, 700);
 			camera2.lookAt(0, 0, 0);
 
 			// Orbit control of camera 2
@@ -357,22 +355,16 @@
 
 					// Define Henyey-Greenstein funtion
 					function Henyey_Greenstein(g, phi) {
-						const p = ((1 - Math.pow(g, 2)) / Math.pow((1 + Math.pow(g, 2) - 2 * g * Math.cos(phi)), (3 / 2)));
+						const p = (1 - Math.pow(g, 2)) /
+							Math.pow((1 + Math.pow(g, 2) - 2 * g * Math.cos(phi)), (3 / 2));
 						return p
 					}
 
 					// Phase function in Milli et al. (2017)
 					function Henyey_Greenstein_2(g1, w1, g2, w2, phi) {
-						const p2 = w1 * Henyey_Greenstein(g1, phi) + w2 * Henyey_Greenstein(g2, phi);
+						const p2 = w1 * Henyey_Greenstein(g1, phi) +
+							w2 * Henyey_Greenstein(g2, phi);
 						return p2
-					}
-
-					function dot_product(vector1, vector2) {
-						var result = 0;
-						for (var i = 0; i < 3; i++) {
-							result += vector1[i] * vector2[i];
-						}
-						return result;
 					}
 
 					// Set parameters and two ends of scattering angle
@@ -387,7 +379,6 @@
 
 					const hg2_0 = Henyey_Greenstein_2(g1, w1, g2, w2, 0);
 					const hg2_pi = Henyey_Greenstein_2(g1, w1, g2, w2, Math.PI);
-
 
 					// Set max value of H-G and HG2
 					let hg_max, hg2_max;
@@ -404,7 +395,6 @@
 						hg2_max = hg2_pi
 					};
 
-
 					//const gui = new dat.GUI({
 					//	autoplace: true
 					//});
@@ -412,10 +402,10 @@
 					//folder.add(params, 'g', -0.9, 0.9).name('g');
 
 					// Create two empty arrays for plot
-					let test_angle = new Array();
-					let test_hg = new Array();
-					let test_int = new Array();
-					let dot_two = new Array();
+					let scatter_angle = new Array();
+					let pe = new Array();
+					let total_int = new Array();
+					let polar_int = new Array();
 
 					// Loop over each facet for calculation
 					for (i = 0; i < disk.geometry.faces.length; i++) {
@@ -424,37 +414,33 @@
 						const face_normal = disk.geometry.faces[i].normal;
 						const face_centroid = disk.geometry.faces[i].centroid;
 
-						// Calculate scattering anglel; sin for forward and backward scattering
-						const scattering_angle_cos = camera_direction.normalize().dot(face_centroid.normalize());
+						// Calculate scattering angle; sin for forward and backward scattering
+						const scattering_angle_cos = camera_direction.normalize().dot(
+							face_centroid.normalize());
 						//const scattering_angle_sin = Math.pow((1 - Math.pow(scattering_angle_cos, 2)), 0.5);
+						const scattering_angle = Math.PI - Math.acos(scattering_angle_cos);
 
-						let scattering_angle = Math.PI - Math.acos(scattering_angle_cos);
-						//test_angle[i] = scattering_angle;
+						// Polarization efficiency
+						const polarization_efficiency = -(Math.pow(scattering_angle_cos, 2) - 1) /
+							(Math.pow(scattering_angle_cos, 2) + 1);
+						pe[i] = polarization_efficiency;
 
-						// Polarizatiom efficiency
-						const pe = -(Math.pow(scattering_angle_cos, 2) - 1) / (Math.pow(scattering_angle_cos, 2) + 1);
-
-						// Normalize H-G wrt max
-						//const normalized_hg = Henyey_Greenstein(g, scattering_angle_sin) / hg_max;
-						//var angle_20 = test_angle.filter(function(x){
-						//	return x > 20*(Math.PI/180);
-						//});
-
+						// Filter out angles less than 20 degrees corresponding to extreme phase function
 						if (scattering_angle < (20 * Math.PI / 180)) {
 							scattering_angle = (20 * Math.PI / 180)
 						};
+						scatter_angle[i] = scattering_angle * (180 / Math.PI);
 
-						test_angle[i] = scattering_angle;
-
-						const normalized_hg2 = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) *
-							pe / Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
-						test_hg[i] = normalized_hg2;
-
+						// Compute total intensity
 						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) /
 							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
-						test_int[i] = total_intensity;
+						total_int[i] = total_intensity;
 
-						dot_two[i] = total_intensity*normalized_hg2;
+						// Multiply with polar efficiency to compute the actual intensity
+						const polarized_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) *
+							polarization_efficiency /
+							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						polar_int[i] = polarized_intensity;
 
 						//const polar = new THREE.Vector3();
 						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
@@ -462,20 +448,19 @@
 						// Set disk color intensity
 						const setScalar = disk.geometry.faces[i].color.setScalar(
 							//Math.abs(pWorld.dot(polar))
-							Math.abs(normalized_hg2)
-							//Math.abs(scattering_angle/(2*Math.PI))
+							Math.abs(scattering_angle / (2 * Math.PI))
+							//Math.abs(total_intensity)
+							//Math.abs(polarized_intensity)
 						);
 					}
-					//console.log(dot_two);
 
 					disk.geometry.elementsNeedUpdate = true;
 
-
-
+					// Plot
 					let layout = {
 						xaxis: {
 							title: {
-								text: 'Scattering angle in radian',
+								text: 'Scattering angle in degrees',
 								font: {
 									family: 'Courier New, monospace',
 									size: 18,
@@ -494,39 +479,39 @@
 							}
 						}
 					};
+
 					var trace1 = {
-						x: test_angle,
-						y: test_angle,
+						x: scatter_angle,
+						y: scatter_angle,
 						type: 'scatter',
 						name: 'Scattering angle'
 					};
 
 					var trace2 = {
-						x: test_angle,
-						y: test_int,
+						x: scatter_angle,
+						y: total_int,
 						type: 'scatter',
 						name: 'Total intensity'
 					};
 
 					var trace3 = {
-						x: test_angle,
-						y: test_hg,
+						x: scatter_angle,
+						y: polar_int,
 						type: 'scatter',
-						name: 'Polarized'
+						name: 'Polarized intensity'
 					};
 
 					var trace4 = {
-						x: test_angle,
-						y: dot_two,
+						x: scatter_angle,
+						y: pe,
 						type: 'scatter',
-						name: 'Dot product'
+						name: 'Polarization efficiency'
 					}
 
-					var data = [trace2, trace3, trace4];
+					var data = [trace2]; //, trace3, trace4];
 
-					//Plotly.newPlot('view2', data);
-					//Plotly.newPlot('view2', [{x: test_angle, y: test_angle, name: 'Scattering angle', type: 'scatter'}], layout);
-					//Plotly.newPlot('view2', [{x: test_angle, y: test_hg, name: 'Total intensity', type: 'scatter'}], layout);
+					Plotly.newPlot('view2', data, layout);
+
 				}
 
 				// turn on the scissor
