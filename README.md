@@ -43,8 +43,7 @@ Data table supports various documentation format (csv, txt, and others). All ref
 Note: when importing files, make sure item *id* is not duplicated. This column can be edited manually.
 
 ## Disk Visualization
-disk_model.html contains the model and disk_model_test.html is to test scripts. Both can be opened directly with a double click or by the command lines below.
+Disk models are shown with their host stars (shown with 'model' for simulations) and the authors of corresponding papers. The directory can be accessed with the command below. 
 ```
 cd Cataloging-and-Visualizing-Cradles-of-Planet-Formation/diskmodel
-open disk_model.html
 ```
