@@ -43,7 +43,7 @@ Data table supports various documentation format (csv, txt, and others). All ref
 Note: when importing files, make sure item *id* is not duplicated. This column can be edited manually.
 
 ## Disk Visualization
-Disk models are shown with their host stars (shown with 'model' for simulations) and the authors of corresponding papers. The directory can be accessed with the command below. 
+Disk models (in .html format) are shown with their host stars (shown with 'model' for simulations) and the authors of corresponding papers. The directory can be accessed with the command below. 
 ```
 cd Cataloging-and-Visualizing-Cradles-of-Planet-Formation/diskmodel
 ```
