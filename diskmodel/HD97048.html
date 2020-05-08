@@ -271,6 +271,15 @@
 				return width / height;
 			}
 
+			// Create js linspace
+			function linspace(startValue, stopValue, cardinality) {
+				var arr = [];
+				var step = (stopValue - startValue) / (cardinality - 1);
+				for (var i = 0; i < cardinality; i++) {
+					arr.push(startValue + (step * i));
+				}
+				return arr;
+			}
 
 			// Render funcion
 			function render() {
@@ -291,6 +300,41 @@
 						const p2 = w1 * Henyey_Greenstein(g1, phi) +
 							w2 * Henyey_Greenstein(g2, phi);
 						return p2
+					}
+
+					function Polynomial_HD97048(x) {
+						//for (i=0; i < coefs.length; i++){
+						//	const poly = coefs[i] * Math.pow(x, i)
+						//}
+						const coefs = [96.49812630363301,
+							-8.968121849881191,
+							0.35451131063118246,
+							-0.007675480564300319,
+							9.811456748455025 * Math.pow(10, -5),
+							-7.40235579764522 * Math.pow(10, -7),
+							3.0531685891738424 * Math.pow(10, -9),
+							-5.3142211632618485 * Math.pow(10, -12)
+						];
+
+						const poly = coefs[0] +
+							coefs[1] * x +
+							coefs[2] * Math.pow(x, 2) +
+							coefs[3] * Math.pow(x, 3) +
+							coefs[4] * Math.pow(x, 4) +
+							coefs[5] * Math.pow(x, 5) +
+							coefs[6] * Math.pow(x, 6) +
+							coefs[7] * Math.pow(x, 7);
+
+						return poly
+					}
+
+					// Construct an array for the polynomial fit
+					const x_new = linspace(37.69, 115.97, 300);
+
+					let ffit = new Array();
+
+					for (i = 0; i < x_new.length; i++) {
+						ffit[i] = Polynomial_HD97048(x_new[i]);
 					}
 
 					// Set parameters and two ends of scattering angle
@@ -341,7 +385,17 @@
 						const scattering_angle_cos = camera_direction.normalize().dot(
 							face_centroid.normalize());
 						//const scattering_angle_sin = Math.pow((1 - Math.pow(scattering_angle_cos, 2)), 0.5);
-						const scattering_angle = Math.PI - Math.acos(scattering_angle_cos);
+						let scattering_angle = Math.PI - Math.acos(scattering_angle_cos);
+
+						if (scattering_angle < (37.6 * Math.PI / 180)) {
+							scattering_angle = (37.6 * Math.PI / 180)
+						} else if (scattering_angle > (115.97 * Math.PI / 180)) {
+							scattering_angle = (115.97 * Math.PI / 180)
+						} else {
+							// do nothing
+						};
+
+						scatter_angle[i] = scattering_angle * (180 / Math.PI);
 
 						// Polarization efficiency
 						const polarization_efficiency = -(Math.pow(scattering_angle_cos, 2) - 1) /
@@ -352,17 +406,16 @@
 						//if (scattering_angle < (20 * Math.PI / 180)) {
 						//	scattering_angle = (20 * Math.PI / 180)
 						//};
-						scatter_angle[i] = scattering_angle * (180 / Math.PI);
 
 						// Compute total intensity
-						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) /
-							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						//const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) /
+						//	Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						const total_intensity = Polynomial_HD97048(scattering_angle) /
+							89.96029148200175; // Math.max.apply(Math, total_int)
 						total_int[i] = total_intensity;
 
 						// Multiply with polar efficiency to compute the actual intensity
-						const polarized_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) *
-							polarization_efficiency /
-							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						const polarized_intensity = total_intensity * polarization_efficiency;
 						polar_int[i] = polarized_intensity;
 
 						// Set disk color intensity
@@ -434,8 +487,14 @@
 						name: 'Polarized intensity'
 					};
 
-					const data = [trace1, trace2, trace3];
+					const trace4 = {
+						x: x_new,
+						y: ffit,
+						type: 'scatter',
+						name: 'Polynomial'
+					}
 
+					const data = [trace1, trace2, trace3, trace4];
 					//Plotly.newPlot('view2', data, layout);
 
 				}
