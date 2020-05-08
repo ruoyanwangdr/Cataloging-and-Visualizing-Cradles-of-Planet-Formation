@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<title>Tazaki2019</title>
+	<title>HD97048</title>
 	<style>
 		body {
 			margin: 0;
@@ -98,13 +98,14 @@
 
 			// Camera 1 setup
 			const fov = 60;
-			const aspect = 2; // the canvas default
+			const aspect = 2;
 			const near = 10;
-			const far = 180;
+			const far = 150;
+
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
 			// Disk inclination set by initial camera position
-			const inclination = 60;
+			const inclination = 39.9;
 			camera.position.set(0, 60, 60 * Math.tan(inclination * Math.PI / 180));
 
 			const cameraHelper = new THREE.CameraHelper(camera);
@@ -121,7 +122,7 @@
 				0.1, // near
 				1000, // far
 			);
-			camera2.position.set(-160, 160, 160);
+			camera2.position.set(-120, 120, 120);
 			camera2.lookAt(0, 0, 0);
 
 			// Orbit control of camera 2
@@ -134,44 +135,15 @@
 			scene.background = new THREE.Color('black');
 			scene.add(cameraHelper);
 
-			/*
 			// Construct GUI for camera
 			const gui = new dat.GUI({
 				autoplace: true
 			});
 			const folder = gui.addFolder('Camera');
-			folder.add(camera, 'fov', 1, 180);
-			const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
-			folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
-			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
-			//folder.add(minMaxGUIHelper, 'min', 1, 100, 1).name('near');
-			//folder.add(minMaxGUIHelper, 'max', 1, 400, 1).name('far');
-			*/
+			folder.add(camera, 'fov', 1, 120);
+			folder.add(camera, 'near', 1, 80);
+			folder.add(camera, 'far', 80, 200);
 
-			/*
-			// Construct a plane for primitives
-			{
-				const planeSize = 40;
-
-				const loader = new THREE.TextureLoader();
-				const texture = loader.load('resources/images/checker.png');
-				texture.wrapS = THREE.RepeatWrapping;
-				texture.wrapT = THREE.RepeatWrapping;
-				texture.magFilter = THREE.NearestFilter;
-				const repeats = planeSize / 2;
-				texture.repeat.set(repeats, repeats);
-
-				const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
-				const planeMat = new THREE.MeshPhongMaterial({
-					color: 0xc0c0c0,
-					map: texture,
-					side: THREE.DoubleSide,
-				});
-				const mesh = new THREE.Mesh(planeGeo, planeMat);
-				mesh.rotation.x = Math.PI * -.5;
-				scene.add(mesh);
-			}
-			*/
 
 			// Construct a central light source
 			{
@@ -194,17 +166,6 @@
 				})));
 				pointLight.position.set(0, 0, 0);
 				//scene.add(pointLight);
-
-				/*
-				// Add GUI panel for light
-				const gui = new dat.GUI({
-					autoplace: true
-				});
-				const folder = gui.addFolder('Light');
-				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
-				folder.add(pointLight, 'intensity', 0, 400).name('Intensity');
-				folder.add(pointLight, 'distance', 0, 100).name('Distance');
-				*/
 			}
 
 			// Calculate face centroid
@@ -239,47 +200,17 @@
 				const points = [];
 
 				// H(r) = 0.0064au * (r/1au)^(1.73) from Ginski et al. (2016)
-				//for (r = 3; r < 27; r = r + 1) {
-				//	points.push(new THREE.Vector2(r, 0.0064 * 5 * Math.pow(r, 1.73)));
-				//	points.push(new THREE.Vector2(r, -0.0064 * 5 * Math.pow(r, 1.73)));
-				//}
-
-				// H(r) = 3.3*10^(-2)*(r/1au)^(beta), beta = 1.25 from Tazaki et al. (2019)
-				for (r = 10; r < 50; r = r + 1) {
-					points.push(new THREE.Vector2(r, 0.033 * Math.pow(r, 1.25)));
-					points.push(new THREE.Vector2(r, -0.033 * Math.pow(r, 1.25)));
+				for (r = 2; r < 27; r = r + 1) {
+					points.push(new THREE.Vector2(r, 0.0064 * 5 * Math.pow(r, 1.73)));
+					points.push(new THREE.Vector2(r, -0.0064 * 5 * Math.pow(r, 1.73)));
 				}
 
-				/*
-				points.push(new THREE.Vector3(5, -0.1, 0));
-				points.push(new THREE.Vector3(6, -0.15, 0));
-				points.push(new THREE.Vector3(8, -1, 0));
-				points.push(new THREE.Vector3(10, -1.5, 0));
-				points.push(new THREE.Vector3(13, -3, 0));
-				points.push(new THREE.Vector3(13.4, 0, 0));
-				points.push(new THREE.Vector3(13, 3, 0));
-				points.push(new THREE.Vector3(10, 1.5, 0));
-				points.push(new THREE.Vector3(8, 1, 0));
-				points.push(new THREE.Vector3(6, 0.15, 0));
-				points.push(new THREE.Vector3(5, 0.1, 0));
-				points.push(new THREE.Vector3(5, -0.1, 0));
-
-				// Make a spline curve to interpolate the curve between the points
-				const curve = new THREE.CatmullRomCurve3(points);
-
-				//then specify the number of points on that curve and make it into an array of points
-				const numPoints = 50;
-				const splinePoints = curve.getPoints(numPoints);
-				*/
-
 				// Make a new lathe geometry out of of the array of points just created
-				//const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
 				const geometry = new THREE.LatheGeometry(points, segments = 120);
 				const material = new THREE.MeshBasicMaterial({
 					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
 					side: THREE.DoubleSide,
-					//shininess: 0,
 				});
 
 				// Add centroid as an attibute to geometry
@@ -304,6 +235,7 @@
 				line.position.set(0, 20, 0)
 				//scene.add(line);
 			}
+
 
 			// Render class
 			function resizeRendererToDisplaySize(renderer) {
@@ -339,6 +271,7 @@
 				return width / height;
 			}
 
+
 			// Render funcion
 			function render() {
 
@@ -346,18 +279,6 @@
 
 				// Calculate and update intensity
 				{
-					// Get world space direction in which the camera is looking
-					const camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
-
-					//const pLocal = new THREE.Vector3(0, 1, 0);
-					//const pWorld = pLocal.applyQuaternion(camera.quaternion).normalize();
-
-					//const origin = new THREE.Vector3(0, 0, 0);
-					//const length = 20;
-					//const hex = 0xffff00;
-
-					//const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
-
 					// Define Henyey-Greenstein funtion
 					function Henyey_Greenstein(g, phi) {
 						const p = (1 - Math.pow(g, 2)) /
@@ -400,17 +321,14 @@
 						hg2_max = hg2_pi
 					};
 
-					//const gui = new dat.GUI({
-					//	autoplace: true
-					//});
-					//const folder = gui.addFolder('H-G');
-					//folder.add(params, 'g', -0.9, 0.9).name('g');
-
 					// Create two empty arrays for plot
 					let scatter_angle = new Array();
 					let pe = new Array();
 					let total_int = new Array();
 					let polar_int = new Array();
+
+					// Get world space direction in which the camera is looking
+					const camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
 
 					// Loop over each facet for calculation
 					for (i = 0; i < disk.geometry.faces.length; i++) {
@@ -437,24 +355,18 @@
 						scatter_angle[i] = scattering_angle * (180 / Math.PI);
 
 						// Compute total intensity
-						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) / 1;
-						//Henyey_Greenstein_2(g1, w1, g2, w2, (180 * Math.PI / 180));
+						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) /
+							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
 						total_int[i] = total_intensity;
 
 						// Multiply with polar efficiency to compute the actual intensity
 						const polarized_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) *
-							polarization_efficiency / 1;
-						//Henyey_Greenstein_2(g1, w1, g2, w2, (180 * Math.PI / 180));
+							polarization_efficiency /
+							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
 						polar_int[i] = polarized_intensity;
-
-						//const polar = new THREE.Vector3();
-						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
 
 						// Set disk color intensity
 						const setScalar = disk.geometry.faces[i].color.setScalar(
-							//Math.abs(pWorld.dot(polar))
-							//Math.abs(scattering_angle / (2 * Math.PI))
-							//Math.abs(total_intensity)
 							Math.abs(polarized_intensity)
 						);
 					}
