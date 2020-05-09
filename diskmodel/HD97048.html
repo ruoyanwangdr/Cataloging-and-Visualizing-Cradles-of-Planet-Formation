@@ -410,8 +410,7 @@
 						// Compute total intensity
 						//const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) /
 						//	Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
-						const total_intensity = Polynomial_HD97048(scattering_angle) /
-							89.96029148200175; // Math.max.apply(Math, total_int)
+						const total_intensity = Polynomial_HD97048(scattering_angle * 180 / Math.PI);
 						total_int[i] = total_intensity;
 
 						// Multiply with polar efficiency to compute the actual intensity
@@ -494,7 +493,8 @@
 						name: 'Polynomial'
 					}
 
-					const data = [trace1, trace2, trace3, trace4];
+					const data = [trace1, trace4];
+					//const data = [trace1, trace2, trace3, trace4];
 					//Plotly.newPlot('view2', data, layout);
 
 				}
