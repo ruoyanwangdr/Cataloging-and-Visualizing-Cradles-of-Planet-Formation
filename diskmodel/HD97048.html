@@ -50,6 +50,80 @@
 	<script>
 		function main() {
 
+			// Create funtions not included in default js
+			{
+				// GUI helper for min and max
+				class MinMaxGUIHelper {
+					constructor(obj, minProp, maxProp, minDif) {
+						this.obj = obj;
+						this.minProp = minProp;
+						this.maxProp = maxProp;
+						this.minDif = minDif;
+					}
+					get min() {
+						return this.obj[this.minProp];
+					}
+					set min(v) {
+						this.obj[this.minProp] = v;
+						this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
+					}
+					get max() {
+						return this.obj[this.maxProp];
+					}
+					set max(v) {
+						this.obj[this.maxProp] = v;
+						this.min = this.min; // this will call the min setter
+					}
+				}
+
+				// GUI helper for color
+				class ColorGUIHelper {
+					constructor(object, prop) {
+						this.object = object;
+						this.prop = prop;
+					}
+					get value() {
+						return `#${this.object[this.prop].getHexString()}`;
+					}
+					set value(hexString) {
+						this.object[this.prop].set(hexString);
+					}
+				}
+
+				// Create js linspace
+				function linspace(startValue, stopValue, cardinality) {
+					var arr = [];
+					var step = (stopValue - startValue) / (cardinality - 1);
+					for (var i = 0; i < cardinality; i++) {
+						arr.push(startValue + (step * i));
+					}
+					return arr;
+				}
+				// Calculate face centroid
+				function computeFaceCentroids(geometry) {
+					for (f = 0, fl = geometry.faces.length; f < fl; f++) {
+
+						face = geometry.faces[f];
+						face.centroid = new THREE.Vector3(0, 0, 0);
+
+						if (face instanceof THREE.Face3) {
+							face.centroid.add(geometry.vertices[face.a]);
+							face.centroid.add(geometry.vertices[face.b]);
+							face.centroid.add(geometry.vertices[face.c]);
+							face.centroid.divideScalar(3);
+
+						} else if (face instanceof THREE.Face4) {
+							face.centroid.add(geometry.vertices[face.a]);
+							face.centroid.add(geometry.vertices[face.b]);
+							face.centroid.add(geometry.vertices[face.c]);
+							face.centroid.add(geometry.vertices[face.d]);
+							face.centroid.divideScalar(4);
+						}
+					}
+				}
+
+			}
+
 			// Canvas setup
 			const canvas = document.querySelector('#c');
 			const view1Elem = document.querySelector('#view1');
@@ -57,44 +131,6 @@
 			const renderer = new THREE.WebGLRenderer({
 				canvas
 			});
-
-			// GUI helper for min and max
-			class MinMaxGUIHelper {
-				constructor(obj, minProp, maxProp, minDif) {
-					this.obj = obj;
-					this.minProp = minProp;
-					this.maxProp = maxProp;
-					this.minDif = minDif;
-				}
-				get min() {
-					return this.obj[this.minProp];
-				}
-				set min(v) {
-					this.obj[this.minProp] = v;
-					this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
-				}
-				get max() {
-					return this.obj[this.maxProp];
-				}
-				set max(v) {
-					this.obj[this.maxProp] = v;
-					this.min = this.min; // this will call the min setter
-				}
-			}
-
-			// GUI helper for color
-			class ColorGUIHelper {
-				constructor(object, prop) {
-					this.object = object;
-					this.prop = prop;
-				}
-				get value() {
-					return `#${this.object[this.prop].getHexString()}`;
-				}
-				set value(hexString) {
-					this.object[this.prop].set(hexString);
-				}
-			}
 
 			// Camera 1 setup
 			const fov = 60;
@@ -166,32 +202,6 @@
 				})));
 				pointLight.position.set(0, 0, 0);
 				//scene.add(pointLight);
-			}
-
-			// Calculate face centroid
-			function computeFaceCentroids(geometry) {
-
-				for (f = 0, fl = geometry.faces.length; f < fl; f++) {
-
-					face = geometry.faces[f];
-					face.centroid = new THREE.Vector3(0, 0, 0);
-
-					if (face instanceof THREE.Face3) {
-						face.centroid.add(geometry.vertices[face.a]);
-						face.centroid.add(geometry.vertices[face.b]);
-						face.centroid.add(geometry.vertices[face.c]);
-						face.centroid.divideScalar(3);
-
-					} else if (face instanceof THREE.Face4) {
-						face.centroid.add(geometry.vertices[face.a]);
-						face.centroid.add(geometry.vertices[face.b]);
-						face.centroid.add(geometry.vertices[face.c]);
-						face.centroid.add(geometry.vertices[face.d]);
-						face.centroid.divideScalar(4);
-					}
-
-				}
-
 			}
 
 			// Construct the disk
@@ -271,15 +281,6 @@
 				return width / height;
 			}
 
-			// Create js linspace
-			function linspace(startValue, stopValue, cardinality) {
-				var arr = [];
-				var step = (stopValue - startValue) / (cardinality - 1);
-				for (var i = 0; i < cardinality; i++) {
-					arr.push(startValue + (step * i));
-				}
-				return arr;
-			}
 
 			// Render funcion
 			function render() {
@@ -328,6 +329,51 @@
 						return poly
 					}
 
+					function Polynomial_BCCA(x) {
+						const coefs = [4.636826401592031,
+							-0.09894440386331264,
+							0.0015518611088604993,
+							-9.85038360162274 * Math.pow(10, -6),
+							-6.886558861908797 * Math.pow(10, -8),
+							1.4768254744013892 * Math.pow(10, -9),
+							-8.181166730209648 * Math.pow(10, -12),
+							1.5291244870586144 * Math.pow(10, -14)
+						];
+
+						const poly = coefs[0] +
+							coefs[1] * x +
+							coefs[2] * Math.pow(x, 2) +
+							coefs[3] * Math.pow(x, 3) +
+							coefs[4] * Math.pow(x, 4) +
+							coefs[5] * Math.pow(x, 5) +
+							coefs[6] * Math.pow(x, 6) +
+							coefs[7] * Math.pow(x, 7);
+
+						return poly
+					}
+
+					function Polynomial_BPCA(x) {
+						const coefs = [4.388131638511202,
+							0.042169187761888445,
+							-0.007055476891383899,
+							0.00019899517930775865,
+							-2.6509569596217497 * Math.pow(10, -6),
+							1.872007641564171 * Math.pow(10, -8),
+							-6.744608860604325 * Math.pow(10, -11),
+							9.755666045922404 * Math.pow(10, -14)
+						];
+
+						const poly = coefs[0] +
+							coefs[1] * x +
+							coefs[2] * Math.pow(x, 2) +
+							coefs[3] * Math.pow(x, 3) +
+							coefs[4] * Math.pow(x, 4) +
+							coefs[5] * Math.pow(x, 5) +
+							coefs[7] * Math.pow(x, 7);
+
+						return poly
+					}
+
 					// Set parameters and two ends of scattering angle
 					const g = 0.6;
 					const g1 = 0.99;
@@ -342,12 +388,14 @@
 					const hg2_pi = Henyey_Greenstein_2(g1, w1, g2, w2, Math.PI);
 
 					// Construct an array for the polynomial fit
-					const x_new = linspace(37.69, 115.97, 300);
+					//const x_new = linspace(37.69, 115.97, 300);
+					const x_new = linspace(0, 180, 300);
 
 					let ffit = new Array();
 
 					for (i = 0; i < x_new.length; i++) {
-						ffit[i] = Polynomial_HD97048(x_new[i]);
+						//ffit[i] = Polynomial_HD97048(x_new[i]);
+						ffit[i] = Polynomial_BCCA(x_new[i])
 						//ffit[i] = Henyey_Greenstein_2(g1, w1, g2, w2, x_new[i]);
 					}
 
@@ -393,20 +441,29 @@
 							(Math.pow(scattering_angle_cos, 2) + 1);
 						pe[i] = polarization_efficiency;
 
-						// Filter out angles less than 20 degrees corresponding to extreme phase function
+						// Filter out angles corresponding to extreme phase function or out of ranges
+						// for 2-comp. HG
 						//if (scattering_angle < (20 * Math.PI / 180)) {
 						//	scattering_angle = (20 * Math.PI / 180)
 						//};
-						if (scattering_angle > (115.97 * Math.PI / 180)) {
-							scattering_angle = (115.97 * Math.PI / 180)
-						};
+
+						// for polynomial
+						//if (scattering_angle < (37.69 * Math.PI / 180)) {
+						//	scattering_angle = (37.69 * Math.PI / 180)
+						//} else if (scattering_angle > (115.97 * Math.PI / 180)) {
+						//	scattering_angle = (115.97 * Math.PI / 180)
+						//} else {
+							// do nothing
+						//}
 
 						scatter_angle[i] = scattering_angle * (180 / Math.PI);
 
 						// Compute total intensity
-						//const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) /
-						//	Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
-						const total_intensity = Polynomial_HD97048(scattering_angle * 180 / Math.PI);
+						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) /
+							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						//const total_intensity = Polynomial_HD97048(scattering_angle * 180 / Math.PI);
+						//const total_intensity = Polynomial_BCCA(scattering_angle * 180 / Math.PI) /
+						//	Polynomial_BCCA(0);
 						total_int[i] = total_intensity;
 
 						// Multiply with polar efficiency to compute the actual intensity
@@ -446,6 +503,7 @@
 								},
 							},
 							showgrid: true,
+							zeroline: false,
 							showline: true,
 							mirror: 'ticks',
 						},
@@ -490,7 +548,7 @@
 						//name: 'Best fit 2-component HG'
 					}
 
-					//const data = [trace2];
+					//const data = [trace4];
 					const data = [trace1, trace2, trace3];
 					Plotly.newPlot('view2', data, layout);
 
