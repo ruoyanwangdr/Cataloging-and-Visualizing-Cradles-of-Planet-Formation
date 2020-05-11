@@ -141,7 +141,7 @@
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
 			// Disk inclination set by initial camera position
-			const inclination = 39.9;
+			const inclination = 56.05;
 			camera.position.set(0, 60, 60 * Math.tan(inclination * Math.PI / 180));
 
 			const cameraHelper = new THREE.CameraHelper(camera);
@@ -171,14 +171,14 @@
 			scene.background = new THREE.Color('black');
 			scene.add(cameraHelper);
 
-			// Construct GUI for camera
+			/*// Construct GUI for camera
 			const gui = new dat.GUI({
 				autoplace: true
 			});
 			const folder = gui.addFolder('Camera');
 			folder.add(camera, 'fov', 1, 120);
 			folder.add(camera, 'near', 1, 80);
-			folder.add(camera, 'far', 80, 200);
+			folder.add(camera, 'far', 80, 200);*/
 
 
 			// Construct a central light source
@@ -211,8 +211,8 @@
 
 				// H(r) = 0.0064au * (r/1au)^(1.73) from Ginski et al. (2016)
 				for (r = 2; r < 27; r = r + 1) {
-					points.push(new THREE.Vector2(r, 0.0064 * 5 * Math.pow(r, 1.73)));
-					points.push(new THREE.Vector2(r, -0.0064 * 5 * Math.pow(r, 1.73)));
+					points.push(new THREE.Vector2(r, 0.0064 * 10 * Math.pow(r, 1.73)));
+					points.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(r, 1.73)));
 				}
 
 				// Make a new lathe geometry out of of the array of points just created
@@ -490,6 +490,9 @@
 									color: 'black'
 								},
 							},
+							range: [20, 159], // for 2-comp. HG
+							//range: [37.8, 115.7], // for Polynomial_HD97048
+							//range: [0, 180], // for Polynomial_BCCA and Polynomial_BPCA
 							showgrid: true,
 							showline: true,
 							mirror: 'ticks',
@@ -524,6 +527,10 @@
 						x: scatter_angle,
 						y: total_int,
 						type: 'scatter',
+						mode: 'markers',
+						marker: {
+							size: 2,
+						},
 						name: 'Total intensity'
 					};
 
@@ -531,6 +538,10 @@
 						x: scatter_angle,
 						y: pe,
 						type: 'scatter',
+						mode: 'markers',
+						marker: {
+							size: 2,
+						},
 						name: 'Polarization efficiency'
 					};
 
@@ -538,6 +549,10 @@
 						x: scatter_angle,
 						y: polar_int,
 						type: 'scatter',
+						mode: 'markers',
+						marker: {
+							size: 2,
+						},
 						name: 'Polarized intensity'
 					};
 
@@ -545,6 +560,10 @@
 						x: x_new,
 						y: ffit,
 						type: 'scatter',
+						mode: 'markers',
+						marker: {
+							size: 2,
+						},
 						name: 'Best fit 7th order polynomial'
 						//name: 'Best fit 2-component HG'
 					}

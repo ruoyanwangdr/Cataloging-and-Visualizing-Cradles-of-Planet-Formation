@@ -141,7 +141,7 @@
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
 			// Disk inclination set by initial camera position
-			const inclination = 39.9;
+			const inclination = 56.05; //39.9;
 			camera.position.set(0, 60, 60 * Math.tan(inclination * Math.PI / 180));
 
 			const cameraHelper = new THREE.CameraHelper(camera);
@@ -211,8 +211,8 @@
 
 				// H(r) = 0.0064au * (r/1au)^(1.73) from Ginski et al. (2016)
 				for (r = 3; r < 27; r = r + 1) {
-					points.push(new THREE.Vector2(r, 0.0064 * 5 * Math.pow(r, 1.73)));
-					points.push(new THREE.Vector2(r, -0.0064 * 5 * Math.pow(r, 1.73)));
+					points.push(new THREE.Vector2(r, 0.0064 * 10 * Math.pow(r, 1.73)));
+					points.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(r, 1.73)));
 				}
 
 				// Make a new lathe geometry out of of the array of points just created
@@ -444,24 +444,24 @@
 						pe[i] = polarization_efficiency;
 
 						// Filter out angles corresponding to extreme phase function or out of ranges
-						// for 2-comp. HG
+						/*// for 2-comp. HG
 						if (scattering_angle < (20 * Math.PI / 180)) {
 							scattering_angle = (20 * Math.PI / 180)
-						};
-						/*// for Polynomial_HD97048
+						};*/
+						// for Polynomial_HD97048
 						if (scattering_angle < (37.69 * Math.PI / 180)) {
 							scattering_angle = (37.69 * Math.PI / 180)
 						} else if (scattering_angle > (115.97 * Math.PI / 180)) {
 							scattering_angle = (115.97 * Math.PI / 180)
 						} else {
 							// do nothing
-						};*/
+						};
 
 						scatter_angle[i] = scattering_angle * (180 / Math.PI);
 
 						// Compute total intensity
-						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) / Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
-						//const total_intensity = Polynomial_HD97048(scattering_angle * 180 / Math.PI);
+						//const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) / Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						const total_intensity = Polynomial_HD97048(scattering_angle * 180 / Math.PI);
 						//const total_intensity = Polynomial_BCCA(scattering_angle * 180 / Math.PI) / Polynomial_BCCA(0);
 						//const total_intensity = Polynomial_BPCA(scattering_angle * 180 / Math.PI) / Polynomial_BPCA(0);
 						total_int[i] = total_intensity;
@@ -469,10 +469,10 @@
 						// Multiply with polar efficiency to compute the actual intensity
 						const polarized_intensity = total_intensity * polarization_efficiency /
 							//1; // without renormalization
-							0.3316057518026013; // 2-comp. HG
-							//0.23129628768357163; // Polynomial_HD97048
-							//0.37218502666498643; // Polynomial_BCCA
-							//0.3536626807797615; // Polynomial_BPCA
+							//0.3316057518026013; // 2-comp. HG
+							0.23129628768357163; // Polynomial_HD97048
+						//0.37218502666498643; // Polynomial_BCCA
+						//0.3536626807797615; // Polynomial_BPCA
 
 						polar_int[i] = polarized_intensity;
 
@@ -496,8 +496,8 @@
 									color: 'black'
 								},
 							},
-							//range: [20, 160], // for 2-comp. HG
-							//range: [37.8, 115.7], // for Polynomial_HD97048
+							//range: [20, 159], // for 2-comp. HG
+							range: [37.8, 115.7], // for Polynomial_HD97048
 							//range: [0, 180], // for Polynomial_BCCA and Polynomial_BPCA
 							showgrid: true,
 							showline: true,
@@ -519,9 +519,9 @@
 						},
 						showlegend: true,
 						legend: {
-							x: 1,
-							xanchor: 'right',
-							y: 1,
+							x: 0.5,
+							xanchor: 'center',
+							y: 0.5,
 							traceorder: 'normal',
 							font: {
 								size: 10,
@@ -535,7 +535,7 @@
 						type: 'scatter',
 						mode: 'markers',
 						marker: {
-							size: 3,
+							size: 1.5,
 						},
 						name: 'Total intensity'
 					};
@@ -546,7 +546,7 @@
 						type: 'scatter',
 						mode: 'markers',
 						marker: {
-							size: 3,
+							size: 1.5,
 						},
 						name: 'Polarization efficiency'
 					};
@@ -557,7 +557,7 @@
 						type: 'scatter',
 						mode: 'markers',
 						marker: {
-							size: 3,
+							size: 1.5,
 						},
 						name: 'Polarized intensity'
 					};
@@ -568,7 +568,7 @@
 						type: 'scatter',
 						mode: 'markers',
 						marker: {
-							size: 3,
+							size: 1.5,
 						},
 						name: 'Best fit 7th order polynomial'
 						//name: 'Best fit 2-component HG'
