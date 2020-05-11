@@ -50,6 +50,80 @@
 	<script>
 		function main() {
 
+			// Create funtions not included in default js
+			{
+				// GUI helper for min and max
+				class MinMaxGUIHelper {
+					constructor(obj, minProp, maxProp, minDif) {
+						this.obj = obj;
+						this.minProp = minProp;
+						this.maxProp = maxProp;
+						this.minDif = minDif;
+					}
+					get min() {
+						return this.obj[this.minProp];
+					}
+					set min(v) {
+						this.obj[this.minProp] = v;
+						this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
+					}
+					get max() {
+						return this.obj[this.maxProp];
+					}
+					set max(v) {
+						this.obj[this.maxProp] = v;
+						this.min = this.min; // this will call the min setter
+					}
+				}
+
+				// GUI helper for color
+				class ColorGUIHelper {
+					constructor(object, prop) {
+						this.object = object;
+						this.prop = prop;
+					}
+					get value() {
+						return `#${this.object[this.prop].getHexString()}`;
+					}
+					set value(hexString) {
+						this.object[this.prop].set(hexString);
+					}
+				}
+
+				// Create js linspace
+				function linspace(startValue, stopValue, cardinality) {
+					var arr = [];
+					var step = (stopValue - startValue) / (cardinality - 1);
+					for (var i = 0; i < cardinality; i++) {
+						arr.push(startValue + (step * i));
+					}
+					return arr;
+				}
+				// Calculate face centroid
+				function computeFaceCentroids(geometry) {
+					for (f = 0, fl = geometry.faces.length; f < fl; f++) {
+
+						face = geometry.faces[f];
+						face.centroid = new THREE.Vector3(0, 0, 0);
+
+						if (face instanceof THREE.Face3) {
+							face.centroid.add(geometry.vertices[face.a]);
+							face.centroid.add(geometry.vertices[face.b]);
+							face.centroid.add(geometry.vertices[face.c]);
+							face.centroid.divideScalar(3);
+
+						} else if (face instanceof THREE.Face4) {
+							face.centroid.add(geometry.vertices[face.a]);
+							face.centroid.add(geometry.vertices[face.b]);
+							face.centroid.add(geometry.vertices[face.c]);
+							face.centroid.add(geometry.vertices[face.d]);
+							face.centroid.divideScalar(4);
+						}
+					}
+				}
+
+			}
+
 			// Canvas setup
 			const canvas = document.querySelector('#c');
 			const view1Elem = document.querySelector('#view1');
@@ -58,51 +132,17 @@
 				canvas
 			});
 
-			// GUI helper for min and max
-			class MinMaxGUIHelper {
-				constructor(obj, minProp, maxProp, minDif) {
-					this.obj = obj;
-					this.minProp = minProp;
-					this.maxProp = maxProp;
-					this.minDif = minDif;
-				}
-				get min() {
-					return this.obj[this.minProp];
-				}
-				set min(v) {
-					this.obj[this.minProp] = v;
-					this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
-				}
-				get max() {
-					return this.obj[this.maxProp];
-				}
-				set max(v) {
-					this.obj[this.maxProp] = v;
-					this.min = this.min; // this will call the min setter
-				}
-			}
-
-			// GUI helper for color
-			class ColorGUIHelper {
-				constructor(object, prop) {
-					this.object = object;
-					this.prop = prop;
-				}
-				get value() {
-					return `#${this.object[this.prop].getHexString()}`;
-				}
-				set value(hexString) {
-					this.object[this.prop].set(hexString);
-				}
-			}
-
 			// Camera 1 setup
 			const fov = 60;
-			const aspect = 2; // the canvas default
-			const near = 20;
-			const far = 120;
+			const aspect = 2;
+			const near = 10;
+			const far = 150;
+
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-			camera.position.set(0, 60, 60 * 0.836130); // 39.9 degree inclination, 	tan(39.9)
+
+			// Disk inclination set by initial camera position
+			const inclination = 39.9;
+			camera.position.set(0, 60, 60 * Math.tan(inclination * Math.PI / 180));
 
 			const cameraHelper = new THREE.CameraHelper(camera);
 
@@ -118,7 +158,7 @@
 				0.1, // near
 				1000, // far
 			);
-			camera2.position.set(-120, 100, 120);
+			camera2.position.set(-240, 0, 0);
 			camera2.lookAt(0, 0, 0);
 
 			// Orbit control of camera 2
@@ -131,44 +171,15 @@
 			scene.background = new THREE.Color('black');
 			scene.add(cameraHelper);
 
-			/*
-			// Construct GUI for camera
+			/*// Construct GUI for camera
 			const gui = new dat.GUI({
 				autoplace: true
 			});
 			const folder = gui.addFolder('Camera');
-			folder.add(camera, 'fov', 1, 180);
-			const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
-			folder.add(minMaxGUIHelper, 'min', 0.1, 80, 0.1).name('near');
-			folder.add(minMaxGUIHelper, 'max', 0.1, 100, 0.1).name('far');
-			//folder.add(minMaxGUIHelper, 'min', 1, 100, 1).name('near');
-			//folder.add(minMaxGUIHelper, 'max', 1, 400, 1).name('far');
-			*/
+			folder.add(camera, 'fov', 1, 120);
+			folder.add(camera, 'near', 1, 80);
+			folder.add(camera, 'far', 80, 200);*/
 
-			/*
-			// Construct a plane for primitives
-			{
-				const planeSize = 40;
-
-				const loader = new THREE.TextureLoader();
-				const texture = loader.load('resources/images/checker.png');
-				texture.wrapS = THREE.RepeatWrapping;
-				texture.wrapT = THREE.RepeatWrapping;
-				texture.magFilter = THREE.NearestFilter;
-				const repeats = planeSize / 2;
-				texture.repeat.set(repeats, repeats);
-
-				const planeGeo = new THREE.PlaneBufferGeometry(planeSize, planeSize);
-				const planeMat = new THREE.MeshPhongMaterial({
-					color: 0xc0c0c0,
-					map: texture,
-					side: THREE.DoubleSide,
-				});
-				const mesh = new THREE.Mesh(planeGeo, planeMat);
-				mesh.rotation.x = Math.PI * -.5;
-				scene.add(mesh);
-			}
-			*/
 
 			// Construct a central light source
 			{
@@ -190,91 +201,26 @@
 					color: 0xffffff
 				})));
 				pointLight.position.set(0, 0, 0);
-				scene.add(pointLight);
-
-				/*
-				// Add GUI panel for light
-				const gui = new dat.GUI({
-					autoplace: true
-				});
-				const folder = gui.addFolder('Light');
-				folder.addColor(new ColorGUIHelper(pointLight, 'color'), 'value').name('Color');
-				folder.add(pointLight, 'intensity', 0, 400).name('Intensity');
-				folder.add(pointLight, 'distance', 0, 100).name('Distance');
-				*/
-			}
-
-			// Calculate face centroid
-			function computeFaceCentroids(geometry) {
-
-				for (f = 0, fl = geometry.faces.length; f < fl; f++) {
-
-					face = geometry.faces[f];
-					face.centroid = new THREE.Vector3(0, 0, 0);
-
-					if (face instanceof THREE.Face3) {
-
-						face.centroid.add(geometry.vertices[face.a]);
-						face.centroid.add(geometry.vertices[face.b]);
-						face.centroid.add(geometry.vertices[face.c]);
-						face.centroid.divideScalar(3);
-
-					} else if (face instanceof THREE.Face4) {
-
-						face.centroid.add(geometry.vertices[face.a]);
-						face.centroid.add(geometry.vertices[face.b]);
-						face.centroid.add(geometry.vertices[face.c]);
-						face.centroid.add(geometry.vertices[face.d]);
-						face.centroid.divideScalar(4);
-
-					}
-
-				}
-
+				//scene.add(pointLight);
 			}
 
 			// Construct the disk
 			{
 				// Create an array of points
 				const points = [];
-				//for (i = 0; i < (2 * Math.PI + 1); i = i + (2 * Math.PI / 24)) {
-				//points.push(new THREE.Vector2(Math.sin(i) * 2.5 + 13, Math.cos(i) * 0.5 + 0));
-				//}
-				for (i = 3; i < 27; i = i + 1) {
-					points.push(new THREE.Vector2(i, 0.0064 * 5 * Math.pow(i, 1.73)));
-					points.push(new THREE.Vector2(i, -0.0064 * 5 * Math.pow(i, 1.73)));
+
+				// H(r) = 0.0064au * (r/1au)^(1.73) from Ginski et al. (2016)
+				for (r = 3; r < 27; r = r + 1) {
+					points.push(new THREE.Vector2(r, 0.0064 * 5 * Math.pow(r, 1.73)));
+					points.push(new THREE.Vector2(r, -0.0064 * 5 * Math.pow(r, 1.73)));
 				}
 
-				/*
-				points.push(new THREE.Vector3(5, -0.1, 0));
-				points.push(new THREE.Vector3(6, -0.15, 0));
-				points.push(new THREE.Vector3(8, -1, 0));
-				points.push(new THREE.Vector3(10, -1.5, 0));
-				points.push(new THREE.Vector3(13, -3, 0));
-				points.push(new THREE.Vector3(13.4, 0, 0));
-				points.push(new THREE.Vector3(13, 3, 0));
-				points.push(new THREE.Vector3(10, 1.5, 0));
-				points.push(new THREE.Vector3(8, 1, 0));
-				points.push(new THREE.Vector3(6, 0.15, 0));
-				points.push(new THREE.Vector3(5, 0.1, 0));
-				points.push(new THREE.Vector3(5, -0.1, 0));
-
-				// Make a spline curve to interpolate the curve between the points
-				const curve = new THREE.CatmullRomCurve3(points);
-
-				//then specify the number of points on that curve and make it into an array of points
-				const numPoints = 50;
-				const splinePoints = curve.getPoints(numPoints);
-				*/
-
 				// Make a new lathe geometry out of of the array of points just created
-				//const geometry = new THREE.LatheGeometry(splinePoints, segments = 36);
 				const geometry = new THREE.LatheGeometry(points, segments = 120);
 				const material = new THREE.MeshBasicMaterial({
 					//color: 0xffffff,
 					vertexColors: THREE.FaceColors,
 					side: THREE.DoubleSide,
-					//shininess: 0,
 				});
 
 				// Add centroid as an attibute to geometry
@@ -299,6 +245,7 @@
 				line.position.set(0, 20, 0)
 				//scene.add(line);
 			}
+
 
 			// Render class
 			function resizeRendererToDisplaySize(renderer) {
@@ -334,6 +281,7 @@
 				return width / height;
 			}
 
+
 			// Render funcion
 			function render() {
 
@@ -341,18 +289,6 @@
 
 				// Calculate and update intensity
 				{
-					// Get world space direction in which the camera is looking
-					const camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
-
-					//const pLocal = new THREE.Vector3(0, 1, 0);
-					//const pWorld = pLocal.applyQuaternion(camera.quaternion).normalize();
-
-					//const origin = new THREE.Vector3(0, 0, 0);
-					//const length = 20;
-					//const hex = 0xffff00;
-
-					//const arrow_up = new THREE.ArrowHelper(pWorld, origin, length, hex);
-
 					// Define Henyey-Greenstein funtion
 					function Henyey_Greenstein(g, phi) {
 						const p = (1 - Math.pow(g, 2)) /
@@ -367,6 +303,78 @@
 						return p2
 					}
 
+					function Polynomial_HD97048(x) {
+						//for (i=0; i < coefs.length; i++){
+						//	const poly = coefs[i] * Math.pow(x, i)
+						//}
+						const coefs = [96.49812630363301,
+							-8.968121849881191,
+							0.35451131063118246,
+							-0.007675480564300319,
+							9.811456748455025 * Math.pow(10, -5),
+							-7.40235579764522 * Math.pow(10, -7),
+							3.0531685891738424 * Math.pow(10, -9),
+							-5.3142211632618485 * Math.pow(10, -12)
+						];
+
+						const poly = coefs[0] +
+							coefs[1] * x +
+							coefs[2] * Math.pow(x, 2) +
+							coefs[3] * Math.pow(x, 3) +
+							coefs[4] * Math.pow(x, 4) +
+							coefs[5] * Math.pow(x, 5) +
+							coefs[6] * Math.pow(x, 6) +
+							coefs[7] * Math.pow(x, 7);
+
+						return poly
+					}
+
+					function Polynomial_BCCA(x) {
+						const coefs = [4.636826401592031,
+							-0.09894440386331264,
+							0.0015518611088604993,
+							-9.85038360162274 * Math.pow(10, -6),
+							-6.886558861908797 * Math.pow(10, -8),
+							1.4768254744013892 * Math.pow(10, -9),
+							-8.181166730209648 * Math.pow(10, -12),
+							1.5291244870586144 * Math.pow(10, -14)
+						];
+
+						const poly = coefs[0] +
+							coefs[1] * x +
+							coefs[2] * Math.pow(x, 2) +
+							coefs[3] * Math.pow(x, 3) +
+							coefs[4] * Math.pow(x, 4) +
+							coefs[5] * Math.pow(x, 5) +
+							coefs[6] * Math.pow(x, 6) +
+							coefs[7] * Math.pow(x, 7);
+
+						return poly
+					}
+
+					function Polynomial_BPCA(x) {
+						const coefs = [4.388131638511202,
+							0.042169187761888445,
+							-0.007055476891383899,
+							0.00019899517930775865,
+							-2.6509569596217497 * Math.pow(10, -6),
+							1.872007641564171 * Math.pow(10, -8),
+							-6.744608860604325 * Math.pow(10, -11),
+							9.755666045922404 * Math.pow(10, -14)
+						];
+
+						const poly = coefs[0] +
+							coefs[1] * x +
+							coefs[2] * Math.pow(x, 2) +
+							coefs[3] * Math.pow(x, 3) +
+							coefs[4] * Math.pow(x, 4) +
+							coefs[5] * Math.pow(x, 5) +
+							coefs[6] * Math.pow(x, 6) +
+							coefs[7] * Math.pow(x, 7);
+
+						return poly
+					}
+
 					// Set parameters and two ends of scattering angle
 					const g = 0.6;
 					const g1 = 0.99;
@@ -379,6 +387,19 @@
 
 					const hg2_0 = Henyey_Greenstein_2(g1, w1, g2, w2, 0);
 					const hg2_pi = Henyey_Greenstein_2(g1, w1, g2, w2, Math.PI);
+
+					// Construct an array for the polynomial fit
+					const x_new = linspace(20, 160, 300);
+					//const x_new = linspace(37.69, 115.97, 300);
+					//const x_new = linspace(0, 180, 300);
+
+					let ffit = new Array();
+
+					for (i = 0; i < x_new.length; i++) {
+						ffit[i] = Henyey_Greenstein_2(g1, w1, g2, w2, x_new[i]);
+						//ffit[i] = Polynomial_HD97048(x_new[i]);
+						//ffit[i] = Polynomial_BCCA(x_new[i])
+					}
 
 					// Set max value of H-G and HG2
 					let hg_max, hg2_max;
@@ -395,17 +416,14 @@
 						hg2_max = hg2_pi
 					};
 
-					//const gui = new dat.GUI({
-					//	autoplace: true
-					//});
-					//const folder = gui.addFolder('H-G');
-					//folder.add(params, 'g', -0.9, 0.9).name('g');
-
 					// Create two empty arrays for plot
 					let scatter_angle = new Array();
 					let pe = new Array();
 					let total_int = new Array();
 					let polar_int = new Array();
+
+					// Get world space direction in which the camera is looking
+					const camera_direction = camera.getWorldDirection(target = new THREE.Vector3());
 
 					// Loop over each facet for calculation
 					for (i = 0; i < disk.geometry.faces.length; i++) {
@@ -418,41 +436,52 @@
 						const scattering_angle_cos = camera_direction.normalize().dot(
 							face_centroid.normalize());
 						//const scattering_angle_sin = Math.pow((1 - Math.pow(scattering_angle_cos, 2)), 0.5);
-						const scattering_angle = Math.PI - Math.acos(scattering_angle_cos);
+						let scattering_angle = Math.PI - Math.acos(scattering_angle_cos);
 
 						// Polarization efficiency
 						const polarization_efficiency = -(Math.pow(scattering_angle_cos, 2) - 1) /
 							(Math.pow(scattering_angle_cos, 2) + 1);
 						pe[i] = polarization_efficiency;
 
-						// Filter out angles less than 20 degrees corresponding to extreme phase function
+						// Filter out angles corresponding to extreme phase function or out of ranges
+						// for 2-comp. HG
 						if (scattering_angle < (20 * Math.PI / 180)) {
 							scattering_angle = (20 * Math.PI / 180)
 						};
+						/*// for Polynomial_HD97048
+						if (scattering_angle < (37.69 * Math.PI / 180)) {
+							scattering_angle = (37.69 * Math.PI / 180)
+						} else if (scattering_angle > (115.97 * Math.PI / 180)) {
+							scattering_angle = (115.97 * Math.PI / 180)
+						} else {
+							// do nothing
+						};*/
+
 						scatter_angle[i] = scattering_angle * (180 / Math.PI);
 
 						// Compute total intensity
-						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) /
-							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) / Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						//const total_intensity = Polynomial_HD97048(scattering_angle * 180 / Math.PI);
+						//const total_intensity = Polynomial_BCCA(scattering_angle * 180 / Math.PI) / Polynomial_BCCA(0);
+						//const total_intensity = Polynomial_BPCA(scattering_angle * 180 / Math.PI) / Polynomial_BPCA(0);
 						total_int[i] = total_intensity;
 
 						// Multiply with polar efficiency to compute the actual intensity
-						const polarized_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) *
-							polarization_efficiency /
-							Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
-						polar_int[i] = polarized_intensity;
+						const polarized_intensity = total_intensity * polarization_efficiency /
+							//1; // without renormalization
+							0.3316057518026013; // 2-comp. HG
+							//0.23129628768357163; // Polynomial_HD97048
+							//0.37218502666498643; // Polynomial_BCCA
+							//0.3536626807797615; // Polynomial_BPCA
 
-						//const polar = new THREE.Vector3();
-						//polar.crossVectors(face_normal.normalize(), face_centroid.normalize());
+						polar_int[i] = polarized_intensity;
 
 						// Set disk color intensity
 						const setScalar = disk.geometry.faces[i].color.setScalar(
-							//Math.abs(pWorld.dot(polar))
-							//Math.abs(scattering_angle / (2 * Math.PI))
-							//Math.abs(total_intensity)
 							Math.abs(polarized_intensity)
 						);
 					}
+					//console.log(Math.max.apply(this, scatter_angle));
 
 					disk.geometry.elementsNeedUpdate = true;
 
@@ -460,13 +489,16 @@
 					const layout = {
 						xaxis: {
 							title: {
-								text: 'Scattering angle in degrees',
+								text: 'Scattering angle [deg]',
 								font: {
 									family: 'Courier New, monospace',
 									size: 18,
 									color: 'black'
 								},
 							},
+							//range: [20, 160], // for 2-comp. HG
+							//range: [37.8, 115.7], // for Polynomial_HD97048
+							//range: [0, 180], // for Polynomial_BCCA and Polynomial_BPCA
 							showgrid: true,
 							showline: true,
 							mirror: 'ticks',
@@ -481,6 +513,7 @@
 								},
 							},
 							showgrid: true,
+							zeroline: false,
 							showline: true,
 							mirror: 'ticks',
 						},
@@ -500,6 +533,10 @@
 						x: scatter_angle,
 						y: total_int,
 						type: 'scatter',
+						mode: 'markers',
+						marker: {
+							size: 3,
+						},
 						name: 'Total intensity'
 					};
 
@@ -507,6 +544,10 @@
 						x: scatter_angle,
 						y: pe,
 						type: 'scatter',
+						mode: 'markers',
+						marker: {
+							size: 3,
+						},
 						name: 'Polarization efficiency'
 					};
 
@@ -514,12 +555,28 @@
 						x: scatter_angle,
 						y: polar_int,
 						type: 'scatter',
+						mode: 'markers',
+						marker: {
+							size: 3,
+						},
 						name: 'Polarized intensity'
 					};
 
-					const data = [trace1, trace2, trace3];
+					const trace4 = {
+						x: x_new,
+						y: ffit,
+						type: 'scatter',
+						mode: 'markers',
+						marker: {
+							size: 3,
+						},
+						name: 'Best fit 7th order polynomial'
+						//name: 'Best fit 2-component HG'
+					}
 
-					//Plotly.newPlot('view2', data, layout);
+					//const data = [trace4];
+					const data = [trace1, trace2, trace3];
+					Plotly.newPlot('view2', data, layout);
 
 				}
 
