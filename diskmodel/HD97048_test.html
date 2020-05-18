@@ -211,26 +211,15 @@
 				const points = [];
 
 				// H(r) = 0.0064au * (r/1au)^(1.73) from Ginski et al. (2016)
-				/*for (r = 3; r < 27; r = r + 1) {
-					points.push(new THREE.Vector2(r, 0.0064 * 10 * Math.pow(r, 1.73)));
-					points.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(r, 1.73)));
-				}*/
-
-				for (r = 3; r < 27; r = r + 0.5) {
+				// MY lup: r = 14.39; IM lup: r = 45.22; PDS66: r = 10; HD169142: r = 11.71;
+				for (r = 3; r < 27; r = r + 0.2) {
 					points.push(new THREE.Vector2(r, 0.0064 * 10 * Math.pow(r, 1.73)));
 				}
-				for (r = 27; r > 3; r = r - 0.5) {
+				for (r = 27; r > 3; r = r - 0.2) {
 					points.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(r, 1.73)));
 				}
 				points.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(3, 1.73)));
 				points.push(new THREE.Vector2(r, 0.0064 * 10 * Math.pow(3, 1.73)));
-
-				const points_flared = [];
-
-				//for (r = 3; r < 54; r = r + 1) {
-				//	points_flared.push(new THREE.Vector2(r, 0.0064 * 10 * Math.pow(r, 1.3)));
-				//	points_flared.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(r, 1.3)));
-				//}
 
 
 				// Make a new lathe geometry out of of the array of points just created
@@ -254,20 +243,6 @@
 				//const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				//scene.add(disk_helper);
 
-				// Make a new lathe geometry out of of the array of points just created
-				const geometry_f = new THREE.LatheGeometry(points_flared, segments = 120);
-				const material_f = new THREE.MeshBasicMaterial({
-					color: 0x000000,
-					vertexColors: THREE.FaceColors,
-					side: THREE.DoubleSide,
-				});
-
-				// Declare disk to be global
-				var disk_f = new THREE.Mesh(geometry_f, material_f);
-				disk_f.receiveShadow = true;
-				disk_f.position.set(0, 0, 0);
-				scene.add(disk_f);
-
 				const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
 				const line_material = new THREE.LineBasicMaterial({
 					color: 0xff0000,
@@ -277,14 +252,6 @@
 				line.position.set(0, 0, 0)
 				//scene.add(line);
 
-				const line_geometry2 = new THREE.BufferGeometry().setFromPoints(points_flared);
-				const line_material2 = new THREE.LineBasicMaterial({
-					color: 0xff00ff,
-					linewidth: 10,
-				});
-				const line2 = new THREE.Line(line_geometry2, line_material2);
-				line2.position.set(0, 0, 0)
-				//scene.add(line2);
 			}
 
 
