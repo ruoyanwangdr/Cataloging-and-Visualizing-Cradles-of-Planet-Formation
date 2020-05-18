@@ -141,8 +141,9 @@
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
 			// Disk inclination set by initial camera position
+			// MY lup = 77; IM lup = 55; PDS66 = 30.26; HD169142 = 13
 			const inclination = 90 - 13;
-			camera.position.set(0, 180, 180/(Math.tan(inclination * Math.PI / 180)));
+			camera.position.set(0, 75, 75/(Math.tan(inclination * Math.PI / 180)));
 			camera.lookAt(0, 0, 0);
 
 			const cameraHelper = new THREE.CameraHelper(camera);
@@ -159,7 +160,7 @@
 				1, // near
 				1000, // far
 			);
-			camera2.position.set(0, 90, 90);
+			camera2.position.set(0, 30, 30);
 			camera2.lookAt(0, 0, 0);
 
 			// Orbit control of camera 2
@@ -212,10 +213,10 @@
 
 				// H(r) = 0.0064au * (r/1au)^(1.73) from Ginski et al. (2016)
 				// MY lup: r = 14.39; IM lup: r = 45.22; PDS66: r = 10; HD169142: r = 11.71;
-				for (r = 3; r < 27; r = r + 0.2) {
+				for (r = 3; r < 11.71; r = r + 0.2) {
 					points.push(new THREE.Vector2(r, 0.0064 * 10 * Math.pow(r, 1.73)));
 				}
-				for (r = 27; r > 3; r = r - 0.2) {
+				for (r = 11.71; r > 3; r = r - 0.2) {
 					points.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(r, 1.73)));
 				}
 				points.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(3, 1.73)));
@@ -253,7 +254,6 @@
 				//scene.add(line);
 
 			}
-
 
 			// Render class
 			function resizeRendererToDisplaySize(renderer) {
