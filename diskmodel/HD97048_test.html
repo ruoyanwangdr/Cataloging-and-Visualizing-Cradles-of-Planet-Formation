@@ -142,7 +142,7 @@
 
 			// Disk inclination set by initial camera position
 			// MY lup = 77; IM lup = 55; PDS66 = 30.26; HD169142 = 13
-			const inclination = 90 - 13;
+			const inclination = 90 - 39.9;
 			camera.position.set(0, 75, 75/(Math.tan(inclination * Math.PI / 180)));
 			camera.lookAt(0, 0, 0);
 
@@ -213,10 +213,10 @@
 
 				// H(r) = 0.0064au * (r/1au)^(1.73) from Ginski et al. (2016)
 				// MY lup: r = 14.39; IM lup: r = 45.22; PDS66: r = 10; HD169142: r = 11.71;
-				for (r = 3; r < 11.71; r = r + 0.2) {
+				for (r = 3; r < 27; r = r + 0.2) {
 					points.push(new THREE.Vector2(r, 0.0064 * 10 * Math.pow(r, 1.73)));
 				}
-				for (r = 11.71; r > 3; r = r - 0.2) {
+				for (r = 27; r > 3; r = r - 0.2) {
 					points.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(r, 1.73)));
 				}
 				points.push(new THREE.Vector2(r, -0.0064 * 10 * Math.pow(3, 1.73)));
@@ -239,7 +239,7 @@
 				disk.receiveShadow = true;
 				disk.position.set(0, 0, 0);
 				//disk.rotation.x = -Math.PI / 2.0;
-				scene.add(disk);
+				//scene.add(disk);
 
 				//const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				//scene.add(disk_helper);
@@ -454,9 +454,9 @@
 
 						// Filter out angles corresponding to extreme phase function or out of ranges
 						// for 2-comp. HG
-						/*if (scattering_angle < (20 * Math.PI / 180)) {
+						if (scattering_angle < (20 * Math.PI / 180)) {
 							scattering_angle = (20 * Math.PI / 180)
-						};*/
+						};
 						// for Polynomial_HD97048
 						/*if (scattering_angle < (37.69 * Math.PI / 180)) {
 							scattering_angle = (37.69 * Math.PI / 180)
@@ -469,19 +469,19 @@
 						scatter_angle[i] = scattering_angle * (180 / Math.PI);
 
 						// Compute total intensity
-						//const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) / Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
+						const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) / Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
 						//const total_intensity = Polynomial_HD97048(scattering_angle * 180 / Math.PI);
 						//const total_intensity = Polynomial_BCCA(scattering_angle * 180 / Math.PI) / Polynomial_BCCA(0);
-						const total_intensity = Polynomial_BPCA(scattering_angle * 180 / Math.PI) / Polynomial_BPCA(0);
+						//const total_intensity = Polynomial_BPCA(scattering_angle * 180 / Math.PI) / Polynomial_BPCA(0);
 						total_int[i] = total_intensity;
 
 						// Multiply with polar efficiency to compute the actual intensity
 						const polarized_intensity = total_intensity * polarization_efficiency /
 							//1; // without renormalization
-							//0.3316057518026013; // 2-comp. HG
+							0.3316057518026013; // 2-comp. HG
 							//0.23129628768357163; // Polynomial_HD97048
 							//0.37218502666498643; // Polynomial_BCCA
-							0.3536626807797615; // Polynomial_BPCA
+							//0.3536626807797615; // Polynomial_BPCA
 
 						polar_int[i] = polarized_intensity;
 
@@ -513,7 +513,7 @@
 									color: 'black'
 								},
 							},
-							//range: [20, 159], // for 2-comp. HG
+							range: [20, 159], // for 2-comp. HG
 							//range: [37.8, 115.7], // for Polynomial_HD97048
 							//range: [0, 180], // for Polynomial_BCCA and Polynomial_BPCA
 							showgrid: true,
@@ -593,7 +593,7 @@
 
 					//const data = [trace4];
 					const data = [trace1, trace2, trace3];
-					//Plotly.newPlot('view2', data, layout);
+					Plotly.newPlot('view2', data, layout);
 
 				}
 
