@@ -249,7 +249,7 @@
 				disk.receiveShadow = true;
 				disk.position.set(0, 0, 0);
 				//disk.rotation.x = -Math.PI / 2.0;
-				scene.add(disk);
+				//scene.add(disk);
 
 				//const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				//scene.add(disk_helper);
@@ -266,7 +266,7 @@
 				var disk_f = new THREE.Mesh(geometry_f, material_f);
 				disk_f.receiveShadow = true;
 				disk_f.position.set(0, 0, 0);
-				scene.add(disk_f);
+				//scene.add(disk_f);
 
 				const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
 				const line_material = new THREE.LineBasicMaterial({
@@ -275,7 +275,7 @@
 				});
 				const line = new THREE.Line(line_geometry, line_material);
 				line.position.set(0, 0, 0)
-				//scene.add(line);
+				scene.add(line);
 
 				const line_geometry2 = new THREE.BufferGeometry().setFromPoints(points_flared);
 				const line_material2 = new THREE.LineBasicMaterial({
