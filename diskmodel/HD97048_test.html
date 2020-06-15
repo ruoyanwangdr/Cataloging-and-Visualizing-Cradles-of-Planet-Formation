@@ -239,19 +239,19 @@
 				disk.receiveShadow = true;
 				disk.position.set(0, 0, 0);
 				//disk.rotation.x = -Math.PI / 2.0;
-				scene.add(disk);
+				//scene.add(disk);
 
 				//const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				//scene.add(disk_helper);
 
 				const line_geometry = new THREE.BufferGeometry().setFromPoints(points);
 				const line_material = new THREE.LineBasicMaterial({
-					color: 0xff0000,
+					color: 0xffff00,
 					linewidth: 10,
 				});
 				const line = new THREE.Line(line_geometry, line_material);
 				line.position.set(0, 0, 0)
-				//scene.add(line);
+				scene.add(line);
 
 			}
 
