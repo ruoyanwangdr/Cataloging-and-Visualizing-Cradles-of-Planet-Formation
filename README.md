@@ -47,3 +47,4 @@ Disk models (in .html format) are shown with their host stars (shown with 'model
 ```
 cd Cataloging-and-Visualizing-Cradles-of-Planet-Formation/diskmodel
 ```
+For disk polarization to show up correctly, the disk parameters should be set up accordingly. Basic knowledge of javascript and three.js is required to do so. 

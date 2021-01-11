@@ -135,14 +135,14 @@
 			// Camera 1 setup
 			const fov = 40;
 			const aspect = 2;
-			const near = 1;
-			const far = 350;
+			const near = 40;
+			const far = 270;
 
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 
 			// Disk inclination set by initial camera position
 			const inclination = 90 - 13;
-			camera.position.set(0, 180, 180/(Math.tan(inclination * Math.PI / 180)));
+			camera.position.set(0, 180, 180 / (Math.tan(inclination * Math.PI / 180)));
 			camera.lookAt(0, 0, 0);
 
 			const cameraHelper = new THREE.CameraHelper(camera);
@@ -159,7 +159,7 @@
 				1, // near
 				1000, // far
 			);
-			camera2.position.set(0, 90, 90);
+			camera2.position.set(-60, 270, 240);
 			camera2.lookAt(0, 0, 0);
 
 			// Orbit control of camera 2
@@ -170,7 +170,7 @@
 			// Blackground setup and camera helper
 			const scene = new THREE.Scene();
 			scene.background = new THREE.Color('black');
-			//scene.add(cameraHelper);
+			scene.add(cameraHelper);
 
 			/*// Construct GUI for camera
 			const gui = new dat.GUI({
@@ -249,7 +249,7 @@
 				disk.receiveShadow = true;
 				disk.position.set(0, 0, 0);
 				//disk.rotation.x = -Math.PI / 2.0;
-				//scene.add(disk);
+				scene.add(disk);
 
 				//const disk_helper = new THREE.FaceNormalsHelper(disk, 1, 0x00ff00, 1);
 				//scene.add(disk_helper);
@@ -275,7 +275,7 @@
 				});
 				const line = new THREE.Line(line_geometry, line_material);
 				line.position.set(0, 0, 0)
-				scene.add(line);
+				//scene.add(line);
 
 				const line_geometry2 = new THREE.BufferGeometry().setFromPoints(points_flared);
 				const line_material2 = new THREE.LineBasicMaterial({
@@ -437,8 +437,8 @@
 					let ffit = new Array();
 
 					for (i = 0; i < x_new.length; i++) {
-						ffit[i] = Henyey_Greenstein_2(g1, w1, g2, w2, x_new[i]);
-						//ffit[i] = Polynomial_HD97048(x_new[i]);
+						//ffit[i] = Henyey_Greenstein_2(g1, w1, g2, w2, x_new[i]);
+						ffit[i] = Polynomial_HD97048(x_new[i]);
 						//ffit[i] = Polynomial_BCCA(x_new[i])
 					}
 
@@ -485,36 +485,43 @@
 							(Math.pow(scattering_angle_cos, 2) + 1);
 						pe[i] = polarization_efficiency;
 
+						// Scattering angle filter
 						// Filter out angles corresponding to extreme phase function or out of ranges
+
+						/*
 						// for 2-comp. HG
-						/*if (scattering_angle < (20 * Math.PI / 180)) {
+						if (scattering_angle < (20 * Math.PI / 180)) {
 							scattering_angle = (20 * Math.PI / 180)
-						};*/
+						};
+						*/
+
 						// for Polynomial_HD97048
-						/*if (scattering_angle < (37.69 * Math.PI / 180)) {
+						if (scattering_angle < (37.69 * Math.PI / 180)) {
 							scattering_angle = (37.69 * Math.PI / 180)
 						} else if (scattering_angle > (115.97 * Math.PI / 180)) {
 							scattering_angle = (115.97 * Math.PI / 180)
 						} else {
 							// do nothing
-						};*/
+						};
+						
+						// No scattering angle filter required for Polynomial_BCCA and Polynomial_BPCA
 
 						scatter_angle[i] = scattering_angle * (180 / Math.PI);
 
 						// Compute total intensity
 						//const total_intensity = Henyey_Greenstein_2(g1, w1, g2, w2, scattering_angle) / Henyey_Greenstein_2(g1, w1, g2, w2, (20 * Math.PI / 180));
-						//const total_intensity = Polynomial_HD97048(scattering_angle * 180 / Math.PI);
+						const total_intensity = Polynomial_HD97048(scattering_angle * 180 / Math.PI);
 						//const total_intensity = Polynomial_BCCA(scattering_angle * 180 / Math.PI) / Polynomial_BCCA(0);
-						const total_intensity = Polynomial_BPCA(scattering_angle * 180 / Math.PI) / Polynomial_BPCA(0);
+						//const total_intensity = Polynomial_BPCA(scattering_angle * 180 / Math.PI) / Polynomial_BPCA(0);
 						total_int[i] = total_intensity;
 
 						// Multiply with polar efficiency to compute the actual intensity
 						const polarized_intensity = total_intensity * polarization_efficiency /
 							//1; // without renormalization
 							//0.3316057518026013; // 2-comp. HG
-							//0.23129628768357163; // Polynomial_HD97048
-							//0.37218502666498643; // Polynomial_BCCA
-							0.3536626807797615; // Polynomial_BPCA
+							0.23129628768357163; // Polynomial_HD97048
+						//0.37218502666498643; // Polynomial_BCCA
+						//0.3536626807797615; // Polynomial_BPCA
 
 						polar_int[i] = polarized_intensity;
 
@@ -527,7 +534,7 @@
 							face_normal.normalize()));
 						tit[i] = tilt_angle;
 
-						if (tilt_angle > Math.PI/2) {
+						if (tilt_angle > Math.PI / 2) {
 							disk.geometry.faces[i].color.setScalar(0);
 						};
 					}
