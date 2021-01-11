@@ -9,8 +9,8 @@ Recently the first VLT/SPHERE survey of such disks came to a conclusion. At the 
 
 The goal is on the one hand to design an efficient tool for researchers, which can be easily queried, maintained and updated, and on the other hand a visualization experience for a general audience. One possibility that can be explored would be the (simplified) 3d reconstruction of circumstellar disks from 2d data.
 
-A research blog to track the work done can be found [here](https://rywjhzd.github.io/posts/2019/09/cataloging-visualizing-circumstellar-disks). 
-The database is created with Django and DataTables. Disk models make uses of threejs.org examples. 
+A full and detailed description of the whole project can be found [here](https://rywjhzd.github.io/files/Cataloging_and_Visualizing_Cradles_of_Planet_Formation.pdf). 
+The database is created with Django and DataTables. Disk models make use of threejs.org examples. 
 
 ## Database Access
 
